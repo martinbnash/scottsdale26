@@ -26,7 +26,6 @@
       --blue: #3b82f6;
       --red: #ef4444;
       --gold: #fbbf24;
-      --green: #22c55e;
     }
 
     * {
@@ -35,643 +34,318 @@
 
     body {
       margin: 0;
-      background:
-        linear-gradient(
-          160deg,
-          #0b1220,
-          #111c2f
-        );
-
+      background: linear-gradient(
+        160deg,
+        #0b1220,
+        #111c2f
+      );
       color: var(--text);
-
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+      font-family: Arial, Helvetica, sans-serif;
       min-height: 100vh;
     }
 
     header {
       text-align: center;
-
-      padding:
-        25px
-        15px
-        15px;
-
-      border-bottom:
-        1px
-        solid
-        var(--line);
+      padding: 25px 15px 15px;
+      border-bottom: 1px solid var(--line);
     }
 
     h1 {
       margin: 0;
-
-      font-size:
-        clamp(
-          28px,
-          6vw,
-          44px
-        );
-
+      font-size: clamp(28px, 6vw, 44px);
       letter-spacing: 1px;
     }
 
     .subtitle {
-      color:
-        var(--muted);
-
-      margin-top:
-        6px;
-
-      font-weight:
-        bold;
+      color: var(--muted);
+      margin-top: 6px;
+      font-weight: bold;
     }
 
     .tabs {
-      display:
-        flex;
-
-      justify-content:
-        center;
-
-      gap:
-        8px;
-
-      flex-wrap:
-        wrap;
-
-      padding:
-        20px
-        10px
-        10px;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 20px 10px 10px;
     }
 
     .tab {
-      border:
-        1px
-        solid
-        var(--line);
-
-      background:
-        var(--panel);
-
-      color:
-        var(--muted);
-
-      border-radius:
-        10px;
-
-      padding:
-        12px
-        18px;
-
-      font-weight:
-        bold;
-
-      cursor:
-        pointer;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .tab.active {
-      background:
-        var(--gold);
-
-      color:
-        #111827;
-
-      border-color:
-        var(--gold);
+      background: var(--gold);
+      color: #111827;
+      border-color: var(--gold);
     }
 
     .course {
-      text-align:
-        center;
-
-      color:
-        var(--muted);
-
-      margin-bottom:
-        15px;
-
-      font-weight:
-        bold;
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 15px;
+      font-weight: bold;
     }
 
     .board {
-      max-width:
-        1100px;
-
-      margin:
-        auto;
-
-      padding:
-        0
-        15px
-        50px;
+      max-width: 1100px;
+      margin: auto;
+      padding: 0 15px 50px;
     }
 
     .instructions {
-      text-align:
-        center;
-
-      background:
-        var(--panel);
-
-      border:
-        1px
-        solid
-        var(--gold);
-
-      color:
-        #fde68a;
-
-      padding:
-        12px;
-
-      border-radius:
-        10px;
-
-      margin-bottom:
-        15px;
-
-      font-weight:
-        bold;
+      text-align: center;
+      background: var(--panel);
+      border: 1px solid var(--gold);
+      color: #fde68a;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-weight: bold;
     }
 
     .matches {
-      display:
-        grid;
-
-      gap:
-        15px;
+      display: grid;
+      gap: 15px;
     }
 
     .match {
-      background:
-        var(--panel);
-
-      border:
-        1px
-        solid
-        var(--line);
-
-      border-radius:
-        15px;
-
-      padding:
-        15px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 15px;
     }
 
     .match-title {
-      text-align:
-        center;
-
-      color:
-        var(--gold);
-
-      font-weight:
-        bold;
-
-      margin-bottom:
-        12px;
-
-      font-size:
-        18px;
+      text-align: center;
+      color: var(--gold);
+      font-weight: bold;
+      margin-bottom: 12px;
+      font-size: 18px;
     }
 
     .match-row {
-      display:
-        grid;
-
-      grid-template-columns:
-        1fr
-        60px
-        1fr;
-
-      gap:
-        12px;
-
-      align-items:
-        center;
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 12px;
+      align-items: center;
     }
 
     .pairing-side {
-      background:
-        #111827;
-
-      padding:
-        10px;
-
-      border-radius:
-        12px;
+      background: #111827;
+      padding: 10px;
+      border-radius: 12px;
     }
 
     .pair-label {
-      text-align:
-        center;
-
-      font-size:
-        12px;
-
-      font-weight:
-        bold;
-
-      color:
-        var(--muted);
-
-      margin-bottom:
-        8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--muted);
+      margin-bottom: 8px;
     }
 
     .player-slots {
-      display:
-        grid;
-
-      grid-template-columns:
-        1fr
-        1fr;
-
-      gap:
-        8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
 
     .slot {
-      min-height:
-        60px;
-
-      background:
-        #0f172a;
-
-      border:
-        2px
-        dashed
-        var(--line);
-
-      border-radius:
-        10px;
-
-      display:
-        flex;
-
-      flex-direction:
-        column;
-
-      align-items:
-        center;
-
-      justify-content:
-        center;
-
-      text-align:
-        center;
-
-      padding:
-        8px;
-
-      font-weight:
-        bold;
-
-      cursor:
-        pointer;
+      min-height: 60px;
+      background: #0f172a;
+      border: 2px dashed var(--line);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .clayton-slot {
-      border-color:
-        var(--blue);
+      border-color: var(--blue);
     }
 
     .ryan-slot {
-      border-color:
-        var(--red);
+      border-color: var(--red);
     }
 
     .slot-handicap {
-      font-size:
-        12px;
-
-      color:
-        var(--muted);
-
-      margin-top:
-        3px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
     }
 
     .vs {
-      text-align:
-        center;
-
-      font-weight:
-        bold;
-
-      color:
-        var(--muted);
-
-      font-size:
-        18px;
+      text-align: center;
+      font-weight: bold;
+      color: var(--muted);
+      font-size: 18px;
     }
 
     .rosters {
-      display:
-        grid;
-
-      grid-template-columns:
-        1fr
-        1fr;
-
-      gap:
-        15px;
-
-      margin-top:
-        25px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 25px;
     }
 
     .roster {
-      background:
-        var(--panel);
-
-      border:
-        1px
-        solid
-        var(--line);
-
-      border-radius:
-        15px;
-
-      padding:
-        15px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 15px;
     }
 
     .roster h2 {
-      text-align:
-        center;
-
-      margin-top:
-        0;
+      text-align: center;
+      margin-top: 0;
     }
 
     .blue-title {
-      color:
-        #93c5fd;
+      color: #93c5fd;
     }
 
     .red-title {
-      color:
-        #fca5a5;
+      color: #fca5a5;
     }
 
     .players {
-      display:
-        grid;
-
-      grid-template-columns:
-        repeat(2, 1fr);
-
-      gap:
-        8px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
     }
 
     .player {
-      border-radius:
-        10px;
-
-      padding:
-        12px
-        8px;
-
-      font-weight:
-        bold;
-
-      cursor:
-        pointer;
-
-      background:
-        var(--card);
-
-      color:
-        white;
-
-      text-align:
-        center;
+      border-radius: 10px;
+      padding: 12px 8px;
+      font-weight: bold;
+      cursor: pointer;
+      background: var(--card);
+      color: white;
+      text-align: center;
     }
 
     .clayton-player {
-      border:
-        2px
-        solid
-        var(--blue);
+      border: 2px solid var(--blue);
     }
 
     .ryan-player {
-      border:
-        2px
-        solid
-        var(--red);
+      border: 2px solid var(--red);
     }
 
     .player.selected {
-      border-color:
-        var(--gold);
-
-      color:
-        var(--gold);
-
-      box-shadow:
-        0
-        0
-        0
-        2px
-        rgba(
-          251,
-          191,
-          36,
-          .3
-        );
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(251,191,36,.3);
     }
 
     .player.used {
-      opacity:
-        .35;
-
-      cursor:
-        not-allowed;
+      opacity: .35;
+      cursor: not-allowed;
     }
 
     .handicap {
-      display:
-        block;
-
-      font-size:
-        12px;
-
-      color:
-        var(--muted);
-
-      margin-top:
-        4px;
-    }
-
-    .controls {
-      text-align:
-        center;
-
-      margin-top:
-        20px;
-    }
-
-    .controls button {
-      border:
-        0;
-
-      padding:
-        12px
-        20px;
-
-      border-radius:
-        10px;
-
-      font-weight:
-        bold;
-
-      cursor:
-        pointer;
-
-      margin:
-        4px;
-    }
-
-    .clear {
-      background:
-        #475569;
-
-      color:
-        white;
-    }
-
-    .reset {
-      background:
-        #991b1b;
-
-      color:
-        white;
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
     }
 
     .pairing-history {
-      margin-top:
-        25px;
-
-      background:
-        var(--panel);
-
-      border:
-        1px
-        solid
-        var(--gold);
-
-      border-radius:
-        15px;
-
-      padding:
-        20px;
+      margin-top: 25px;
+      background: var(--panel);
+      border: 1px solid var(--gold);
+      border-radius: 15px;
+      padding: 20px;
     }
 
     .history-title {
-      text-align:
-        center;
-
-      color:
-        var(--gold);
-
-      font-size:
-        22px;
-
-      font-weight:
-        bold;
-
-      margin-bottom:
-        10px;
+      text-align: center;
+      color: var(--gold);
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .history-subtitle {
-      text-align:
-        center;
-
-      color:
-        var(--muted);
-
-      margin-bottom:
-        20px;
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 20px;
     }
 
     .history-section {
-      margin-top:
-        20px;
+      margin-top: 20px;
     }
 
     .history-section h3 {
-      color:
-        var(--text);
-
-      border-bottom:
-        1px
-        solid
-        var(--line);
-
-      padding-bottom:
-        8px;
+      color: var(--text);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
     }
 
     .history-row {
-      padding:
-        12px
-        0;
-
-      border-bottom:
-        1px
-        solid
-        var(--line);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
     }
 
     .history-player {
-      font-weight:
-        bold;
-
-      color:
-        var(--gold);
-
-      margin-bottom:
-        5px;
+      font-weight: bold;
+      color: var(--gold);
+      margin-bottom: 5px;
     }
 
     .history-names {
-      color:
-        var(--muted);
-
-      line-height:
-        1.5;
+      color: var(--muted);
+      line-height: 1.5;
     }
 
-    @media (
-      max-width: 650px
-    ) {
+    .controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .controls button {
+      border: 0;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .clear {
+      background: #475569;
+      color: white;
+    }
+
+    .reset {
+      background: #991b1b;
+      color: white;
+    }
+
+    @media (max-width: 650px) {
 
       .match-row {
-        grid-template-columns:
-          1fr
-          35px
-          1fr;
+        grid-template-columns: 1fr 35px 1fr;
       }
 
       .player-slots {
-        grid-template-columns:
-          1fr;
+        grid-template-columns: 1fr;
       }
 
       .rosters {
-        grid-template-columns:
-          1fr;
+        grid-template-columns: 1fr;
       }
 
     }
@@ -684,9 +358,7 @@
 
   <header>
 
-    <h1>
-      SCOTTSDALE 26 CHAMPIONSHIP
-    </h1>
+    <h1>SCOTTSDALE 26 CHAMPIONSHIP</h1>
 
     <div class="subtitle">
       Captain Pairings Board
@@ -694,46 +366,26 @@
 
   </header>
 
+  <div class="tabs" id="tabs"></div>
 
-  <div
-    class="tabs"
-    id="tabs"
-  ></div>
-
-
-  <div
-    class="course"
-    id="course"
-  ></div>
-
+  <div class="course" id="course"></div>
 
   <div class="board">
 
-
-    <div
-      class="instructions"
-      id="instructions"
-    >
-
+    <div class="instructions">
       Select a player, then tap an empty pairing slot.
-
     </div>
 
+    <!-- MATCHES FIRST -->
 
     <div
       class="matches"
       id="matches"
     ></div>
 
-
-    <div
-      id="pairingHistory"
-      class="pairing-history"
-    ></div>
-
+    <!-- PLAYER SELECTION SECOND -->
 
     <div class="rosters">
-
 
       <div class="roster">
 
@@ -748,7 +400,6 @@
 
       </div>
 
-
       <div class="roster">
 
         <h2 class="red-title">
@@ -762,9 +413,16 @@
 
       </div>
 
-
     </div>
 
+    <!-- PAIRING HISTORY THIRD -->
+
+    <div
+      id="pairingHistory"
+      class="pairing-history"
+    ></div>
+
+    <!-- CONTROLS LAST -->
 
     <div class="controls">
 
@@ -784,47 +442,38 @@
 
     </div>
 
-
   </div>
 
-
   <script>
-
 
     const rounds = [
 
       {
         name: "Round 1",
-        course:
-          "Dinosaur Mountain • September 24"
+        course: "Dinosaur Mountain • September 24"
       },
 
       {
         name: "Round 2",
-        course:
-          "We-Ko-Pa Cholla • September 25 AM"
+        course: "We-Ko-Pa Cholla • September 25 AM"
       },
 
       {
         name: "Round 3",
-        course:
-          "We-Ko-Pa Saguaro • September 25 PM"
+        course: "We-Ko-Pa Saguaro • September 25 PM"
       },
 
       {
         name: "Round 4",
-        course:
-          "We-Ko-Pa Saguaro • September 26"
+        course: "We-Ko-Pa Saguaro • September 26"
       },
 
       {
         name: "Round 5",
-        course:
-          "We-Ko-Pa Cholla • September 27"
+        course: "We-Ko-Pa Cholla • September 27"
       }
 
     ];
-
 
     const claytonTeam = [
 
@@ -860,7 +509,6 @@
 
     ];
 
-
     const ryanTeam = [
 
       {
@@ -895,66 +543,39 @@
 
     ];
 
-
     const allPlayers = [
-
       ...claytonTeam,
-
       ...ryanTeam
-
     ];
 
-
     let currentRound = 0;
-
     let selectedPlayer = null;
 
-
     let pairings = JSON.parse(
-
       localStorage.getItem(
         "scottsdale26Pairings"
       )
-
     ) || {};
 
-
-
-    function getPlayer(
-      name
-    ) {
+    function getPlayer(name) {
 
       return allPlayers.find(
-
-        player =>
-          player.name === name
-
+        player => player.name === name
       );
 
     }
 
-
-
-    function getPlayerNames(
-      team
-    ) {
+    function getPlayerNames(team) {
 
       return team.map(
-
-        player =>
-          player.name
-
+        player => player.name
       );
 
     }
-
-
 
     function getRoundData() {
 
-      if (
-        !pairings[currentRound]
-      ) {
+      if (!pairings[currentRound]) {
 
         pairings[currentRound] = [
 
@@ -977,29 +598,18 @@
 
       }
 
-      return pairings[
-        currentRound
-      ];
+      return pairings[currentRound];
 
     }
-
-
 
     function saveData() {
 
       localStorage.setItem(
-
         "scottsdale26Pairings",
-
-        JSON.stringify(
-          pairings
-        )
-
+        JSON.stringify(pairings)
       );
 
     }
-
-
 
     function render() {
 
@@ -1008,9 +618,7 @@
       document.getElementById(
         "course"
       ).textContent =
-        rounds[
-          currentRound
-        ].course;
+        rounds[currentRound].course;
 
       renderMatches();
 
@@ -1020,8 +628,6 @@
 
     }
 
-
-
     function renderTabs() {
 
       document.getElementById(
@@ -1029,102 +635,58 @@
       ).innerHTML =
 
         rounds.map(
-
-          (
-            round,
-            index
-          ) => `
+          (round, index) => `
 
             <button
-
-              class="
-                tab
-                ${
-                  index === currentRound
-                    ? "active"
-                    : ""
-                }
-              "
-
-              onclick="
-                changeRound(
-                  ${index}
-                )
-              "
-
+              class="tab ${
+                index === currentRound
+                  ? "active"
+                  : ""
+              }"
+              onclick="changeRound(${index})"
             >
-
               ${round.name}
-
             </button>
 
           `
-
         ).join("");
 
     }
-
-
 
     function renderMatches() {
 
       const roundData =
         getRoundData();
 
-
       document.getElementById(
         "matches"
       ).innerHTML =
 
         roundData.map(
-
-          (
-            match,
-            matchIndex
-          ) => `
+          (match, matchIndex) => `
 
             <div class="match">
 
-
               <div class="match-title">
-
-                MATCH
-                ${matchIndex + 1}
-
+                MATCH ${matchIndex + 1}
               </div>
-
 
               <div class="match-row">
 
-
                 <div class="pairing-side">
 
-
                   <div class="pair-label">
-
                     CLAYTON'S TEAM
-
                   </div>
-
 
                   <div class="player-slots">
 
                     ${
-
                       match.clayton.map(
-
-                        (
-                          player,
-                          slotIndex
-                        ) => `
+                        (player, slotIndex) => `
 
                           <div
-
-                            class="
-                              slot
-                              clayton-slot
-                            "
-
+                            class="slot clayton-slot"
                             onclick="
                               placePlayer(
                                 ${matchIndex},
@@ -1132,91 +694,59 @@
                                 ${slotIndex}
                               )
                             "
-
                           >
 
                             ${
-
                               player
 
                                 ? `
 
                                   <div>
-
                                     ${player}
-
                                   </div>
 
                                   <div
-                                    class="
-                                      slot-handicap
-                                    "
+                                    class="slot-handicap"
                                   >
-
-                                    HCP
-                                    ${
-                                      getPlayer(
-                                        player
-                                      ).handicap
+                                    HCP ${
+                                      getPlayer(player)
+                                        .handicap
                                     }
-
                                   </div>
 
                                 `
 
                                 : "Select Player"
-
                             }
 
                           </div>
 
                         `
-
                       ).join("")
-
                     }
 
                   </div>
 
-
                 </div>
-
 
                 <div class="vs">
-
                   VS
-
                 </div>
-
 
                 <div class="pairing-side">
 
-
                   <div class="pair-label">
-
                     RYAN'S TEAM
-
                   </div>
-
 
                   <div class="player-slots">
 
                     ${
-
                       match.ryan.map(
-
-                        (
-                          player,
-                          slotIndex
-                        ) => `
+                        (player, slotIndex) => `
 
                           <div
-
-                            class="
-                              slot
-                              ryan-slot
-                            "
-
+                            class="slot ryan-slot"
                             onclick="
                               placePlayer(
                                 ${matchIndex},
@@ -1224,155 +754,104 @@
                                 ${slotIndex}
                               )
                             "
-
                           >
 
                             ${
-
                               player
 
                                 ? `
 
                                   <div>
-
                                     ${player}
-
                                   </div>
 
                                   <div
-                                    class="
-                                      slot-handicap
-                                    "
+                                    class="slot-handicap"
                                   >
-
-                                    HCP
-                                    ${
-                                      getPlayer(
-                                        player
-                                      ).handicap
+                                    HCP ${
+                                      getPlayer(player)
+                                        .handicap
                                     }
-
                                   </div>
 
                                 `
 
                                 : "Select Player"
-
                             }
 
                           </div>
 
                         `
-
                       ).join("")
-
                     }
 
                   </div>
 
-
                 </div>
 
-
               </div>
-
 
             </div>
 
           `
-
         ).join("");
 
     }
-
-
 
     function getUsedPlayers() {
 
       return getRoundData()
 
         .flatMap(
-
           match => [
-
             ...match.clayton,
-
             ...match.ryan
-
           ]
-
         )
 
         .filter(
-
           player => player
-
         );
 
     }
-
-
 
     function renderPlayers() {
 
       const usedPlayers =
         getUsedPlayers();
 
-
       document.getElementById(
         "claytonPlayers"
       ).innerHTML =
 
         claytonTeam.map(
-
           player =>
-
             playerButton(
-
               player,
-
               "clayton-player",
-
               usedPlayers
-
             )
-
         ).join("");
-
-
 
       document.getElementById(
         "ryanPlayers"
       ).innerHTML =
 
         ryanTeam.map(
-
           player =>
-
             playerButton(
-
               player,
-
               "ryan-player",
-
               usedPlayers
-
             )
-
         ).join("");
 
     }
 
-
-
     function playerButton(
-
       player,
-
       teamClass,
-
       usedPlayers
-
     ) {
 
       const used =
@@ -1380,69 +859,42 @@
           player.name
         );
 
-
       return `
 
         <button
-
           class="
-
             player
-
             ${teamClass}
-
             ${
-              selectedPlayer ===
-              player.name
-
+              selectedPlayer === player.name
                 ? "selected"
-
                 : ""
-
             }
-
             ${
               used
-
                 ? "used"
-
                 : ""
-
             }
-
           "
-
           onclick="
             selectPlayer(
               '${player.name}'
             )
           "
-
           ${
             used
-
               ? "disabled"
-
               : ""
-
           }
-
         >
 
           <span>
-
             ${player.name}
-
           </span>
-
 
           <span class="handicap">
-
-            HCP
-            ${player.handicap}
-
+            HCP ${player.handicap}
           </span>
-
 
         </button>
 
@@ -1450,40 +902,24 @@
 
     }
 
-
-
-    function selectPlayer(
-      player
-    ) {
+    function selectPlayer(player) {
 
       selectedPlayer =
-
         selectedPlayer === player
-
           ? null
-
           : player;
-
 
       render();
 
     }
 
-
-
     function placePlayer(
-
       matchIndex,
-
       team,
-
       slotIndex
-
     ) {
 
-      if (
-        !selectedPlayer
-      ) {
+      if (!selectedPlayer) {
 
         alert(
           "Select a player first."
@@ -1493,29 +929,21 @@
 
       }
 
-
       const claytonNames =
         getPlayerNames(
           claytonTeam
         );
-
 
       const ryanNames =
         getPlayerNames(
           ryanTeam
         );
 
-
       if (
-
-        team === "clayton"
-
-        &&
-
+        team === "clayton" &&
         !claytonNames.includes(
           selectedPlayer
         )
-
       ) {
 
         alert(
@@ -1526,17 +954,11 @@
 
       }
 
-
       if (
-
-        team === "ryan"
-
-        &&
-
+        team === "ryan" &&
         !ryanNames.includes(
           selectedPlayer
         )
-
       ) {
 
         alert(
@@ -1547,10 +969,8 @@
 
       }
 
-
       const roundData =
         getRoundData();
-
 
       roundData[
         matchIndex
@@ -1560,9 +980,7 @@
         slotIndex
       ] = selectedPlayer;
 
-
       selectedPlayer = null;
-
 
       saveData();
 
@@ -1570,42 +988,27 @@
 
     }
 
+    function changeRound(index) {
 
+      currentRound = index;
 
-    function changeRound(
-      index
-    ) {
-
-      currentRound =
-        index;
-
-      selectedPlayer =
-        null;
+      selectedPlayer = null;
 
       render();
 
     }
 
-
-
     function clearRound() {
 
       if (
-
         !confirm(
           "Clear this round?"
         )
-
       ) {
-
         return;
-
       }
 
-
-      pairings[
-        currentRound
-      ] = [
+      pairings[currentRound] = [
 
         {
           clayton: ["", ""],
@@ -1624,40 +1027,27 @@
 
       ];
 
-
-      selectedPlayer =
-        null;
-
+      selectedPlayer = null;
 
       saveData();
 
       render();
 
     }
-
-
 
     function resetAll() {
 
       if (
-
         !confirm(
           "Reset all five rounds?"
         )
-
       ) {
-
         return;
-
       }
-
 
       pairings = {};
 
-
-      selectedPlayer =
-        null;
-
+      selectedPlayer = null;
 
       saveData();
 
@@ -1665,26 +1055,14 @@
 
     }
 
-
-
     function renderPairingHistory() {
 
-
       const historyDiv =
-
         document.getElementById(
           "pairingHistory"
         );
 
-
-      /*
-      Do not show history
-      on Round 1
-      */
-
-      if (
-        currentRound === 0
-      ) {
+      if (currentRound === 0) {
 
         historyDiv.style.display =
           "none";
@@ -1693,113 +1071,57 @@
 
       }
 
-
       historyDiv.style.display =
         "block";
 
-
       const playerNames =
-
         allPlayers.map(
-
-          player =>
-            player.name
-
+          player => player.name
         );
-
 
       const teammates = {};
-
       const opponents = {};
 
-
       playerNames.forEach(
-
         player => {
 
-          teammates[
-            player
-          ] =
+          teammates[player] =
             new Set();
 
-
-          opponents[
-            player
-          ] =
+          opponents[player] =
             new Set();
 
         }
-
       );
 
-
-      /*
-      Loop through all
-      completed previous rounds
-      */
-
       for (
-
         let roundIndex = 0;
-
-        roundIndex <
-          currentRound;
-
+        roundIndex < currentRound;
         roundIndex++
-
       ) {
 
-
         const round =
+          pairings[roundIndex];
 
-          pairings[
-            roundIndex
-          ];
-
-
-        if (
-          !round
-        ) {
-
+        if (!round) {
           continue;
-
         }
 
-
         round.forEach(
-
           match => {
 
-
             const claytonPair =
-
               match.clayton.filter(
-
-                player =>
-                  player
-
+                player => player
               );
-
 
             const ryanPair =
-
               match.ryan.filter(
-
-                player =>
-                  player
-
+                player => player
               );
 
-
-            /*
-            Record teammates
-            */
-
-
             if (
-
               claytonPair.length === 2
-
             ) {
 
               teammates[
@@ -1808,7 +1130,6 @@
                 claytonPair[1]
               );
 
-
               teammates[
                 claytonPair[1]
               ].add(
@@ -1816,12 +1137,9 @@
               );
 
             }
-
 
             if (
-
               ryanPair.length === 2
-
             ) {
 
               teammates[
@@ -1830,7 +1148,6 @@
                 ryanPair[1]
               );
 
-
               teammates[
                 ryanPair[1]
               ].add(
@@ -1838,302 +1155,181 @@
               );
 
             }
-
-
-            /*
-            Record opponents
-            */
-
 
             claytonPair.forEach(
-
               claytonPlayer => {
 
-
                 ryanPair.forEach(
-
                   ryanPlayer => {
 
-
                     opponents[
                       claytonPlayer
                     ].add(
                       ryanPlayer
                     );
 
-
                     opponents[
                       ryanPlayer
                     ].add(
                       claytonPlayer
                     );
-
 
                   }
-
                 );
 
-
               }
-
             );
 
-
           }
-
         );
-
 
       }
 
-
-      let teammateHTML =
-        "";
-
-      let opponentHTML =
-        "";
-
+      let teammateHTML = "";
+      let opponentHTML = "";
 
       playerNames.forEach(
-
         player => {
 
-
           const playerData =
-            getPlayer(
-              player
-            );
-
+            getPlayer(player);
 
           const isClaytonTeam =
-
             getPlayerNames(
               claytonTeam
-            ).includes(
-              player
-            );
-
+            ).includes(player);
 
           const sameTeam =
-
             isClaytonTeam
-
               ? getPlayerNames(
                   claytonTeam
                 )
-
               : getPlayerNames(
                   ryanTeam
                 );
-
 
           const oppositeTeam =
-
             isClaytonTeam
-
               ? getPlayerNames(
                   ryanTeam
                 )
-
               : getPlayerNames(
                   claytonTeam
                 );
 
-
           const availableTeammates =
-
             sameTeam.filter(
-
               otherPlayer =>
-
-                otherPlayer !== player
-
-                &&
-
+                otherPlayer !== player &&
                 !teammates[
                   player
                 ].has(
                   otherPlayer
                 )
-
             );
 
-
           const availableOpponents =
-
             oppositeTeam.filter(
-
               otherPlayer =>
-
                 !opponents[
                   player
                 ].has(
                   otherPlayer
                 )
-
             );
-
 
           teammateHTML += `
 
-            <div
-              class="history-row"
-            >
-
+            <div class="history-row">
 
               <div
                 class="history-player"
               >
-
                 ${playerData.name}
-
                 • HCP
-
                 ${playerData.handicap}
-
               </div>
-
 
               <div
                 class="history-names"
               >
-
                 ${
-
                   availableTeammates.length
-
-                    ? availableTeammates.join(
-                        ", "
-                      )
-
+                    ? availableTeammates.join(", ")
                     : "Has played with everyone"
-
                 }
-
               </div>
-
 
             </div>
 
           `;
-
 
           opponentHTML += `
 
-            <div
-              class="history-row"
-            >
-
+            <div class="history-row">
 
               <div
                 class="history-player"
               >
-
                 ${playerData.name}
-
                 • HCP
-
                 ${playerData.handicap}
-
               </div>
-
 
               <div
                 class="history-names"
               >
-
                 ${
-
                   availableOpponents.length
-
-                    ? availableOpponents.join(
-                        ", "
-                      )
-
+                    ? availableOpponents.join(", ")
                     : "Has played against everyone"
-
                 }
-
               </div>
-
 
             </div>
 
           `;
 
-
         }
-
       );
-
 
       historyDiv.innerHTML = `
 
-
-        <div
-          class="history-title"
-        >
-
+        <div class="history-title">
           PAIRING HISTORY
-
         </div>
 
-
-        <div
-          class="history-subtitle"
-        >
-
+        <div class="history-subtitle">
           Based on all previous rounds
-
         </div>
 
-
-        <div
-          class="history-section"
-        >
-
+        <div class="history-section">
 
           <h3>
-
             Players Not Yet Paired With
-
           </h3>
-
 
           ${teammateHTML}
 
-
         </div>
 
-
-        <div
-          class="history-section"
-        >
-
+        <div class="history-section">
 
           <h3>
-
             Players Not Yet Played Against
-
           </h3>
-
 
           ${opponentHTML}
 
-
         </div>
-
 
       `;
 
     }
 
-
     render();
 
-
   </script>
-
 
 </body>
 
