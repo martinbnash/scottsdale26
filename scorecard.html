@@ -14,7 +14,17 @@
   </title>
 
   <style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script>
+const SUPABASE_URL = "https://dxajaneijkryywjoveac.supabase.co";
+const SUPABASE_KEY = "sb_publishable__CPedEYs1OS2ZYZh2DieiQ_0Ww_0e5k";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+</script>
     :root {
       --bg: #0b1220;
       --panel: #172033;
