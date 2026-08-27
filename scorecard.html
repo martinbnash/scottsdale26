@@ -232,6 +232,9 @@
       font-weight: bold;
     }
 
+    .score-cell { position: relative; }
+    .stroke-dot { position:absolute; top:4px; right:5px; width:8px; height:8px; border-radius:50%; background:var(--gold); border:1px solid #8a5b00; box-shadow:0 0 4px rgba(251,191,36,.85); pointer-events:none; }
+
     .match-results {
       margin-top: 15px;
       background: var(--card);
@@ -415,83 +418,8 @@
       =====================================================
     */
 
-    const pairings = {
-
-      1: [
-        {
-          ryan: ["Jon", "Ryan D"],
-          clayton: ["Marty", "Aaron"]
-        },
-        {
-          ryan: ["Ryan", "Brad"],
-          clayton: ["Clayton", "Raymond"]
-        },
-        {
-          ryan: ["Brent", "Travis"],
-          clayton: ["Brian", "Michael"]
-        }
-      ],
-
-      2: [
-        {
-          ryan: ["Jon", "Brad"],
-          clayton: ["Marty", "Michael"]
-        },
-        {
-          ryan: ["Brent", "Ryan"],
-          clayton: ["Raymond", "Brian"]
-        },
-        {
-          ryan: ["Travis", "Ryan D"],
-          clayton: ["Clayton", "Aaron"]
-        }
-      ],
-
-      3: [
-        {
-          ryan: ["Brad", "Brent"],
-          clayton: ["Clayton", "Raymond"]
-        },
-        {
-          ryan: ["Ryan", "Travis"],
-          clayton: ["Michael", "Aaron"]
-        },
-        {
-          ryan: ["Jon", "Ryan D"],
-          clayton: ["Marty", "Brian"]
-        }
-      ],
-
-      4: [
-        {
-          ryan: ["Ryan", "Jon"],
-          clayton: ["Clayton", "Marty"]
-        },
-        {
-          ryan: ["Brent", "Ryan D"],
-          clayton: ["Aaron", "Raymond"]
-        },
-        {
-          ryan: ["Brad", "Travis"],
-          clayton: ["Brian", "Michael"]
-        }
-      ],
-
-      5: [
-        {
-          ryan: ["Jon", "Brad"],
-          clayton: ["Marty", "Brian"]
-        },
-        {
-          ryan: ["Ryan", "Brent"],
-          clayton: ["Clayton", "Raymond"]
-        },
-        {
-          ryan: ["Ryan D", "Travis"],
-          clayton: ["Michael", "Aaron"]
-        }
-      ]
-    };
+    /* Pairings are loaded live from Supabase. No names are hardcoded. */
+    let pairings = { 1: [], 2: [], 3: [], 4: [], 5: [] };
 
 
     /*
@@ -662,6 +590,32 @@
 
 
     /*
+       =====================================================
+       LOAD LIVE PAIRINGS
+       =====================================================
+     */
+    async function loadPairings() {
+      try {
+        const { data: pairingRows, error: pairingError } = await supabaseClient.from("pairings").select("*").eq("round_number", currentRound).order("pairing_number", { ascending: true });
+        if (pairingError) throw pairingError;
+        const { data: playerRows, error: playerError } = await supabaseClient.from("pairing_players").select("*");
+        if (playerError) throw playerError;
+        const loaded = [];
+        (pairingRows || []).forEach(pairing => {
+          const rows = (playerRows || []).filter(row => String(row.pairing_id) === String(pairing.id));
+          const ryan = rows.filter(row => String(row.side).toUpperCase() === "B").map(row => row.player_name).filter(Boolean);
+          const clayton = rows.filter(row => String(row.side).toUpperCase() === "A").map(row => row.player_name).filter(Boolean);
+          if (ryan.length === 2 && clayton.length === 2) loaded.push({ pairingNumber: Number(pairing.pairing_number), ryan, clayton });
+        });
+        pairings[currentRound] = loaded.sort((a,b) => a.pairingNumber - b.pairingNumber);
+      } catch (error) {
+        console.error("PAIRING LOAD ERROR:", error);
+        pairings[currentRound] = [];
+        showStatus("PAIRING LOAD ERROR: " + error.message, "error");
+      }
+    }
+
+    /*
       =====================================================
       LOAD SCORES
       =====================================================
@@ -724,67 +678,27 @@
     */
 
     function getPlayerCourseHandicap(playerName) {
-
-      /*
-        For now this uses the frozen tournament handicap.
-
-        We can replace this with exact course handicap
-        calculations once all course rating/slope values
-        are entered.
-      */
-
-      return Math.round(players[playerName].handicap);
+      const frozenHandicap = Number(players[playerName]?.handicap || 0);
+      return Math.round(frozenHandicap * 0.85);
     }
 
-
     function getsStrokesOnHole(playerName, holeIndex, course) {
-
-      const courseHandicap =
-        getPlayerCourseHandicap(playerName);
-
-      const holeRank =
-        course.handicap[holeIndex];
-
+      const playingHandicap = getPlayerCourseHandicap(playerName);
+      const holeRank = Number(course.handicap[holeIndex]);
       let strokes = 0;
-
-      if (courseHandicap >= holeRank) {
-        strokes++;
-      }
-
-      if (courseHandicap > 18 &&
-          courseHandicap - 18 >= holeRank) {
-        strokes++;
-      }
-
+      if (playingHandicap >= holeRank) strokes++;
+      if (playingHandicap > 18 && playingHandicap - 18 >= holeRank) strokes++;
       return strokes;
     }
 
-
-    function calculateNetScore(
-      playerName,
-      grossScore,
-      holeIndex,
-      course
-    ) {
-
-      if (
-        grossScore === "" ||
-        grossScore === null ||
-        grossScore === undefined
-      ) {
-        return "";
-      }
-
-      const strokes =
-        getsStrokesOnHole(
-          playerName,
-          holeIndex,
-          course
-        );
-
-      return Number(grossScore) - strokes;
+    function getsStrokeDot(playerName, holeIndex, course) {
+      return getsStrokesOnHole(playerName, holeIndex, course) > 0;
     }
 
+    function calculateNetScore(playerName, grossScore, holeIndex, course) {
+      if (grossScore === "" || grossScore === null || grossScore === undefined) return "";
+      return Number(grossScore) - getsStrokesOnHole(playerName, holeIndex, course);
+    }
 
     /*
       =====================================================
@@ -805,11 +719,14 @@
 
       container.innerHTML = "";
 
-      pairings[currentRound].forEach(
+      const roundPairings = pairings[currentRound] || [];
+      if (roundPairings.length === 0) {
+        container.innerHTML = `<div class="match"><div class="match-header"><h2>WAITING FOR PAIRINGS</h2><div class="vs">No completed pairings have been selected for this round yet. Once a pairing is set on the Pairings Board, it will appear here automatically.</div></div></div>`;
+        return;
+      }
+      roundPairings.forEach(
         (match, matchIndex) => {
-
-          const matchNumber =
-            matchIndex + 1;
+          const matchNumber = match.pairingNumber;
 
           const allPlayers = [
             ...match.ryan,
@@ -958,7 +875,7 @@
                     <br>
 
                     <small>
-                      HCP ${players[playerName].handicap}
+                      PLAYING HCP ${getPlayerCourseHandicap(playerName)} (85% of ${players[playerName].handicap})
                     </small>
 
                   </td>
@@ -985,7 +902,8 @@
                   scores[key] ?? "";
 
                 html += `
-                  <td>
+                  <td class="score-cell">
+                    ${getsStrokeDot(playerName, holeIndex, course) ? '<span class="stroke-dot" title="Stroke on this hole"></span>' : ''}
 
                     <input
                       class="score-input"
@@ -1163,8 +1081,8 @@
 
     function updatePlayerTotals(matchNumber) {
 
-      const match =
-        pairings[currentRound][matchNumber - 1];
+      const match = (pairings[currentRound] || []).find(m => Number(m.pairingNumber) === Number(matchNumber));
+      if (!match) return;
 
       const allPlayers = [
         ...match.ryan,
@@ -1258,8 +1176,8 @@
 
     function calculateMatch(matchNumber) {
 
-      const match =
-        pairings[currentRound][matchNumber - 1];
+      const match = (pairings[currentRound] || []).find(m => Number(m.pairingNumber) === Number(matchNumber));
+      if (!match) return;
 
       const course =
         getCourse(currentRound);
@@ -1765,6 +1683,7 @@
       );
 
 
+       await loadPairings();
       await loadScores();
 
       renderScorecards();
@@ -1788,11 +1707,20 @@
         return;
       }
 
+       await loadPairings();
       await loadScores();
 
       renderScorecards();
+       startRealtime();
     }
 
+
+     function startRealtime() {
+       supabaseClient.channel("scottsdale26-scorecard-pairings")
+         .on("postgres_changes", { event: "*", schema: "public", table: "pairings" }, async () => { await loadPairings(); renderScorecards(); })
+         .on("postgres_changes", { event: "*", schema: "public", table: "pairing_players" }, async () => { await loadPairings(); renderScorecards(); })
+         .subscribe();
+     }
 
     startApp();
 
