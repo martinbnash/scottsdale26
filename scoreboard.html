@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Scottsdale 26 Live Scoreboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #172033;
+      --card: #243247;
+      --line: #40516a;
+      --text: #f8fafc;
+      --muted: #a9b6c8;
+      --blue: #60a5fa;
+      --red: #f87171;
+      --gold: #fbbf24;
+      --green: #4ade80;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      text-align: center;
+      padding: 24px 15px 16px;
+      background: #111827;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      color: var(--gold);
+      margin-top: 8px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px;
+      flex-wrap: wrap;
+    }
+
+    .nav a {
+      background: var(--panel);
+      color: white;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .nav a:hover {
+      opacity: .85;
+    }
+
+    .container {
+      width: min(1500px, 95%);
+      margin: auto;
+      padding-bottom: 50px;
+    }
+
+    .status {
+      text-align: center;
+      margin: 10px auto 20px;
+      color: var(--muted);
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr 170px 1fr;
+      gap: 15px;
+      align-items: stretch;
+      margin-bottom: 25px;
+    }
+
+    .team-card {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .team-card.clayton {
+      border-color: var(--blue);
+    }
+
+    .team-card.ryan {
+      border-color: var(--red);
+    }
+
+    .team-name {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .team-points {
+      font-size: 72px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .clayton .team-points {
+      color: var(--blue);
+    }
+
+    .ryan .team-points {
+      color: var(--red);
+    }
+
+    .center-score {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-weight: bold;
+    }
+
+    .center-score .vs {
+      font-size: 34px;
+      color: var(--gold);
+    }
+
+    .leader {
+      margin-top: 12px;
+      color: var(--green);
+      text-align: center;
+    }
+
+    .round-section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .round-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .round-title h2 {
+      margin: 0;
+      color: var(--gold);
+    }
+
+    .round-total {
+      display: flex;
+      gap: 12px;
+      font-weight: bold;
+    }
+
+    .clayton-total {
+      color: var(--blue);
+    }
+
+    .ryan-total {
+      color: var(--red);
+    }
+
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .match-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 15px;
+    }
+
+    .match-card h3 {
+      margin: 0 0 12px;
+      text-align: center;
+      color: var(--gold);
+    }
+
+    .pairing {
+      text-align: center;
+      padding: 8px;
+      border-radius: 7px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .pairing.clayton {
+      background: #1e3a5f;
+    }
+
+    .pairing.ryan {
+      background: #5b2020;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .result-row:last-child {
+      border-bottom: 0;
+    }
+
+    .in-progress {
+      color: var(--muted);
+      text-align: center;
+      padding: 15px 5px;
+    }
+
+    .winner-clayton {
+      color: var(--blue);
+      font-weight: bold;
+    }
+
+    .winner-ryan {
+      color: var(--red);
+      font-weight: bold;
+    }
+
+    .tie {
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .details {
+      margin-top: 12px;
+      background: #111827;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .details-title {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .bonus-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 3px 0;
+    }
+
+    .last-update {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .scoreboard {
+        grid-template-columns: 1fr;
+      }
+
+      .center-score {
+        order: -1;
+      }
+
+      .match-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .team-points {
+        font-size: 56px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>SCOTTSDALE 26 CHAMPIONSHIP</h1>
+    <div class="subtitle">LIVE CHAMPIONSHIP SCOREBOARD</div>
+  </header>
+
+  <div class="nav">
+    <a href="index.html">Pairings Board</a>
+    <a href="scorecard.html">Live Scorecard</a>
+    <a href="scoreboard.html">Live Scoreboard</a>
+  </div>
+
+  <div class="container">
+
+    <div id="status" class="status">
+      Connecting to live scoreboard...
+    </div>
+
+    <div class="scoreboard">
+
+      <div class="team-card clayton">
+        <div class="team-name">TEAM CLAYTON</div>
+        <div class="team-points" id="claytonTotal">0</div>
+        <div>Championship Points</div>
+      </div>
+
+      <div class="center-score">
+        <div class="vs">VS</div>
+        <div class="leader" id="leaderText">
+          Waiting for scores
+        </div>
+      </div>
+
+      <div class="team-card ryan">
+        <div class="team-name">TEAM RYAN</div>
+        <div class="team-points" id="ryanTotal">0</div>
+        <div>Championship Points</div>
+      </div>
+
+    </div>
+
+    <div id="rounds"></div>
+
+    <div id="lastUpdate" class="last-update"></div>
+
+  </div>
+
+  <script>
+
+    /* =====================================================
+       SUPABASE
+    ===================================================== */
+
+    const SUPABASE_URL =
+      "https://ljgedmrpyuseamwmndwu.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_09A0o2ImL-FLS8AiunnNTw_iWP1tG8L";
+
+    const supabaseClient =
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+
+    /* =====================================================
+       PLAYER HANDICAPS
+
+       Using the same handicaps from the scorecard.
+    ===================================================== */
+
+    const players = {
+      "Clayton": 9.7,
+      "Marty": 7.2,
+      "Raymond": 15.1,
+      "Brian": 10.7,
+      "Michael": 19.4,
+      "Aaron": 20.7,
+      "Ryan": 14,
+      "Jon": 8,
+      "Ryan D": 19.9,
+      "Brad": 15.3,
+      "Brent": 11.4,
+      "Travis": 16
+    };
+
+
+    /* =====================================================
+       COURSE DATA
+
+       This matches the scorecard setup.
+
+       Round 1 - Dinosaur Mountain
+       Round 2 - Cholla
+       Round 3 - Saguaro
+       Round 4 - Saguaro
+       Round 5 - Cholla
+    ===================================================== */
+
+    const courses = {
+
+      1: {
+        name: "Dinosaur Mountain • Blue Tees",
+        pars: [
+          4,3,5,4,3,5,4,3,5,
+          3,5,4,5,3,4,5,3,4
+        ],
+        handicap: [
+          5,15,3,1,9,11,7,13,17,
+          16,18,12,2,6,4,14,8,10
+        ]
+      },
+
+      2: {
+        name: "We-Ko-Pa Cholla • Purple Tees",
+        pars: [
+          4,4,5,4,3,4,4,3,5,
+          4,5,3,4,4,3,5,4,4
+        ],
+        handicap: [
+          9,5,1,13,17,7,11,15,3,
+          12,4,18,6,10,16,2,8,14
+        ]
+      },
+
+      3: {
+        name: "We-Ko-Pa Saguaro • Purple Tees",
+        pars: [
+          4,4,5,4,3,4,4,3,5,
+          4,5,3,4,4,3,5,4,4
+        ],
+        handicap: [
+          9,5,1,13,17,7,11,15,3,
+          12,4,18,6,10,16,2,8,14
+        ]
+      },
+
+      4: {
+        name: "We-Ko-Pa Saguaro • Purple Tees",
+        pars: [
+          4,4,5,4,3,4,4,3,5,
+          4,5,3,4,4,3,5,4,4
+        ],
+        handicap: [
+          9,5,1,13,17,7,11,15,3,
+          12,4,18,6,10,16,2,8,14
+        ]
+      },
+
+      5: {
+        name: "We-Ko-Pa Cholla • Purple Tees",
+        pars: [
+          4,4,5,4,3,4,4,3,5,
+          4,5,3,4,4,3,5,4,4
+        ],
+        handicap: [
+          9,5,1,13,17,7,11,15,3,
+          12,4,18,6,10,16,2,8,14
+        ]
+      }
+    };
+
+
+    let allScores = [];
+    let allPairings = [];
+    let allPairingPlayers = [];
+
+
+    /* =====================================================
+       STATUS
+    ===================================================== */
+
+    function setStatus(text) {
+      document.getElementById("status").textContent = text;
+    }
+
+
+    /* =====================================================
+       LOAD DATABASE
+    ===================================================== */
+
+    async function loadData() {
+
+      setStatus("Loading live championship data...");
+
+      try {
+
+        const [
+          scoresResponse,
+          pairingsResponse,
+          playersResponse
+        ] = await Promise.all([
+
+          supabaseClient
+            .from("scores")
+            .select("*"),
+
+          supabaseClient
+            .from("pairings")
+            .select("*")
+            .order("round_number")
+            .order("pairing_number"),
+
+          supabaseClient
+            .from("pairing_players")
+            .select("*")
+        ]);
+
+
+        if (scoresResponse.error) {
+          throw scoresResponse.error;
+        }
+
+        if (pairingsResponse.error) {
+          throw pairingsResponse.error;
+        }
+
+        if (playersResponse.error) {
+          throw playersResponse.error;
+        }
+
+
+        allScores = scoresResponse.data || [];
+        allPairings = pairingsResponse.data || [];
+        allPairingPlayers =
+          playersResponse.data || [];
+
+
+        renderScoreboard();
+
+        setStatus("LIVE • Automatically updating");
+
+
+        document.getElementById(
+          "lastUpdate"
+        ).textContent =
+          "Last updated: " +
+          new Date().toLocaleTimeString();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        setStatus(
+          "Database error: " +
+          error.message
+        );
+      }
+    }
+
+
+    /* =====================================================
+       HANDICAP CALCULATIONS
+    ===================================================== */
+
+    function getCourseHandicap(
+      playerName
+    ) {
+      return Math.round(
+        players[playerName] || 0
+      );
+    }
+
+
+    function strokesOnHole(
+      playerName,
+      holeIndex,
+      course
+    ) {
+
+      const courseHandicap =
+        getCourseHandicap(
+          playerName
+        );
+
+      const holeRank =
+        course.handicap[holeIndex];
+
+      let strokes = 0;
+
+      if (
+        courseHandicap >= holeRank
+      ) {
+        strokes++;
+      }
+
+      if (
+        courseHandicap > 18 &&
+        courseHandicap - 18 >= holeRank
+      ) {
+        strokes++;
+      }
+
+      return strokes;
+    }
+
+
+    /* =====================================================
+       GET PAIRING PLAYERS
+    ===================================================== */
+
+    function getPairingSides(
+      pairing
+    ) {
+
+      const pairingPlayers =
+        allPairingPlayers.filter(
+          player =>
+            player.pairing_id === pairing.id
+        );
+
+      /*
+        Current pairing board uses:
+        A = Clayton
+        B = Ryan
+      */
+
+      const clayton =
+        pairingPlayers
+          .filter(
+            player => player.side === "A"
+          )
+          .map(
+            player => player.player_name
+          );
+
+      const ryan =
+        pairingPlayers
+          .filter(
+            player => player.side === "B"
+          )
+          .map(
+            player => player.player_name
+          );
+
+      return {
+        clayton,
+        ryan
+      };
+    }
+
+
+    /* =====================================================
+       GET SCORE
+    ===================================================== */
+
+    function getGrossScore(
+      roundNumber,
+      matchNumber,
+      playerName,
+      holeNumber
+    ) {
+
+      const row =
+        allScores.find(
+          score =>
+            Number(score.round_number) ===
+              Number(roundNumber) &&
+            Number(score.match_number) ===
+              Number(matchNumber) &&
+            score.player_name ===
+              playerName &&
+            Number(score.hole_number) ===
+              Number(holeNumber)
+        );
+
+      if (!row) {
+        return null;
+      }
+
+      return Number(row.gross_score);
+    }
+
+
+    /* =====================================================
+       CALCULATE MATCH
+    ===================================================== */
+
+    function calculateMatch(
+      roundNumber,
+      pairing
+    ) {
+
+      const course =
+        courses[roundNumber];
+
+      const sides =
+        getPairingSides(pairing);
+
+      if (
+        sides.clayton.length !== 2 ||
+        sides.ryan.length !== 2
+      ) {
+
+        return {
+          complete: false,
+          clayton: 0,
+          ryan: 0,
+          front: "Pairing incomplete",
+          back: "Pairing incomplete",
+          stroke: "Pairing incomplete",
+          details: {}
+        };
+      }
+
+
+      let claytonPoints = 0;
+      let ryanPoints = 0;
+
+      let claytonHolePoints = 0;
+      let ryanHolePoints = 0;
+
+      let claytonBirdieBonus = 0;
+      let ryanBirdieBonus = 0;
+
+      let claytonEagleBonus = 0;
+      let ryanEagleBonus = 0;
+
+      let claytonFrontWins = 0;
+      let ryanFrontWins = 0;
+
+      let claytonBackWins = 0;
+      let ryanBackWins = 0;
+
+      let claytonFrontNet = 0;
+      let ryanFrontNet = 0;
+
+      let claytonBackNet = 0;
+      let ryanBackNet = 0;
+
+      let completedHoles = 0;
+
+
+      for (
+        let holeIndex = 0;
+        holeIndex < 18;
+        holeIndex++
+      ) {
+
+        const holeNumber =
+          holeIndex + 1;
+
+        const claytonScores =
+          sides.clayton.map(
+            playerName => {
+
+              const gross =
+                getGrossScore(
+                  roundNumber,
+                  pairing.pairing_number,
+                  playerName,
+                  holeNumber
+                );
+
+              if (
+                gross === null
+              ) {
+                return null;
+              }
+
+              return {
+                player: playerName,
+                gross: gross,
+                net:
+                  gross -
+                  strokesOnHole(
+                    playerName,
+                    holeIndex,
+                    course
+                  )
+              };
+            }
+          );
+
+
+        const ryanScores =
+          sides.ryan.map(
+            playerName => {
+
+              const gross =
+                getGrossScore(
+                  roundNumber,
+                  pairing.pairing_number,
+                  playerName,
+                  holeNumber
+                );
+
+              if (
+                gross === null
+              ) {
+                return null;
+              }
+
+              return {
+                player: playerName,
+                gross: gross,
+                net:
+                  gross -
+                  strokesOnHole(
+                    playerName,
+                    holeIndex,
+                    course
+                  )
+              };
+            }
+          );
+
+
+        if (
+          claytonScores.includes(null) ||
+          ryanScores.includes(null)
+        ) {
+          continue;
+        }
+
+
+        completedHoles++;
+
+
+        const claytonBest =
+          Math.min(
+            ...claytonScores.map(
+              score => score.net
+            )
+          );
+
+        const ryanBest =
+          Math.min(
+            ...ryanScores.map(
+              score => score.net
+            )
+          );
+
+
+        if (holeNumber <= 9) {
+
+          claytonFrontNet +=
+            claytonBest;
+
+          ryanFrontNet +=
+            ryanBest;
+
+        } else {
+
+          claytonBackNet +=
+            claytonBest;
+
+          ryanBackNet +=
+            ryanBest;
+        }
+
+
+        /*
+          HOLE WINNER + 1 POINT
+        */
+
+        if (
+          claytonBest < ryanBest
+        ) {
+
+          claytonPoints++;
+          claytonHolePoints++;
+
+          if (holeNumber <= 9) {
+            claytonFrontWins++;
+          } else {
+            claytonBackWins++;
+          }
+
+
+          /*
+            Birdie / Eagle bonuses
+            Only awarded when side wins hole.
+          */
+
+          claytonScores.forEach(
+            score => {
+
+              const par =
+                course.pars[holeIndex];
+
+              if (
+                score.gross <= par - 2
+              ) {
+
+                claytonPoints += 2;
+                claytonEagleBonus += 2;
+
+              } else if (
+                score.gross === par - 1
+              ) {
+
+                claytonPoints += 1;
+                claytonBirdieBonus += 1;
+              }
+            }
+          );
+        }
+
+
+        else if (
+          ryanBest < claytonBest
+        ) {
+
+          ryanPoints++;
+          ryanHolePoints++;
+
+          if (holeNumber <= 9) {
+            ryanFrontWins++;
+          } else {
+            ryanBackWins++;
+          }
+
+
+          ryanScores.forEach(
+            score => {
+
+              const par =
+                course.pars[holeIndex];
+
+              if (
+                score.gross <= par - 2
+              ) {
+
+                ryanPoints += 2;
+                ryanEagleBonus += 2;
+
+              } else if (
+                score.gross === par - 1
+              ) {
+
+                ryanPoints += 1;
+                ryanBirdieBonus += 1;
+              }
+            }
+          );
+        }
+      }
+
+
+      /*
+        FRONT 9
+      */
+
+      let frontText = "IN PROGRESS";
+
+      const frontComplete =
+        completedHoles >= 9;
+
+      if (
+        frontComplete &&
+        claytonFrontWins >
+          ryanFrontWins
+      ) {
+
+        claytonPoints += 3;
+
+        frontText =
+          "Clayton wins Front +3";
+
+      }
+
+      else if (
+        frontComplete &&
+        ryanFrontWins >
+          claytonFrontWins
+      ) {
+
+        ryanPoints += 3;
+
+        frontText =
+          "Ryan wins Front +3";
+
+      }
+
+      else if (frontComplete) {
+
+        frontText =
+          "Front 9 tied";
+      }
+
+
+      /*
+        BACK 9
+
+        Only complete once all 18 holes
+        have scores.
+      */
+
+      let backText = "IN PROGRESS";
+
+      const matchComplete =
+        completedHoles === 18;
+
+      if (
+        matchComplete &&
+        claytonBackWins >
+          ryanBackWins
+      ) {
+
+        claytonPoints += 3;
+
+        backText =
+          "Clayton wins Back +3";
+
+      }
+
+      else if (
+        matchComplete &&
+        ryanBackWins >
+          claytonBackWins
+      ) {
+
+        ryanPoints += 3;
+
+        backText =
+          "Ryan wins Back +3";
+
+      }
+
+      else if (matchComplete) {
+
+        backText =
+          "Back 9 tied";
+      }
+
+
+      /*
+        18-HOLE NET STROKE PLAY
+      */
+
+      let strokeText = "IN PROGRESS";
+
+      if (matchComplete) {
+
+        const claytonTotal =
+          claytonFrontNet +
+          claytonBackNet;
+
+        const ryanTotal =
+          ryanFrontNet +
+          ryanBackNet;
+
+
+        if (
+          claytonTotal <
+          ryanTotal
+        ) {
+
+          claytonPoints += 5;
+
+          strokeText =
+            `Clayton wins 18 +5 (${claytonTotal}-${ryanTotal})`;
+
+        }
+
+        else if (
+          ryanTotal <
+          claytonTotal
+        ) {
+
+          ryanPoints += 5;
+
+          strokeText =
+            `Ryan wins 18 +5 (${ryanTotal}-${claytonTotal})`;
+
+        }
+
+        else {
+
+          strokeText =
+            `18 tied (${claytonTotal}-${ryanTotal})`;
+        }
+      }
+
+
+      /*
+        ROUND 5 IS 1.5x
+      */
+
+      if (
+        Number(roundNumber) === 5
+      ) {
+
+        claytonPoints *= 1.5;
+        ryanPoints *= 1.5;
+      }
+
+
+      return {
+
+        complete: matchComplete,
+
+        clayton: claytonPoints,
+
+        ryan: ryanPoints,
+
+        completedHoles,
+
+        front: frontText,
+
+        back: backText,
+
+        stroke: strokeText,
+
+        details: {
+
+          claytonHolePoints,
+          ryanHolePoints,
+
+          claytonBirdieBonus,
+          ryanBirdieBonus,
+
+          claytonEagleBonus,
+          ryanEagleBonus
+
+        }
+
+      };
+    }
+
+
+    /* =====================================================
+       RENDER SCOREBOARD
+    ===================================================== */
+
+    function renderScoreboard() {
+
+      let championshipClayton = 0;
+      let championshipRyan = 0;
+
+      const roundsContainer =
+        document.getElementById("rounds");
+
+      roundsContainer.innerHTML = "";
+
+
+      for (
+        let roundNumber = 1;
+        roundNumber <= 5;
+        roundNumber++
+      ) {
+
+        const roundPairings =
+          allPairings.filter(
+            pairing =>
+              Number(pairing.round_number) ===
+              roundNumber
+          );
+
+
+        let roundClayton = 0;
+        let roundRyan = 0;
+
+        let matchCards = "";
+
+
+        if (
+          roundPairings.length === 0
+        ) {
+
+          matchCards = `
+            <div class="in-progress">
+              Pairings have not been set yet.
+            </div>
+          `;
+        }
+
+
+        roundPairings.forEach(
+          pairing => {
+
+            const sides =
+              getPairingSides(pairing);
+
+            const result =
+              calculateMatch(
+                roundNumber,
+                pairing
+              );
+
+            roundClayton +=
+              result.clayton;
+
+            roundRyan +=
+              result.ryan;
+
+
+            let resultClass = "tie";
+
+            if (
+              result.clayton >
+              result.ryan
+            ) {
+              resultClass =
+                "winner-clayton";
+            }
+
+            else if (
+              result.ryan >
+              result.clayton
+            ) {
+              resultClass =
+                "winner-ryan";
+            }
+
+
+            matchCards += `
+
+              <div class="match-card">
+
+                <h3>
+                  MATCH
+                  ${pairing.pairing_number}
+                </h3>
+
+                <div class="pairing clayton">
+                  ${sides.clayton.join(" & ") || "TBD"}
+                </div>
+
+                <div class="pairing ryan">
+                  ${sides.ryan.join(" & ") || "TBD"}
+                </div>
+
+                <div class="result-row">
+                  <span>Holes Completed</span>
+                  <strong>
+                    ${result.completedHoles}/18
+                  </strong>
+                </div>
+
+                <div class="result-row">
+                  <span>Front 9</span>
+                  <strong>
+                    ${result.front}
+                  </strong>
+                </div>
+
+                <div class="result-row">
+                  <span>Back 9</span>
+                  <strong>
+                    ${result.back}
+                  </strong>
+                </div>
+
+                <div class="result-row">
+                  <span>18 Hole Stroke</span>
+                  <strong>
+                    ${result.stroke}
+                  </strong>
+                </div>
+
+                <div class="details">
+
+                  <div class="details-title">
+                    POINT BREAKDOWN
+                  </div>
+
+                  <div class="bonus-row">
+                    <span>
+                      Hole Points
+                    </span>
+                    <span>
+                      C ${result.details.claytonHolePoints}
+                      •
+                      R ${result.details.ryanHolePoints}
+                    </span>
+                  </div>
+
+                  <div class="bonus-row">
+                    <span>
+                      Birdie Bonus
+                    </span>
+                    <span>
+                      C +${result.details.claytonBirdieBonus}
+                      •
+                      R +${result.details.ryanBirdieBonus}
+                    </span>
+                  </div>
+
+                  <div class="bonus-row">
+                    <span>
+                      Eagle Bonus
+                    </span>
+                    <span>
+                      C +${result.details.claytonEagleBonus}
+                      •
+                      R +${result.details.ryanEagleBonus}
+                    </span>
+                  </div>
+
+                </div>
+
+                <div class="result-row ${resultClass}">
+                  <span>MATCH TOTAL</span>
+                  <strong>
+                    C ${result.clayton}
+                    •
+                    R ${result.ryan}
+                  </strong>
+                </div>
+
+              </div>
+            `;
+          }
+        );
+
+
+        championshipClayton +=
+          roundClayton;
+
+        championshipRyan +=
+          roundRyan;
+
+
+        roundsContainer.innerHTML += `
+
+          <div class="round-section">
+
+            <div class="round-title">
+
+              <div>
+
+                <h2>
+                  ROUND ${roundNumber}
+                  ${
+                    roundNumber === 5
+                      ? " • 1.5× POINTS"
+                      : ""
+                  }
+                </h2>
+
+                <div style="
+                  color:#a9b6c8;
+                  font-size:13px;
+                  margin-top:5px;
+                ">
+
+                  ${courses[roundNumber].name}
+
+                </div>
+
+              </div>
+
+              <div class="round-total">
+
+                <span class="clayton-total">
+                  CLAYTON:
+                  ${roundClayton}
+                </span>
+
+                <span class="ryan-total">
+                  RYAN:
+                  ${roundRyan}
+                </span>
+
+              </div>
+
+            </div>
+
+            <div class="match-grid">
+
+              ${matchCards}
+
+            </div>
+
+          </div>
+        `;
+      }
+
+
+      document.getElementById(
+        "claytonTotal"
+      ).textContent =
+        championshipClayton;
+
+
+      document.getElementById(
+        "ryanTotal"
+      ).textContent =
+        championshipRyan;
+
+
+      const leaderText =
+        document.getElementById(
+          "leaderText"
+        );
+
+
+      if (
+        championshipClayton >
+        championshipRyan
+      ) {
+
+        leaderText.textContent =
+          `TEAM CLAYTON LEADS BY ${
+            championshipClayton -
+            championshipRyan
+          }`;
+
+      }
+
+      else if (
+        championshipRyan >
+        championshipClayton
+      ) {
+
+        leaderText.textContent =
+          `TEAM RYAN LEADS BY ${
+            championshipRyan -
+            championshipClayton
+          }`;
+
+      }
+
+      else {
+
+        leaderText.textContent =
+          "CHAMPIONSHIP TIED";
+      }
+    }
+
+
+    /* =====================================================
+       REALTIME UPDATES
+    ===================================================== */
+
+    function startRealtime() {
+
+      supabaseClient
+        .channel(
+          "scottsdale-live-scoreboard"
+        )
+
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "scores"
+          },
+          () => {
+            loadData();
+          }
+        )
+
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "pairings"
+          },
+          () => {
+            loadData();
+          }
+        )
+
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "pairing_players"
+          },
+          () => {
+            loadData();
+          }
+        )
+
+        .subscribe();
+    }
+
+
+    /* =====================================================
+       START
+    ===================================================== */
+
+    loadData();
+
+    startRealtime();
+
+
+    /*
+      Backup refresh every 30 seconds
+      in case realtime is unavailable.
+    */
+
+    setInterval(
+      loadData,
+      30000
+    );
+
+  </script>
+
+</body>
+</html>
