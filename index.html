@@ -507,20 +507,9 @@ const supabaseClient = supabase.createClient(
   <script>
 
     /* =========================================================
-       SUPABASE CONNECTION
+       SUPABASE
+       Uses the single connection configured in the page <head>.
     ========================================================= */
-
-    const SUPABASE_URL =
-      "https://dxajaneijkrywjoveac.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable__CPedEYs1OS2ZYZh2DieiQ_0Ww_0e5k";
-
-    const supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
 
 
     /* =========================================================
@@ -907,12 +896,12 @@ const supabaseClient = supabase.createClient(
         );
 
         setSyncStatus(
-          "Database connection error",
+          `Database error: ${error.message || "Unknown error"}`,
           "error"
         );
 
         alert(
-          "Could not load the shared pairings database."
+          `Could not load the shared pairings database: ${error.message || "Unknown error"}`
         );
 
       }
