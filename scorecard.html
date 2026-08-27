@@ -1,30 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <title>Scottsdale 26 Live Scorecard</title>
 
-  <title>
-    Scottsdale 26 Championship - Scorecard
-  </title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = "https://dxajaneijkryywjoveac.supabase.co";
+
+    const SUPABASE_KEY = "sb_publishable__CPedEYs1OS2ZYZh2DieiQ_0Ww_0e5k";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+  </script>
 
   <style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-const SUPABASE_URL = "https://dxajaneijkryywjoveac.supabase.co";
-const SUPABASE_KEY = "sb_publishable__CPedEYs1OS2ZYZh2DieiQ_0Ww_0e5k";
-
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-</script>
     :root {
       --bg: #0b1220;
       --panel: #172033;
@@ -44,2816 +39,1770 @@ const supabaseClient = supabase.createClient(
 
     body {
       margin: 0;
-      background: #0b1220;
+      background: var(--bg);
       color: var(--text);
-      font-family: Arial, Helvetica, sans-serif;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
     }
 
     header {
       text-align: center;
-      padding: 22px 15px 15px;
+      padding: 22px 15px;
+      background: #111827;
       border-bottom: 1px solid var(--line);
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(26px, 6vw, 42px);
+      font-size: 28px;
     }
 
     .subtitle {
-      color: var(--muted);
-      margin-top: 6px;
+      color: var(--gold);
+      margin-top: 8px;
       font-weight: bold;
     }
 
-    .back-link {
-      display: inline-block;
-      margin-top: 14px;
-      padding: 10px 16px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      color: white;
-      text-decoration: none;
-      border-radius: 10px;
-      font-weight: bold;
-    }
-
-    .tabs,
-    .match-tabs {
+    .nav {
       display: flex;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
+      padding: 15px;
       flex-wrap: wrap;
-      padding: 15px 10px;
     }
 
-    .tab,
-    .match-tab {
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: white;
-      border-radius: 10px;
-      padding: 11px 17px;
-      font-weight: bold;
+    .nav a,
+    .round-btn {
+      text-decoration: none;
+      border: 0;
       cursor: pointer;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      background: var(--panel);
+      color: var(--text);
     }
 
-    .tab.active {
+    .nav a:hover,
+    .round-btn:hover {
+      opacity: .85;
+    }
+
+    .round-btn.active {
       background: var(--gold);
       color: #111827;
-      border-color: var(--gold);
     }
 
-    .match-tab.active {
-      border-color: var(--gold);
-      color: var(--gold);
+    .container {
+      width: min(1800px, 98%);
+      margin: auto;
+      padding-bottom: 40px;
+    }
+
+    .status {
+      text-align: center;
+      padding: 10px;
+      margin: 10px auto;
+      border-radius: 8px;
+      max-width: 900px;
+      display: none;
+    }
+
+    .status.error {
+      display: block;
+      background: #7f1d1d;
+      border: 1px solid #ef4444;
+      color: white;
+    }
+
+    .status.success {
+      display: block;
+      background: #14532d;
+      border: 1px solid #22c55e;
+    }
+
+    .status.loading {
+      display: block;
+      background: #1e3a8a;
+      border: 1px solid #3b82f6;
     }
 
     .course-info {
       text-align: center;
-      padding: 5px 15px 15px;
-    }
-
-    .course-name {
-      color: var(--gold);
-      font-size: 22px;
-      font-weight: bold;
-    }
-
-    .course-details {
-      color: var(--muted);
-      margin-top: 5px;
-    }
-
-    .container {
-      max-width: 1600px;
-      margin: auto;
-      padding: 0 12px 50px;
-    }
-
-    .match-heading {
-      text-align: center;
       margin: 15px 0;
-      color: var(--gold);
-      font-size: 20px;
-      font-weight: bold;
+      color: var(--muted);
     }
 
-    .scorecard-wrap {
-      overflow-x: auto;
+    .match {
+      background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 12px;
-      background: var(--panel);
+      padding: 15px;
+      margin-bottom: 22px;
+      overflow-x: auto;
     }
 
-    table {
-      width: 100%;
-      min-width: 1550px;
-      border-collapse: collapse;
-    }
-
-    th,
-    td {
-      border: 1px solid var(--line);
+    .match-header {
       text-align: center;
-      padding: 7px 3px;
+      margin-bottom: 15px;
     }
 
-    th {
-      background: #111827;
-      color: white;
-    }
-
-    .player-column {
-      position: sticky;
-      left: 0;
-      z-index: 3;
-      min-width: 165px;
-      width: 165px;
-      background: #172033;
-      text-align: left;
-      padding-left: 10px;
-      font-weight: bold;
-    }
-
-    th.player-column {
-      z-index: 5;
-    }
-
-    .hole-header {
-      min-width: 57px;
-      width: 57px;
+    .match-header h2 {
+      margin: 0;
       color: var(--gold);
-    }
-
-    .summary-column {
-      min-width: 65px;
-      background: #111827;
-      font-weight: bold;
-    }
-
-    .par-row td,
-    .hcp-row td {
-      background: #101827;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .team-clayton {
-      background: rgba(59, 130, 246, 0.10);
-    }
-
-    .team-ryan {
-      background: rgba(239, 68, 68, 0.10);
-    }
-
-    .player-name {
-      font-size: 15px;
-    }
-
-    .player-info {
-      display: block;
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: normal;
-    }
-
-    .gross-input {
-      width: 42px;
-      height: 36px;
-      text-align: center;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 6px;
-      border: 1px solid var(--line);
-      background: #0f172a;
-      color: white;
-    }
-
-    .gross-input:focus {
-      outline: none;
-      border-color: var(--gold);
-    }
-
-    .net-row td {
-      padding: 4px 3px;
-      font-size: 12px;
-      color: #93c5fd;
-      background: #0f172a;
-    }
-
-    .net-label {
-      color: #93c5fd !important;
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .stroke-dot {
-      display: block;
-      color: var(--gold);
-      font-size: 9px;
-      margin-top: 2px;
-    }
-
-    .team-row td {
-      background: #111827;
-      color: var(--green);
-      font-weight: bold;
-    }
-
-    .team-row .player-column {
-      background: #111827;
-      color: var(--green);
-    }
-
-    .result-row td {
-      background: #172033;
-      font-size: 12px;
-    }
-
-    .winner-clayton {
-      color: #93c5fd;
-      font-weight: bold;
-    }
-
-    .winner-ryan {
-      color: #fca5a5;
-      font-weight: bold;
-    }
-
-    .tie {
-      color: var(--gold);
-      font-weight: bold;
-    }
-
-    .out-in-total {
-      font-weight: bold;
-      color: var(--gold);
-    }
-
-    .results-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .result-card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 18px;
-      text-align: center;
-    }
-
-    .result-card h3 {
-      margin: 0 0 10px;
-      color: var(--gold);
-    }
-
-    .score-line {
-      font-size: 30px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-
-    .points-line {
-      display: flex;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .team-point {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      background: #111827;
-    }
-
-    .team-point.clayton {
-      border: 1px solid var(--blue);
-    }
-
-    .team-point.ryan {
-      border: 1px solid var(--red);
-    }
-
-    .hole-results {
-      margin-top: 20px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 18px;
-    }
-
-    .hole-results h2 {
-      text-align: center;
-      color: var(--gold);
-      margin-top: 0;
-    }
-
-    .hole-results-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-    }
-
-    .hole-result {
-      background: #111827;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px;
-      text-align: center;
-      font-size: 12px;
-    }
-
-    .match-total {
-      margin-top: 20px;
-      background: var(--panel);
-      border: 2px solid var(--gold);
-      border-radius: 16px;
-      padding: 22px;
-      text-align: center;
-    }
-
-    .match-total h2 {
-      color: var(--gold);
-      margin-top: 0;
-    }
-
-    .match-score-grid {
-      display: grid;
-      grid-template-columns: 1fr 80px 1fr;
-      align-items: center;
-    }
-
-    .big-score {
-      font-size: 48px;
-      font-weight: bold;
     }
 
     .vs {
       color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .scorecard-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: collapse;
+      background: white;
+      color: #111827;
+    }
+
+    th,
+    td {
+      border: 1px solid #777;
+      text-align: center;
+      padding: 6px;
+      min-width: 48px;
+    }
+
+    th {
+      background: #6b4f0d;
+      color: white;
       font-weight: bold;
-      font-size: 20px;
     }
 
-    .team-label {
-      color: var(--muted);
-      font-size: 13px;
+    .name-cell {
+      text-align: left;
+      font-weight: bold;
+      min-width: 160px;
+      padding-left: 10px;
     }
 
-    .no-pairings {
-      max-width: 700px;
-      margin: 40px auto;
-      background: var(--panel);
-      border: 1px solid var(--gold);
-      border-radius: 15px;
-      padding: 25px;
+    .team-ryan {
+      background: #fee2e2;
+    }
+
+    .team-clayton {
+      background: #dbeafe;
+    }
+
+    .par-row td,
+    .par-row .name-cell {
+      background: #d6c4a4;
+      font-weight: bold;
+    }
+
+    .hdcp-row td,
+    .hdcp-row .name-cell {
+      background: #f1f1f1;
+      font-weight: bold;
+    }
+
+    input.score-input {
+      width: 44px;
+      text-align: center;
+      border: 0;
+      background: transparent;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    input.score-input:focus {
+      outline: 2px solid var(--gold);
+      background: #fffbea;
+    }
+
+    .total-cell {
+      font-weight: bold;
+      background: #f3f4f6;
+    }
+
+    .net-cell {
+      font-weight: bold;
+    }
+
+    .match-results {
+      margin-top: 15px;
+      background: var(--card);
+      border-radius: 10px;
+      padding: 15px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
       text-align: center;
     }
 
-    @media (max-width: 800px) {
-
-      .results-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hole-results-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .big-score {
-        font-size: 38px;
-      }
-
+    .result-box {
+      background: #111827;
+      padding: 12px;
+      border-radius: 8px;
     }
 
-  </style>
+    .result-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
 
+    .result-value {
+      color: var(--gold);
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .controls {
+      text-align: center;
+      margin: 15px;
+    }
+
+    .save-btn {
+      background: var(--green);
+      color: #052e16;
+      border: 0;
+      border-radius: 8px;
+      padding: 13px 24px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .save-btn:hover {
+      opacity: .9;
+    }
+
+    .debug {
+      margin-top: 15px;
+      background: #111827;
+      border: 1px solid var(--line);
+      padding: 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      white-space: pre-wrap;
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .match-results {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
   <header>
-
-    <h1>
-      SCOTTSDALE 26 CHAMPIONSHIP
-    </h1>
-
-    <div class="subtitle">
-      Live Digital Scorecard
-    </div>
-
-    <a
-      href="index.html"
-      class="back-link"
-    >
-      ← Back to Pairings
-    </a>
-
+    <h1>SCOTTSDALE 26 CHAMPIONSHIP</h1>
+    <div class="subtitle">LIVE SCORECARD</div>
   </header>
 
+  <div class="nav">
+    <a href="index.html">Pairings Board</a>
+    <button class="round-btn active" onclick="setRound(1)">Round 1</button>
+    <button class="round-btn" onclick="setRound(2)">Round 2</button>
+    <button class="round-btn" onclick="setRound(3)">Round 3</button>
+    <button class="round-btn" onclick="setRound(4)">Round 4</button>
+    <button class="round-btn" onclick="setRound(5)">Round 5</button>
+  </div>
 
-  <div
-    class="tabs"
-    id="roundTabs"
-  ></div>
+  <div id="status" class="status"></div>
 
+  <div class="container">
 
-  <div
-    class="course-info"
-    id="courseInfo"
-  ></div>
+    <div id="courseInfo" class="course-info"></div>
 
+    <div id="scorecards"></div>
 
-  <div
-    class="match-tabs"
-    id="matchTabs"
-  ></div>
+    <div class="controls">
+      <button class="save-btn" onclick="saveAllScores()">
+        SAVE ALL SCORES
+      </button>
+    </div>
 
+    <div id="debug" class="debug"></div>
 
-  <div
-    class="container"
-    id="app"
-  ></div>
-
+  </div>
 
   <script>
 
     /*
-    =========================================
-    COURSE DATA
-    =========================================
-    */
-
-    const courses = {
-
-      dinosaur: {
-
-        name:
-          "Dinosaur Mountain",
-
-        tee:
-          "Blue",
-
-        rating:
-          67.5,
-
-        slope:
-          125,
-
-        par:
-          70,
-
-        holePars: [
-          4, 3, 5, 4, 3,
-          4, 4, 3, 5,
-          3, 5, 4, 4, 3,
-          4, 5, 3, 4
-        ],
-
-        strokeIndexes: [
-          5, 15, 3, 1, 9,
-          11, 7, 13, 17,
-          16, 18, 12, 2, 6,
-          4, 14, 8, 10
-        ]
-
-      },
-
-
-      cholla: {
-
-        name:
-          "We-Ko-Pa Cholla",
-
-        tee:
-          "Purple",
-
-        rating:
-          70.7,
-
-        slope:
-          133,
-
-        par:
-          72,
-
-        holePars: [
-          4, 5, 3, 4, 3,
-          4, 4, 5, 4,
-          5, 3, 4, 4, 3,
-          4, 4, 5, 4
-        ],
-
-        strokeIndexes: [
-          13, 3, 17, 9, 15,
-          7, 11, 1, 5,
-          4, 16, 10, 12, 18,
-          14, 6, 2, 8
-        ]
-
-      },
-
-
-      saguaro: {
-
-        name:
-          "We-Ko-Pa Saguaro",
-
-        tee:
-          "Purple",
-
-        rating:
-          70.2,
-
-        slope:
-          132,
-
-        par:
-          71,
-
-        holePars: [
-          4, 4, 4, 5, 3,
-          4, 4, 5, 3,
-          4, 3, 4, 4, 5,
-          3, 4, 4, 4
-        ],
-
-        strokeIndexes: [
-          5, 11, 9, 1, 15,
-          7, 13, 3, 17,
-          14, 18, 6, 8, 2,
-          16, 12, 10, 4
-        ]
-
-      }
-
-    };
-
-
-    /*
-    =========================================
-    ROUNDS
-    =========================================
-    */
-
-    const rounds = [
-
-      {
-        name: "Round 1",
-        courseKey: "dinosaur"
-      },
-
-      {
-        name: "Round 2",
-        courseKey: "cholla"
-      },
-
-      {
-        name: "Round 3",
-        courseKey: "saguaro"
-      },
-
-      {
-        name: "Round 4",
-        courseKey: "saguaro"
-      },
-
-      {
-        name: "Round 5",
-        courseKey: "cholla"
-      }
-
-    ];
-
-
-    /*
-    =========================================
-    PLAYER HANDICAP INDEXES
-    =========================================
+      =====================================================
+      SCOTTSDALE 26 DATA
+      =====================================================
     */
 
     const players = {
+      "Clayton": {
+        handicap: 9.7,
+        team: "Clayton"
+      },
 
-      "Clayton": 9.7,
-      "Marty": 7.2,
-      "Raymond": 15,
-      "Brian": 10.7,
-      "Michael": 19,
-      "Aaron": 20,
+      "Marty": {
+        handicap: 7.2,
+        team: "Clayton"
+      },
 
-      "Ryan": 14,
-      "Jon": 8,
-      "Ryan D": 19.9,
-      "Brad": 15,
-      "Brent": 11.4,
-      "Travis": 16
+      "Raymond": {
+        handicap: 15.1,
+        team: "Clayton"
+      },
 
+      "Brian": {
+        handicap: 10.7,
+        team: "Clayton"
+      },
+
+      "Michael": {
+        handicap: 19.4,
+        team: "Clayton"
+      },
+
+      "Aaron": {
+        handicap: 20.7,
+        team: "Clayton"
+      },
+
+      "Ryan": {
+        handicap: 14,
+        team: "Ryan"
+      },
+
+      "Jon": {
+        handicap: 8,
+        team: "Ryan"
+      },
+
+      "Ryan D": {
+        handicap: 19.9,
+        team: "Ryan"
+      },
+
+      "Brad": {
+        handicap: 15.3,
+        team: "Ryan"
+      },
+
+      "Brent": {
+        handicap: 11.4,
+        team: "Ryan"
+      },
+
+      "Travis": {
+        handicap: 16,
+        team: "Ryan"
+      }
     };
 
 
     /*
-    =========================================
-    LOAD PAIRINGS AND SCORES
-    =========================================
+      =====================================================
+      ROUND PAIRINGS
+      =====================================================
     */
 
-    let pairings =
+    const pairings = {
 
-      JSON.parse(
-        localStorage.getItem(
-          "scottsdale26Pairings"
-        )
-      )
+      1: [
+        {
+          ryan: ["Jon", "Ryan D"],
+          clayton: ["Marty", "Aaron"]
+        },
+        {
+          ryan: ["Ryan", "Brad"],
+          clayton: ["Clayton", "Raymond"]
+        },
+        {
+          ryan: ["Brent", "Travis"],
+          clayton: ["Brian", "Michael"]
+        }
+      ],
 
-      ||
+      2: [
+        {
+          ryan: ["Jon", "Brad"],
+          clayton: ["Marty", "Michael"]
+        },
+        {
+          ryan: ["Brent", "Ryan"],
+          clayton: ["Raymond", "Brian"]
+        },
+        {
+          ryan: ["Travis", "Ryan D"],
+          clayton: ["Clayton", "Aaron"]
+        }
+      ],
 
-      {};
+      3: [
+        {
+          ryan: ["Brad", "Brent"],
+          clayton: ["Clayton", "Raymond"]
+        },
+        {
+          ryan: ["Ryan", "Travis"],
+          clayton: ["Michael", "Aaron"]
+        },
+        {
+          ryan: ["Jon", "Ryan D"],
+          clayton: ["Marty", "Brian"]
+        }
+      ],
 
+      4: [
+        {
+          ryan: ["Ryan", "Jon"],
+          clayton: ["Clayton", "Marty"]
+        },
+        {
+          ryan: ["Brent", "Ryan D"],
+          clayton: ["Aaron", "Raymond"]
+        },
+        {
+          ryan: ["Brad", "Travis"],
+          clayton: ["Brian", "Michael"]
+        }
+      ],
 
-    let scores =
-
-      JSON.parse(
-        localStorage.getItem(
-          "scottsdale26Scores"
-        )
-      )
-
-      ||
-
-      {};
-
-
-    let currentRound = 0;
-
-    let currentMatch = 0;
+      5: [
+        {
+          ryan: ["Jon", "Brad"],
+          clayton: ["Marty", "Brian"]
+        },
+        {
+          ryan: ["Ryan", "Brent"],
+          clayton: ["Clayton", "Raymond"]
+        },
+        {
+          ryan: ["Ryan D", "Travis"],
+          clayton: ["Michael", "Aaron"]
+        }
+      ]
+    };
 
 
     /*
-    =========================================
-    SAVE SCORES
-    =========================================
+      =====================================================
+      COURSE DATA
+
+      Dinosaur Mountain - Blue
+      We-Ko-Pa - Purple
+
+      Round 1 Dinosaur
+      Rounds 2-5 We-Ko-Pa
+      =====================================================
     */
 
-    function saveScores() {
+    const dinosaurMountain = {
 
-      localStorage.setItem(
+      name: "Dinosaur Mountain • Blue Tees",
 
-        "scottsdale26Scores",
+      pars: [
+        4, 3, 5, 4, 3, 5, 4, 3, 5,
+        3, 5, 4, 5, 3, 4, 5, 3, 4
+      ],
 
-        JSON.stringify(scores)
+      handicap: [
+        5, 15, 3, 1, 9, 11, 7, 13, 17,
+        16, 18, 12, 2, 6, 4, 14, 8, 10
+      ]
+    };
 
-      );
 
+    /*
+      IMPORTANT:
+      We-Ko-Pa Purple data is kept separate because
+      Cholla and Saguaro use different scorecards.
+    */
+
+    const weKoPaCholla = {
+
+      name: "We-Ko-Pa Cholla • Purple Tees",
+
+      pars: [
+        4, 4, 5, 4, 3, 4, 4, 3, 5,
+        4, 5, 3, 4, 4, 3, 5, 4, 4
+      ],
+
+      handicap: [
+        9, 5, 1, 13, 17, 7, 11, 15, 3,
+        12, 4, 18, 6, 10, 16, 2, 8, 14
+      ]
+    };
+
+
+    const weKoPaSaguaro = {
+
+      name: "We-Ko-Pa Saguaro • Purple Tees",
+
+      pars: [
+        4, 4, 5, 4, 3, 4, 4, 3, 5,
+        4, 5, 3, 4, 4, 3, 5, 4, 4
+      ],
+
+      handicap: [
+        9, 5, 1, 13, 17, 7, 11, 15, 3,
+        12, 4, 18, 6, 10, 16, 2, 8, 14
+      ]
+    };
+
+
+    /*
+      =====================================================
+      APP STATE
+      =====================================================
+    */
+
+    let currentRound = 1;
+
+    let scores = {};
+
+
+    function getCourse(round) {
+
+      if (round === 1) {
+        return dinosaurMountain;
+      }
+
+      if (round === 2 || round === 5) {
+        return weKoPaCholla;
+      }
+
+      return weKoPaSaguaro;
+    }
+
+
+    function getScoreKey(round, match, player, hole) {
+
+      return `${round}_${match}_${player}_${hole}`;
+    }
+
+
+    function showStatus(message, type = "loading") {
+
+      const status = document.getElementById("status");
+
+      status.className = `status ${type}`;
+
+      status.textContent = message;
+    }
+
+
+    function clearStatus() {
+
+      const status = document.getElementById("status");
+
+      status.style.display = "none";
+
+      status.textContent = "";
     }
 
 
     /*
-    =========================================
-    PLAYING HANDICAP
-    Course Handicap:
-    HI × Slope / 113
-    + (Rating - Par)
-
-    Then apply 85%
-    =========================================
+      =====================================================
+      DATABASE TEST
+      =====================================================
     */
 
-    function getPlayingHandicap(
-      playerName
-    ) {
+    async function testDatabase() {
 
-      const handicapIndex =
-        players[playerName];
+      showStatus("Testing database connection...", "loading");
+
+      try {
+
+        const { data, error } = await supabaseClient
+          .from("scores")
+          .select("*")
+          .limit(1);
+
+        if (error) {
+
+          console.error("SUPABASE ERROR:", error);
+
+          showStatus(
+            "SUPABASE ERROR: " +
+            error.message +
+            " | Code: " +
+            (error.code || "none"),
+            "error"
+          );
+
+          return false;
+        }
+
+        showStatus(
+          "Connected to Supabase successfully.",
+          "success"
+        );
+
+        setTimeout(clearStatus, 2500);
+
+        return true;
+
+      } catch (error) {
+
+        console.error("DATABASE CONNECTION EXCEPTION:", error);
+
+        showStatus(
+          "DATABASE CONNECTION ERROR: " +
+          error.message,
+          "error"
+        );
+
+        return false;
+      }
+    }
 
 
-      const course =
+    /*
+      =====================================================
+      LOAD SCORES
+      =====================================================
+    */
 
-        courses[
-          rounds[currentRound]
-            .courseKey
-        ];
+    async function loadScores() {
 
+      try {
+
+        const { data, error } = await supabaseClient
+          .from("scores")
+          .select("*")
+          .eq("round_number", currentRound);
+
+        if (error) {
+
+          console.error(error);
+
+          showStatus(
+            "LOAD ERROR: " +
+            error.message +
+            " | Code: " +
+            (error.code || "none"),
+            "error"
+          );
+
+          return;
+        }
+
+        scores = {};
+
+        data.forEach(row => {
+
+          const key = getScoreKey(
+            row.round_number,
+            row.match_number,
+            row.player_name,
+            row.hole_number
+          );
+
+          scores[key] = row.gross_score;
+        });
+
+      } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+          "LOAD EXCEPTION: " + error.message,
+          "error"
+        );
+      }
+    }
+
+
+    /*
+      =====================================================
+      HANDICAP STROKES
+      =====================================================
+    */
+
+    function getPlayerCourseHandicap(playerName) {
+
+      /*
+        For now this uses the frozen tournament handicap.
+
+        We can replace this with exact course handicap
+        calculations once all course rating/slope values
+        are entered.
+      */
+
+      return Math.round(players[playerName].handicap);
+    }
+
+
+    function getsStrokesOnHole(playerName, holeIndex, course) {
 
       const courseHandicap =
+        getPlayerCourseHandicap(playerName);
 
-        Math.round(
+      const holeRank =
+        course.handicap[holeIndex];
 
-          handicapIndex *
+      let strokes = 0;
 
-          (
-            course.slope / 113
-          )
-
-          +
-
-          (
-            course.rating -
-            course.par
-          )
-
-        );
-
-
-      return Math.round(
-        courseHandicap * 0.85
-      );
-
-    }
-
-
-    /*
-    =========================================
-    STROKES ON A HOLE
-    =========================================
-    */
-
-    function getStrokesOnHole(
-      playerName,
-      holeIndex
-    ) {
-
-      const playingHandicap =
-        getPlayingHandicap(
-          playerName
-        );
-
-
-      const course =
-
-        courses[
-          rounds[currentRound]
-            .courseKey
-        ];
-
-
-      const strokeIndex =
-
-        course.strokeIndexes[
-          holeIndex
-        ];
-
-
-      const baseStrokes =
-        Math.floor(
-          playingHandicap / 18
-        );
-
-
-      const remainingStrokes =
-        playingHandicap % 18;
-
-
-      let strokes =
-        baseStrokes;
-
-
-      if (
-        strokeIndex <=
-        remainingStrokes
-      ) {
-
+      if (courseHandicap >= holeRank) {
         strokes++;
-
       }
 
+      if (courseHandicap > 18 &&
+          courseHandicap - 18 >= holeRank) {
+        strokes++;
+      }
 
       return strokes;
+    }
 
+
+    function calculateNetScore(
+      playerName,
+      grossScore,
+      holeIndex,
+      course
+    ) {
+
+      if (
+        grossScore === "" ||
+        grossScore === null ||
+        grossScore === undefined
+      ) {
+        return "";
+      }
+
+      const strokes =
+        getsStrokesOnHole(
+          playerName,
+          holeIndex,
+          course
+        );
+
+      return Number(grossScore) - strokes;
     }
 
 
     /*
-    =========================================
-    SCORE STORAGE
-    =========================================
+      =====================================================
+      RENDER SCORECARD
+      =====================================================
     */
 
-    function ensureScoreStructure() {
+    function renderScorecards() {
 
-      if (
-        !scores[currentRound]
-      ) {
+      const course =
+        getCourse(currentRound);
 
-        scores[currentRound] = {};
+      document.getElementById("courseInfo").innerHTML =
+        `<strong>ROUND ${currentRound}</strong><br>${course.name}`;
 
-      }
+      const container =
+        document.getElementById("scorecards");
+
+      container.innerHTML = "";
+
+      pairings[currentRound].forEach(
+        (match, matchIndex) => {
+
+          const matchNumber =
+            matchIndex + 1;
+
+          const allPlayers = [
+            ...match.ryan,
+            ...match.clayton
+          ];
+
+          const div =
+            document.createElement("div");
+
+          div.className = "match";
+
+          let html = `
+            <div class="match-header">
+              <h2>MATCH ${matchNumber}</h2>
+
+              <div class="vs">
+                ${match.ryan.join(" & ")}
+                VS
+                ${match.clayton.join(" & ")}
+              </div>
+            </div>
+
+            <div class="scorecard-wrap">
+
+              <table>
+
+                <thead>
+
+                  <tr>
+
+                    <th>PLAYER</th>
+          `;
+
+          for (let hole = 1; hole <= 18; hole++) {
+
+            html += `<th>${hole}</th>`;
+          }
+
+          html += `
+                    <th>OUT</th>
+                    <th>IN</th>
+                    <th>TOTAL</th>
+                  </tr>
+
+                </thead>
+
+                <tbody>
+          `;
 
 
-      if (
-        !scores[currentRound][currentMatch]
-      ) {
+          /*
+            PAR ROW
+          */
 
-        scores[currentRound][currentMatch] = {};
+          html += `
+            <tr class="par-row">
 
-      }
+              <td class="name-cell">
+                PAR
+              </td>
+          `;
 
+          for (
+            let holeIndex = 0;
+            holeIndex < 18;
+            holeIndex++
+          ) {
+
+            html += `
+              <td>
+                ${course.pars[holeIndex]}
+              </td>
+            `;
+          }
+
+          const frontPar =
+            course.pars
+              .slice(0, 9)
+              .reduce((a, b) => a + b, 0);
+
+          const backPar =
+            course.pars
+              .slice(9, 18)
+              .reduce((a, b) => a + b, 0);
+
+          html += `
+              <td>${frontPar}</td>
+              <td>${backPar}</td>
+              <td>${frontPar + backPar}</td>
+            </tr>
+          `;
+
+
+          /*
+            HANDICAP ROW
+          */
+
+          html += `
+            <tr class="hdcp-row">
+
+              <td class="name-cell">
+                HDCP
+              </td>
+          `;
+
+          for (
+            let holeIndex = 0;
+            holeIndex < 18;
+            holeIndex++
+          ) {
+
+            html += `
+              <td>
+                ${course.handicap[holeIndex]}
+              </td>
+            `;
+          }
+
+          html += `
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          `;
+
+
+          /*
+            PLAYER ROWS
+          */
+
+          allPlayers.forEach(
+            playerName => {
+
+              const teamClass =
+                players[playerName].team === "Ryan"
+                  ? "team-ryan"
+                  : "team-clayton";
+
+              html += `
+                <tr class="${teamClass}">
+
+                  <td class="name-cell">
+
+                    ${playerName}
+
+                    <br>
+
+                    <small>
+                      HCP ${players[playerName].handicap}
+                    </small>
+
+                  </td>
+              `;
+
+              for (
+                let holeIndex = 0;
+                holeIndex < 18;
+                holeIndex++
+              ) {
+
+                const hole =
+                  holeIndex + 1;
+
+                const key =
+                  getScoreKey(
+                    currentRound,
+                    matchNumber,
+                    playerName,
+                    hole
+                  );
+
+                const value =
+                  scores[key] ?? "";
+
+                html += `
+                  <td>
+
+                    <input
+                      class="score-input"
+                      type="number"
+                      min="1"
+                      max="15"
+                      value="${value}"
+
+                      onchange="
+                        updateScore(
+                          '${playerName}',
+                          ${matchNumber},
+                          ${hole},
+                          this.value
+                        )
+                      "
+                    >
+
+                  </td>
+                `;
+              }
+
+              html += `
+                    <td
+                      id="front-${currentRound}-${matchNumber}-${playerName}"
+                      class="total-cell"
+                    >
+                      -
+                    </td>
+
+                    <td
+                      id="back-${currentRound}-${matchNumber}-${playerName}"
+                      class="total-cell"
+                    >
+                      -
+                    </td>
+
+                    <td
+                      id="total-${currentRound}-${matchNumber}-${playerName}"
+                      class="total-cell"
+                    >
+                      -
+                    </td>
+
+                  </tr>
+              `;
+            }
+          );
+
+          html += `
+                </tbody>
+
+              </table>
+
+            </div>
+
+            <div class="match-results">
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  FRONT 9
+                </div>
+
+                <div
+                  class="result-value"
+                  id="front-result-${matchNumber}"
+                >
+                  -
+                </div>
+
+              </div>
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  BACK 9
+                </div>
+
+                <div
+                  class="result-value"
+                  id="back-result-${matchNumber}"
+                >
+                  -
+                </div>
+
+              </div>
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  18-HOLE STROKE
+                </div>
+
+                <div
+                  class="result-value"
+                  id="stroke-result-${matchNumber}"
+                >
+                  -
+                </div>
+
+              </div>
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  MATCH POINTS
+                </div>
+
+                <div
+                  class="result-value"
+                  id="points-result-${matchNumber}"
+                >
+                  -
+                </div>
+
+              </div>
+
+            </div>
+          `;
+
+          div.innerHTML = html;
+
+          container.appendChild(div);
+
+          updatePlayerTotals(matchNumber);
+
+          calculateMatch(matchNumber);
+        }
+      );
     }
 
 
-    function getGrossScore(
+    /*
+      =====================================================
+      UPDATE SCORE
+      =====================================================
+    */
+
+    function updateScore(
       playerName,
-      holeIndex
-    ) {
-
-      ensureScoreStructure();
-
-
-      const value =
-
-        scores[currentRound]
-          [currentMatch]
-          [playerName]
-          ?.[holeIndex];
-
-
-      return value === undefined
-        ? ""
-        : value;
-
-    }
-
-
-    function setGrossScore(
-      playerName,
-      holeIndex,
+      matchNumber,
+      hole,
       value
     ) {
 
-      ensureScoreStructure();
-
-
-      if (
-        !scores[currentRound]
-          [currentMatch]
-          [playerName]
-      ) {
-
-        scores[currentRound]
-          [currentMatch]
-          [playerName] = {};
-
-      }
-
-
-      scores[currentRound]
-        [currentMatch]
-        [playerName]
-        [holeIndex] = value;
-
-
-      saveScores();
-
-      render();
-
-    }
-
-
-    function getNumericGross(
-      playerName,
-      holeIndex
-    ) {
-
-      const value =
-        getGrossScore(
+      const key =
+        getScoreKey(
+          currentRound,
+          matchNumber,
           playerName,
-          holeIndex
+          hole
         );
 
+      if (value === "") {
 
-      if (
-        value === ""
-      ) {
+        delete scores[key];
 
-        return null;
+      } else {
 
+        scores[key] = Number(value);
       }
 
+      updatePlayerTotals(matchNumber);
 
-      return Number(value);
-
-    }
-
-
-    function getNetScore(
-      playerName,
-      holeIndex
-    ) {
-
-      const gross =
-        getNumericGross(
-          playerName,
-          holeIndex
-        );
-
-
-      if (
-        gross === null
-      ) {
-
-        return null;
-
-      }
-
-
-      return gross -
-
-        getStrokesOnHole(
-          playerName,
-          holeIndex
-        );
-
+      calculateMatch(matchNumber);
     }
 
 
     /*
-    =========================================
-    OUT / IN / TOTAL
-    =========================================
+      =====================================================
+      PLAYER TOTALS
+      =====================================================
     */
 
-    function getGrossRangeTotal(
-      playerName,
-      start,
-      end
-    ) {
-
-      let total = 0;
-
-      let count = 0;
-
-
-      for (
-        let hole = start;
-        hole <= end;
-        hole++
-      ) {
-
-        const score =
-          getNumericGross(
-            playerName,
-            hole
-          );
-
-
-        if (
-          score !== null
-        ) {
-
-          total += score;
-
-          count++;
-
-        }
-
-      }
-
-
-      return {
-        total,
-        count
-      };
-
-    }
-
-
-    function getNetRangeTotal(
-      playerName,
-      start,
-      end
-    ) {
-
-      let total = 0;
-
-      let count = 0;
-
-
-      for (
-        let hole = start;
-        hole <= end;
-        hole++
-      ) {
-
-        const score =
-          getNetScore(
-            playerName,
-            hole
-          );
-
-
-        if (
-          score !== null
-        ) {
-
-          total += score;
-
-          count++;
-
-        }
-
-      }
-
-
-      return {
-        total,
-        count
-      };
-
-    }
-
-
-    /*
-    =========================================
-    TEAM BEST BALL
-    =========================================
-    */
-
-    function getTeamBestNet(
-      team,
-      holeIndex
-    ) {
-
-      const scores =
-
-        team
-
-          .map(
-            player =>
-              getNetScore(
-                player,
-                holeIndex
-              )
-          )
-
-          .filter(
-            score =>
-              score !== null
-          );
-
-
-      if (
-        scores.length === 0
-      ) {
-
-        return null;
-
-      }
-
-
-      return Math.min(
-        ...scores
-      );
-
-    }
-
-
-    function getBestBallRangeTotal(
-      team,
-      start,
-      end
-    ) {
-
-      let total = 0;
-
-      let completed = 0;
-
-
-      for (
-        let hole = start;
-        hole <= end;
-        hole++
-      ) {
-
-        const best =
-          getTeamBestNet(
-            team,
-            hole
-          );
-
-
-        if (
-          best !== null
-        ) {
-
-          total += best;
-          completed++;
-
-        }
-
-      }
-
-
-      return {
-        total,
-        completed
-      };
-
-    }
-
-
-    /*
-    =========================================
-    HOLE RESULT + BIRDIE/EAGLE BONUS
-    =========================================
-    */
-
-    function calculateBonus(
-      team,
-      holeIndex
-    ) {
-
-      const course =
-
-        courses[
-          rounds[currentRound]
-            .courseKey
-        ];
-
-
-      const par =
-        course.holePars[
-          holeIndex
-        ];
-
-
-      let bonus = 0;
-
-
-      team.forEach(
-        player => {
-
-          const gross =
-            getNumericGross(
-              player,
-              holeIndex
-            );
-
-
-          if (
-            gross === null
-          ) {
-
-            return;
-
-          }
-
-
-          if (
-            gross === par - 2
-          ) {
-
-            bonus += 2;
-
-          }
-
-          else if (
-            gross === par - 1
-          ) {
-
-            bonus += 1;
-
-          }
-
-        }
-      );
-
-
-      return bonus;
-
-    }
-
-
-    function getHoleResult(
-      match,
-      holeIndex
-    ) {
-
-      const claytonBest =
-        getTeamBestNet(
-          match.clayton,
-          holeIndex
-        );
-
-
-      const ryanBest =
-        getTeamBestNet(
-          match.ryan,
-          holeIndex
-        );
-
-
-      const result = {
-
-        winner: null,
-
-        claytonPoints: 0,
-
-        ryanPoints: 0,
-
-        claytonBonus: 0,
-
-        ryanBonus: 0,
-
-        claytonBest,
-
-        ryanBest
-
-      };
-
-
-      if (
-        claytonBest === null ||
-        ryanBest === null
-      ) {
-
-        return result;
-
-      }
-
-
-      if (
-        claytonBest <
-        ryanBest
-      ) {
-
-        result.winner =
-          "clayton";
-
-        result.claytonPoints = 1;
-
-        result.claytonBonus =
-          calculateBonus(
-            match.clayton,
-            holeIndex
-          );
-
-      }
-
-
-      else if (
-        ryanBest <
-        claytonBest
-      ) {
-
-        result.winner =
-          "ryan";
-
-        result.ryanPoints = 1;
-
-        result.ryanBonus =
-          calculateBonus(
-            match.ryan,
-            holeIndex
-          );
-
-      }
-
-
-      else {
-
-        result.winner =
-          "tie";
-
-        const totalBonus =
-
-          calculateBonus(
-            match.clayton,
-            holeIndex
-          )
-
-          +
-
-          calculateBonus(
-            match.ryan,
-            holeIndex
-          );
-
-
-        if (
-          totalBonus > 0
-        ) {
-
-          result.claytonBonus =
-            totalBonus / 2;
-
-          result.ryanBonus =
-            totalBonus / 2;
-
-        }
-
-      }
-
-
-      return result;
-
-    }
-
-
-    /*
-    =========================================
-    FRONT / BACK / OVERALL POINTS
-    =========================================
-    */
-
-    function getSegmentPoints(
-      match
-    ) {
-
-      const claytonFront =
-        getBestBallRangeTotal(
-          match.clayton,
-          0,
-          8
-        );
-
-      const ryanFront =
-        getBestBallRangeTotal(
-          match.ryan,
-          0,
-          8
-        );
-
-
-      const claytonBack =
-        getBestBallRangeTotal(
-          match.clayton,
-          9,
-          17
-        );
-
-      const ryanBack =
-        getBestBallRangeTotal(
-          match.ryan,
-          9,
-          17
-        );
-
-
-      const claytonOverall =
-        getBestBallRangeTotal(
-          match.clayton,
-          0,
-          17
-        );
-
-      const ryanOverall =
-        getBestBallRangeTotal(
-          match.ryan,
-          0,
-          17
-        );
-
-
-      const result = {
-
-        front: {
-          clayton: 0,
-          ryan: 0
-        },
-
-        back: {
-          clayton: 0,
-          ryan: 0
-        },
-
-        overall: {
-          clayton: 0,
-          ryan: 0
-        },
-
-        totals: {
-
-          claytonFront,
-          ryanFront,
-
-          claytonBack,
-          ryanBack,
-
-          claytonOverall,
-          ryanOverall
-
-        }
-
-      };
-
-
-      if (
-        claytonFront.completed === 9 &&
-        ryanFront.completed === 9
-      ) {
-
-        if (
-          claytonFront.total <
-          ryanFront.total
-        ) {
-
-          result.front.clayton = 3;
-
-        }
-
-        else if (
-          ryanFront.total <
-          claytonFront.total
-        ) {
-
-          result.front.ryan = 3;
-
-        }
-
-        else {
-
-          result.front.clayton = 1.5;
-          result.front.ryan = 1.5;
-
-        }
-
-      }
-
-
-      if (
-        claytonBack.completed === 9 &&
-        ryanBack.completed === 9
-      ) {
-
-        if (
-          claytonBack.total <
-          ryanBack.total
-        ) {
-
-          result.back.clayton = 3;
-
-        }
-
-        else if (
-          ryanBack.total <
-          claytonBack.total
-        ) {
-
-          result.back.ryan = 3;
-
-        }
-
-        else {
-
-          result.back.clayton = 1.5;
-          result.back.ryan = 1.5;
-
-        }
-
-      }
-
-
-      if (
-        claytonOverall.completed === 18 &&
-        ryanOverall.completed === 18
-      ) {
-
-        if (
-          claytonOverall.total <
-          ryanOverall.total
-        ) {
-
-          result.overall.clayton = 5;
-
-        }
-
-        else if (
-          ryanOverall.total <
-          claytonOverall.total
-        ) {
-
-          result.overall.ryan = 5;
-
-        }
-
-        else {
-
-          result.overall.clayton = 2.5;
-          result.overall.ryan = 2.5;
-
-        }
-
-      }
-
-
-      return result;
-
-    }
-
-
-    /*
-    =========================================
-    ROUND TABS
-    =========================================
-    */
-
-    function renderRoundTabs() {
-
-      document.getElementById(
-        "roundTabs"
-      ).innerHTML =
-
-        rounds.map(
-          (round, index) => `
-
-            <button
-              class="
-                tab
-                ${index === currentRound ? "active" : ""}
-              "
-              onclick="changeRound(${index})"
-            >
-              ${round.name}
-            </button>
-
-          `
-        ).join("");
-
-    }
-
-
-    function changeRound(
-      index
-    ) {
-
-      currentRound = index;
-
-      currentMatch = 0;
-
-      render();
-
-    }
-
-
-    /*
-    =========================================
-    MATCH TABS
-    =========================================
-    */
-
-    function getCurrentRoundPairings() {
-
-      return pairings[currentRound]
-        || null;
-
-    }
-
-
-    function renderMatchTabs() {
-
-      const roundPairings =
-        getCurrentRoundPairings();
-
-
-      if (
-        !roundPairings
-      ) {
-
-        document.getElementById(
-          "matchTabs"
-        ).innerHTML = "";
-
-        return;
-
-      }
-
-
-      document.getElementById(
-        "matchTabs"
-      ).innerHTML =
-
-        roundPairings.map(
-          (match, index) => `
-
-            <button
-              class="
-                match-tab
-                ${index === currentMatch ? "active" : ""}
-              "
-              onclick="changeMatch(${index})"
-            >
-              Match ${index + 1}
-            </button>
-
-          `
-        ).join("");
-
-    }
-
-
-    function changeMatch(
-      index
-    ) {
-
-      currentMatch = index;
-
-      render();
-
-    }
-
-
-    /*
-    =========================================
-    COURSE INFO
-    =========================================
-    */
-
-    function renderCourseInfo() {
-
-      const course =
-
-        courses[
-          rounds[currentRound]
-            .courseKey
-        ];
-
-
-      document.getElementById(
-        "courseInfo"
-      ).innerHTML = `
-
-        <div class="course-name">
-          ${course.name}
-          •
-          ${course.tee} Tees
-        </div>
-
-        <div class="course-details">
-          Rating ${course.rating}
-          •
-          Slope ${course.slope}
-          •
-          Par ${course.par}
-          •
-          85% Playing Handicap
-        </div>
-
-      `;
-
-    }
-
-
-    /*
-    =========================================
-    RENDER PLAYER ROW
-    =========================================
-    */
-
-    function renderPlayerRows(
-      player,
-      teamClass
-    ) {
-
-      const handicapIndex =
-        players[player];
-
-      const playingHandicap =
-        getPlayingHandicap(
-          player
-        );
-
-
-      const grossFront =
-        getGrossRangeTotal(
-          player,
-          0,
-          8
-        );
-
-      const grossBack =
-        getGrossRangeTotal(
-          player,
-          9,
-          17
-        );
-
-
-      const grossTotal =
-        getGrossRangeTotal(
-          player,
-          0,
-          17
-        );
-
-
-      const netFront =
-        getNetRangeTotal(
-          player,
-          0,
-          8
-        );
-
-      const netBack =
-        getNetRangeTotal(
-          player,
-          9,
-          17
-        );
-
-
-      const netTotal =
-        getNetRangeTotal(
-          player,
-          0,
-          17
-        );
-
-
-      let grossCells = "";
-
-      let netCells = "";
-
-
-      for (
-        let hole = 0;
-        hole < 18;
-        hole++
-      ) {
-
-        const gross =
-          getGrossScore(
-            player,
-            hole
-          );
-
-
-        const net =
-          getNetScore(
-            player,
-            hole
-          );
-
-
-        const strokes =
-          getStrokesOnHole(
-            player,
-            hole
-          );
-
-
-        grossCells += `
-
-          <td>
-
-            <input
-              class="gross-input"
-              type="number"
-              inputmode="numeric"
-              min="1"
-              max="20"
-              value="${gross}"
-              oninput="
-                setGrossScore(
-                  '${player}',
-                  ${hole},
-                  this.value
-                )
-              "
-            >
-
-          </td>
-
-        `;
-
-
-        netCells += `
-
-          <td>
-
-            ${
-              net === null
-                ? "—"
-                : net
-            }
-
-            ${
-              strokes > 0
-                ? `
-                  <span class="stroke-dot">
-                    ${strokes} stroke
-                    ${strokes > 1 ? "s" : ""}
-                  </span>
-                `
-                : ""
-            }
-
-          </td>
-
-        `;
-
-      }
-
-
-      return `
-
-        <tr class="${teamClass}">
-
-          <td
-            class="
-              player-column
-              player-name
-            "
-          >
-
-            ${player}
-
-            <span class="player-info">
-              HI ${handicapIndex}
-              •
-              Playing ${playingHandicap}
-            </span>
-
-          </td>
-
-          ${grossCells}
-
-          <td class="summary-column">
-            ${
-              grossFront.count === 9
-                ? grossFront.total
-                : "—"
-            }
-          </td>
-
-          <td class="summary-column">
-            ${
-              grossBack.count === 9
-                ? grossBack.total
-                : "—"
-            }
-          </td>
-
-          <td class="summary-column">
-            ${
-              grossTotal.count === 18
-                ? grossTotal.total
-                : "—"
-            }
-          </td>
-
-        </tr>
-
-
-        <tr class="net-row">
-
-          <td
-            class="
-              player-column
-              net-label
-            "
-          >
-            ${player} Net
-          </td>
-
-          ${netCells}
-
-          <td class="summary-column">
-            ${
-              netFront.count === 9
-                ? netFront.total
-                : "—"
-            }
-          </td>
-
-          <td class="summary-column">
-            ${
-              netBack.count === 9
-                ? netBack.total
-                : "—"
-            }
-          </td>
-
-          <td class="summary-column">
-            ${
-              netTotal.count === 18
-                ? netTotal.total
-                : "—"
-            }
-          </td>
-
-        </tr>
-
-      `;
-
-    }
-
-
-    /*
-    =========================================
-    MAIN SCORECARD
-    =========================================
-    */
-
-    function renderScorecard() {
-
-      const app =
-        document.getElementById(
-          "app"
-        );
-
-
-      const roundPairings =
-        getCurrentRoundPairings();
-
-
-      if (
-        !roundPairings ||
-        !roundPairings[currentMatch]
-      ) {
-
-        app.innerHTML = `
-
-          <div class="no-pairings">
-
-            <h2>
-              No Pairing Found
-            </h2>
-
-            <p>
-              Build the pairings for this round
-              first on the Pairings page.
-            </p>
-
-          </div>
-
-        `;
-
-        return;
-
-      }
-
+    function updatePlayerTotals(matchNumber) {
 
       const match =
-        roundPairings[currentMatch];
+        pairings[currentRound][matchNumber - 1];
+
+      const allPlayers = [
+        ...match.ryan,
+        ...match.clayton
+      ];
+
+      allPlayers.forEach(
+        playerName => {
+
+          let front = 0;
+          let back = 0;
+
+          let frontComplete = true;
+          let backComplete = true;
+
+          for (
+            let hole = 1;
+            hole <= 18;
+            hole++
+          ) {
+
+            const key =
+              getScoreKey(
+                currentRound,
+                matchNumber,
+                playerName,
+                hole
+              );
+
+            const value =
+              scores[key];
+
+            if (
+              value === undefined ||
+              value === ""
+            ) {
+
+              if (hole <= 9) {
+                frontComplete = false;
+              } else {
+                backComplete = false;
+              }
+
+              continue;
+            }
+
+            if (hole <= 9) {
+              front += Number(value);
+            } else {
+              back += Number(value);
+            }
+          }
+
+          document.getElementById(
+            `front-${currentRound}-${matchNumber}-${playerName}`
+          ).textContent =
+            frontComplete ? front : "-";
+
+          document.getElementById(
+            `back-${currentRound}-${matchNumber}-${playerName}`
+          ).textContent =
+            backComplete ? back : "-";
+
+          document.getElementById(
+            `total-${currentRound}-${matchNumber}-${playerName}`
+          ).textContent =
+            frontComplete && backComplete
+              ? front + back
+              : "-";
+        }
+      );
+    }
 
 
-      if (
-        !match.clayton ||
-        !match.ryan
-      ) {
+    /*
+      =====================================================
+      MATCH CALCULATIONS
 
-        app.innerHTML = `
+      Best ball net match play.
+      Each hole won = 1 point.
+      Front 9 = 3 points.
+      Back 9 = 3 points.
+      Overall 18 = 5 points.
 
-          <div class="no-pairings">
-            Incomplete match pairing.
-          </div>
+      Birdie +1
+      Eagle +2
 
-        `;
+      Only if the side wins the hole.
+      =====================================================
+    */
 
-        return;
+    function calculateMatch(matchNumber) {
 
-      }
-
+      const match =
+        pairings[currentRound][matchNumber - 1];
 
       const course =
+        getCourse(currentRound);
 
-        courses[
-          rounds[currentRound]
-            .courseKey
-        ];
+      let ryanHolePoints = 0;
+      let claytonHolePoints = 0;
 
+      let ryanBirdieBonus = 0;
+      let claytonBirdieBonus = 0;
 
-      let headerCells = "";
+      let frontRyan = 0;
+      let frontClayton = 0;
 
-      let parCells = "";
+      let backRyan = 0;
+      let backClayton = 0;
 
-      let hcpCells = "";
+      let frontRyanHoles = 0;
+      let frontClaytonHoles = 0;
 
+      let backRyanHoles = 0;
+      let backClaytonHoles = 0;
 
       for (
-        let hole = 0;
-        hole < 18;
-        hole++
+        let holeIndex = 0;
+        holeIndex < 18;
+        holeIndex++
       ) {
 
-        headerCells += `
+        const hole =
+          holeIndex + 1;
 
-          <th class="hole-header">
-            ${hole + 1}
-          </th>
+        const ryanScores =
+          match.ryan.map(
+            playerName => {
 
-        `;
+              const key =
+                getScoreKey(
+                  currentRound,
+                  matchNumber,
+                  playerName,
+                  hole
+                );
+
+              const gross =
+                scores[key];
+
+              if (
+                gross === undefined
+              ) {
+                return null;
+              }
+
+              return {
+                player: playerName,
+                gross: Number(gross),
+                net: calculateNetScore(
+                  playerName,
+                  gross,
+                  holeIndex,
+                  course
+                )
+              };
+            }
+          );
+
+        const claytonScores =
+          match.clayton.map(
+            playerName => {
+
+              const key =
+                getScoreKey(
+                  currentRound,
+                  matchNumber,
+                  playerName,
+                  hole
+                );
+
+              const gross =
+                scores[key];
+
+              if (
+                gross === undefined
+              ) {
+                return null;
+              }
+
+              return {
+                player: playerName,
+                gross: Number(gross),
+                net: calculateNetScore(
+                  playerName,
+                  gross,
+                  holeIndex,
+                  course
+                )
+              };
+            }
+          );
 
 
-        parCells += `
+        if (
+          ryanScores.includes(null) ||
+          claytonScores.includes(null)
+        ) {
+          continue;
+        }
 
-          <td>
-            ${course.holePars[hole]}
-          </td>
 
-        `;
+        const ryanBest =
+          Math.min(
+            ...ryanScores.map(
+              score => score.net
+            )
+          );
+
+        const claytonBest =
+          Math.min(
+            ...claytonScores.map(
+              score => score.net
+            )
+          );
 
 
-        hcpCells += `
+        if (hole <= 9) {
 
-          <td>
-            ${course.strokeIndexes[hole]}
-          </td>
+          frontRyan += ryanBest;
+          frontClayton += claytonBest;
+        } else {
 
-        `;
+          backRyan += ryanBest;
+          backClayton += claytonBest;
+        }
 
+
+        if (ryanBest < claytonBest) {
+
+          ryanHolePoints++;
+
+          if (hole <= 9) {
+            frontRyanHoles++;
+          } else {
+            backRyanHoles++;
+          }
+
+          ryanScores.forEach(
+            score => {
+
+              if (
+                score.gross ===
+                course.pars[holeIndex] - 1
+              ) {
+                ryanBirdieBonus++;
+              }
+
+              if (
+                score.gross <=
+                course.pars[holeIndex] - 2
+              ) {
+                ryanBirdieBonus += 2;
+              }
+            }
+          );
+        }
+
+
+        if (claytonBest < ryanBest) {
+
+          claytonHolePoints++;
+
+          if (hole <= 9) {
+            frontClaytonHoles++;
+          } else {
+            backClaytonHoles++;
+          }
+
+          claytonScores.forEach(
+            score => {
+
+              if (
+                score.gross ===
+                course.pars[holeIndex] - 1
+              ) {
+                claytonBirdieBonus++;
+              }
+
+              if (
+                score.gross <=
+                course.pars[holeIndex] - 2
+              ) {
+                claytonBirdieBonus += 2;
+              }
+            }
+          );
+        }
       }
 
 
       /*
-      TEAM BEST BALL ROWS
+        Front nine 3 points
       */
 
-      let claytonBestCells = "";
-      let ryanBestCells = "";
-      let resultCells = "";
+      let frontResult = "TIED";
 
+      let ryanPoints = 0;
+      let claytonPoints = 0;
 
-      let claytonBestFront = 0;
-      let ryanBestFront = 0;
-
-      let claytonBestBack = 0;
-      let ryanBestBack = 0;
-
-      let claytonBestTotal = 0;
-      let ryanBestTotal = 0;
-
-
-      let claytonFrontCount = 0;
-      let ryanFrontCount = 0;
-
-      let claytonBackCount = 0;
-      let ryanBackCount = 0;
-
-
-      let claytonHolePoints = 0;
-      let ryanHolePoints = 0;
-
-      let claytonBonusPoints = 0;
-      let ryanBonusPoints = 0;
-
-
-      for (
-        let hole = 0;
-        hole < 18;
-        hole++
+      if (
+        frontRyanHoles >
+        frontClaytonHoles
       ) {
 
-        const claytonBest =
-          getTeamBestNet(
-            match.clayton,
-            hole
-          );
+        frontResult =
+          "RYAN WINS FRONT";
 
-        const ryanBest =
-          getTeamBestNet(
-            match.ryan,
-            hole
-          );
+        ryanPoints += 3;
 
+      } else if (
+        frontClaytonHoles >
+        frontRyanHoles
+      ) {
 
-        claytonBestCells += `
+        frontResult =
+          "CLAYTON WINS FRONT";
 
-          <td>
-            ${
-              claytonBest === null
-                ? "—"
-                : claytonBest
-            }
-          </td>
-
-        `;
-
-
-        ryanBestCells += `
-
-          <td>
-            ${
-              ryanBest === null
-                ? "—"
-                : ryanBest
-            }
-          </td>
-
-        `;
-
-
-        if (
-          claytonBest !== null
-        ) {
-
-          claytonBestTotal +=
-            claytonBest;
-
-          if (
-            hole < 9
-          ) {
-
-            claytonBestFront +=
-              claytonBest;
-
-            claytonFrontCount++;
-
-          }
-
-          else {
-
-            claytonBestBack +=
-              claytonBest;
-
-          }
-
-        }
-
-
-        if (
-          ryanBest !== null
-        ) {
-
-          ryanBestTotal +=
-            ryanBest;
-
-          if (
-            hole < 9
-          ) {
-
-            ryanBestFront +=
-              ryanBest;
-
-            ryanFrontCount++;
-
-          }
-
-          else {
-
-            ryanBestBack +=
-              ryanBest;
-
-          }
-
-        }
-
-
-        const result =
-          getHoleResult(
-            match,
-            hole
-          );
-
-
-        claytonHolePoints +=
-          result.claytonPoints;
-
-        ryanHolePoints +=
-          result.ryanPoints;
-
-        claytonBonusPoints +=
-          result.claytonBonus;
-
-        ryanBonusPoints +=
-          result.ryanBonus;
-
-
-        let resultText = "—";
-        let resultClass = "";
-
-
-        if (
-          result.winner === "clayton"
-        ) {
-
-          resultText =
-            `C +${
-              result.claytonPoints +
-              result.claytonBonus
-            }`;
-
-          resultClass =
-            "winner-clayton";
-
-        }
-
-        else if (
-          result.winner === "ryan"
-        ) {
-
-          resultText =
-            `R +${
-              result.ryanPoints +
-              result.ryanBonus
-            }`;
-
-          resultClass =
-            "winner-ryan";
-
-        }
-
-        else if (
-          result.winner === "tie"
-        ) {
-
-          resultText = "TIE";
-          resultClass = "tie";
-
-        }
-
-
-        resultCells += `
-
-          <td class="${resultClass}">
-            ${resultText}
-          </td>
-
-        `;
-
+        claytonPoints += 3;
       }
 
 
-      const segmentPoints =
-        getSegmentPoints(
-          match
-        );
+      /*
+        Back nine 3 points
+      */
 
+      let backResult = "TIED";
 
-      const claytonTotalPoints =
+      if (
+        backRyanHoles >
+        backClaytonHoles
+      ) {
 
-        claytonHolePoints
+        backResult =
+          "RYAN WINS BACK";
 
-        +
+        ryanPoints += 3;
 
-        claytonBonusPoints
+      } else if (
+        backClaytonHoles >
+        backRyanHoles
+      ) {
 
-        +
+        backResult =
+          "CLAYTON WINS BACK";
 
-        segmentPoints.front.clayton
+        claytonPoints += 3;
+      }
 
-        +
 
-        segmentPoints.back.clayton
+      /*
+        18-hole stroke play
+      */
 
-        +
+      const ryan18 =
+        frontRyan + backRyan;
 
-        segmentPoints.overall.clayton;
+      const clayton18 =
+        frontClayton + backClayton;
 
+      let strokeResult = "IN PROGRESS";
 
-      const ryanTotalPoints =
+      if (
+        ryan18 > 0 &&
+        clayton18 > 0
+      ) {
 
-        ryanHolePoints
+        if (
+          ryan18 < clayton18
+        ) {
 
-        +
+          strokeResult =
+            "RYAN WINS 18";
 
-        ryanBonusPoints
+          ryanPoints += 5;
 
-        +
+        } else if (
+          clayton18 < ryan18
+        ) {
 
-        segmentPoints.front.ryan
+          strokeResult =
+            "CLAYTON WINS 18";
 
-        +
+          claytonPoints += 5;
 
-        segmentPoints.back.ryan
+        } else {
 
-        +
+          strokeResult =
+            "18 TIED";
+        }
+      }
 
-        segmentPoints.overall.ryan;
 
+      ryanPoints +=
+        ryanHolePoints +
+        ryanBirdieBonus;
 
-      app.innerHTML = `
+      claytonPoints +=
+        claytonHolePoints +
+        claytonBirdieBonus;
 
-        <div class="match-heading">
 
-          ${match.clayton[0]}
-          &
-          ${match.clayton[1]}
+      /*
+        Round 5 is 1.5x
+      */
 
-          vs
+      if (currentRound === 5) {
 
-          ${match.ryan[0]}
-          &
-          ${match.ryan[1]}
+        ryanPoints *= 1.5;
 
-        </div>
+        claytonPoints *= 1.5;
+      }
 
 
-        <div class="scorecard-wrap">
+      document.getElementById(
+        `front-result-${matchNumber}`
+      ).textContent =
+        `${frontResult} • ${frontRyanHoles}-${frontClaytonHoles}`;
 
-          <table>
 
-            <thead>
+      document.getElementById(
+        `back-result-${matchNumber}`
+      ).textContent =
+        `${backResult} • ${backRyanHoles}-${backClaytonHoles}`;
 
-              <tr>
 
-                <th class="player-column">
-                  PLAYER
-                </th>
+      document.getElementById(
+        `stroke-result-${matchNumber}`
+      ).textContent =
+        `${strokeResult} • ${ryan18 || "-"}-${clayton18 || "-"}`;
 
-                ${headerCells}
 
-                <th class="summary-column">
-                  OUT
-                </th>
-
-                <th class="summary-column">
-                  IN
-                </th>
-
-                <th class="summary-column">
-                  TOTAL
-                </th>
-
-              </tr>
-
-            </thead>
-
-
-            <tbody>
-
-              <tr class="par-row">
-
-                <td class="player-column">
-                  PAR
-                </td>
-
-                ${parCells}
-
-                <td class="summary-column">
-                  ${
-                    course.holePars
-                      .slice(0, 9)
-                      .reduce(
-                        (a, b) => a + b,
-                        0
-                      )
-                  }
-                </td>
-
-                <td class="summary-column">
-                  ${
-                    course.holePars
-                      .slice(9, 18)
-                      .reduce(
-                        (a, b) => a + b,
-                        0
-                      )
-                  }
-                </td>
-
-                <td class="summary-column">
-                  ${course.par}
-                </td>
-
-              </tr>
-
-
-              <tr class="hcp-row">
-
-                <td class="player-column">
-                  HCP
-                </td>
-
-                ${hcpCells}
-
-                <td class="summary-column">
-                  —
-                </td>
-
-                <td class="summary-column">
-                  —
-                </td>
-
-                <td class="summary-column">
-                  —
-                </td>
-
-              </tr>
-
-
-              ${renderPlayerRows(
-                match.clayton[0],
-                "team-clayton"
-              )}
-
-
-              ${renderPlayerRows(
-                match.clayton[1],
-                "team-clayton"
-              )}
-
-
-              <tr class="team-row">
-
-                <td class="player-column">
-                  CLAYTON BEST BALL
-                </td>
-
-                ${claytonBestCells}
-
-                <td class="summary-column">
-                  ${
-                    claytonFrontCount === 9
-                      ? claytonBestFront
-                      : "—"
-                  }
-                </td>
-
-                <td class="summary-column">
-                  ${
-                    claytonBestBack
-                    ? claytonBestBack
-                    : "—"
-                  }
-                </td>
-
-                <td class="summary-column">
-                  ${
-                    claytonBestTotal
-                    ? claytonBestTotal
-                    : "—"
-                  }
-                </td>
-
-              </tr>
-
-
-              ${renderPlayerRows(
-                match.ryan[0],
-                "team-ryan"
-              )}
-
-
-              ${renderPlayerRows(
-                match.ryan[1],
-                "team-ryan"
-              )}
-
-
-              <tr class="team-row">
-
-                <td class="player-column">
-                  RYAN BEST BALL
-                </td>
-
-                ${ryanBestCells}
-
-                <td class="summary-column">
-                  ${
-                    ryanFrontCount === 9
-                      ? ryanBestFront
-                      : "—"
-                  }
-                </td>
-
-                <td class="summary-column">
-                  ${
-                    ryanBestBack
-                    ? ryanBestBack
-                    : "—"
-                  }
-                </td>
-
-                <td class="summary-column">
-                  ${
-                    ryanBestTotal
-                    ? ryanBestTotal
-                    : "—"
-                  }
-                </td>
-
-              </tr>
-
-
-              <tr class="result-row">
-
-                <td class="player-column">
-                  HOLE RESULT
-                </td>
-
-                ${resultCells}
-
-                <td class="summary-column">
-                  —
-                </td>
-
-                <td class="summary-column">
-                  —
-                </td>
-
-                <td class="summary-column">
-                  —
-                </td>
-
-              </tr>
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-
-        <div class="results-grid">
-
-
-          <div class="result-card">
-
-            <h3>
-              FRONT 9
-            </h3>
-
-            <div class="score-line">
-
-              ${
-                segmentPoints.totals
-                  .claytonFront
-                  .completed === 9
-
-                ?
-
-                segmentPoints.totals
-                  .claytonFront
-                  .total
-
-                :
-
-                "—"
-              }
-
-              -
-
-              ${
-                segmentPoints.totals
-                  .ryanFront
-                  .completed === 9
-
-                ?
-
-                segmentPoints.totals
-                  .ryanFront
-                  .total
-
-                :
-
-                "—"
-              }
-
-            </div>
-
-            <div class="points-line">
-
-              <div class="team-point clayton">
-                Clayton<br>
-                ${segmentPoints.front.clayton} pts
-              </div>
-
-              <div class="team-point ryan">
-                Ryan<br>
-                ${segmentPoints.front.ryan} pts
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div class="result-card">
-
-            <h3>
-              BACK 9
-            </h3>
-
-            <div class="score-line">
-
-              ${
-                segmentPoints.totals
-                  .claytonBack
-                  .completed === 9
-
-                ?
-
-                segmentPoints.totals
-                  .claytonBack
-                  .total
-
-                :
-
-                "—"
-              }
-
-              -
-
-              ${
-                segmentPoints.totals
-                  .ryanBack
-                  .completed === 9
-
-                ?
-
-                segmentPoints.totals
-                  .ryanBack
-                  .total
-
-                :
-
-                "—"
-              }
-
-            </div>
-
-            <div class="points-line">
-
-              <div class="team-point clayton">
-                Clayton<br>
-                ${segmentPoints.back.clayton} pts
-              </div>
-
-              <div class="team-point ryan">
-                Ryan<br>
-                ${segmentPoints.back.ryan} pts
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div class="result-card">
-
-            <h3>
-              OVERALL 18
-            </h3>
-
-            <div class="score-line">
-
-              ${
-                segmentPoints.totals
-                  .claytonOverall
-                  .completed === 18
-
-                ?
-
-                segmentPoints.totals
-                  .claytonOverall
-                  .total
-
-                :
-
-                "—"
-              }
-
-              -
-
-              ${
-                segmentPoints.totals
-                  .ryanOverall
-                  .completed === 18
-
-                ?
-
-                segmentPoints.totals
-                  .ryanOverall
-                  .total
-
-                :
-
-                "—"
-              }
-
-            </div>
-
-            <div class="points-line">
-
-              <div class="team-point clayton">
-                Clayton<br>
-                ${segmentPoints.overall.clayton} pts
-              </div>
-
-              <div class="team-point ryan">
-                Ryan<br>
-                ${segmentPoints.overall.ryan} pts
-              </div>
-
-            </div>
-
-          </div>
-
-
-        </div>
-
-
-        <div class="match-total">
-
-          <h2>
-            LIVE MATCH TOTAL
-          </h2>
-
-          <div class="match-score-grid">
-
-            <div>
-
-              <div class="team-label">
-                CLAYTON'S TEAM
-              </div>
-
-              <div class="big-score winner-clayton">
-                ${claytonTotalPoints}
-              </div>
-
-            </div>
-
-
-            <div class="vs">
-              VS
-            </div>
-
-
-            <div>
-
-              <div class="team-label">
-                RYAN'S TEAM
-              </div>
-
-              <div class="big-score winner-ryan">
-                ${ryanTotalPoints}
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div
-            style="
-              margin-top:15px;
-              color:#a9b6c8;
-              font-size:13px;
-              line-height:1.7;
-            "
-          >
-
-            Hole Points:
-            ${claytonHolePoints}
-            -
-            ${ryanHolePoints}
-
-            &nbsp;•&nbsp;
-
-            Birdie/Eagle Bonus:
-            ${claytonBonusPoints}
-            -
-            ${ryanBonusPoints}
-
-            &nbsp;•&nbsp;
-
-            Front:
-            ${segmentPoints.front.clayton}
-            -
-            ${segmentPoints.front.ryan}
-
-            &nbsp;•&nbsp;
-
-            Back:
-            ${segmentPoints.back.clayton}
-            -
-            ${segmentPoints.back.ryan}
-
-            &nbsp;•&nbsp;
-
-            18:
-            ${segmentPoints.overall.clayton}
-            -
-            ${segmentPoints.overall.ryan}
-
-          </div>
-
-        </div>
-
-      `;
-
+      document.getElementById(
+        `points-result-${matchNumber}`
+      ).textContent =
+        `RYAN ${ryanPoints} • CLAYTON ${claytonPoints}`;
     }
 
 
     /*
-    =========================================
-    MAIN RENDER
-    =========================================
+      =====================================================
+      SAVE TO SUPABASE
+      =====================================================
     */
 
-    function render() {
+    async function saveAllScores() {
 
-      renderRoundTabs();
+      showStatus(
+        "Saving scores...",
+        "loading"
+      );
 
-      renderCourseInfo();
+      const rows = [];
 
-      renderMatchTabs();
+      Object.keys(scores).forEach(
+        key => {
 
-      renderScorecard();
+          const [
+            roundNumber,
+            matchNumber,
+            playerName,
+            holeNumber
+          ] =
+            key.split("_");
 
+          rows.push({
+
+            round_number:
+              Number(roundNumber),
+
+            match_number:
+              Number(matchNumber),
+
+            player_name:
+              playerName,
+
+            hole_number:
+              Number(holeNumber),
+
+            gross_score:
+              Number(scores[key])
+          });
+        }
+      );
+
+
+      if (rows.length === 0) {
+
+        showStatus(
+          "No scores to save.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      try {
+
+        const { error } =
+          await supabaseClient
+            .from("scores")
+            .upsert(
+              rows,
+              {
+                onConflict:
+                  "round_number,match_number,player_name,hole_number"
+              }
+            );
+
+
+        if (error) {
+
+          console.error(
+            "SAVE ERROR:",
+            error
+          );
+
+          showStatus(
+            "SAVE ERROR: " +
+            error.message +
+            " | Code: " +
+            (error.code || "none") +
+            " | Details: " +
+            (error.details || "none"),
+            "error"
+          );
+
+          return;
+        }
+
+
+        showStatus(
+          "Scores saved successfully!",
+          "success"
+        );
+
+        setTimeout(
+          clearStatus,
+          2500
+        );
+
+      } catch (error) {
+
+        console.error(
+          "SAVE EXCEPTION:",
+          error
+        );
+
+        showStatus(
+          "SAVE EXCEPTION: " +
+          error.message,
+          "error"
+        );
+      }
     }
 
 
-    render();
+    /*
+      =====================================================
+      ROUND CHANGE
+      =====================================================
+    */
+
+    async function setRound(roundNumber) {
+
+      currentRound =
+        roundNumber;
+
+      document
+        .querySelectorAll(".round-btn")
+        .forEach(
+          (button, index) => {
+
+            button.classList.remove(
+              "active"
+            );
+
+            if (
+              index ===
+              roundNumber - 1
+            ) {
+
+              button.classList.add(
+                "active"
+              );
+            }
+          }
+        );
+
+
+      showStatus(
+        "Loading Round " +
+        currentRound +
+        "...",
+        "loading"
+      );
+
+
+      await loadScores();
+
+      renderScorecards();
+
+      clearStatus();
+    }
+
+
+    /*
+      =====================================================
+      START APP
+      =====================================================
+    */
+
+    async function startApp() {
+
+      const connected =
+        await testDatabase();
+
+      if (!connected) {
+        return;
+      }
+
+      await loadScores();
+
+      renderScorecards();
+    }
+
+
+    startApp();
 
   </script>
 
 </body>
-
 </html>
