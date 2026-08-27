@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -10,10 +9,10 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>
-    Scottsdale 26 Championship
+  <title>Scottsdale 26 Championship</title>
 
-  </title>
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
 
@@ -27,6 +26,7 @@
       --blue: #3b82f6;
       --red: #ef4444;
       --gold: #fbbf24;
+      --green: #22c55e;
     }
 
     * {
@@ -61,6 +61,39 @@
       color: var(--muted);
       margin-top: 6px;
       font-weight: bold;
+    }
+
+    .sync-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 12px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: bold;
+    }
+
+    .sync-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .sync-status.connected .sync-dot {
+      background: var(--green);
+    }
+
+    .sync-status.saving .sync-dot {
+      background: var(--gold);
+    }
+
+    .sync-status.error .sync-dot {
+      background: var(--red);
     }
 
     .tabs {
@@ -335,6 +368,17 @@
       color: white;
     }
 
+    .scorecard-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 12px 20px;
+      background: #fbbf24;
+      color: #111827;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+    }
+
     @media (max-width: 650px) {
 
       .match-row {
@@ -350,16 +394,7 @@
       }
 
     }
-.scorecard-link {
-  display: inline-block;
-  margin-top: 15px;
-  padding: 12px 20px;
-  background: #fbbf24;
-  color: #111827;
-  text-decoration: none;
-  border-radius: 10px;
-  font-weight: bold;
-}
+
   </style>
 
 </head>
@@ -369,11 +404,23 @@
   <header>
 
     <h1>SCOTTSDALE 26 CHAMPIONSHIP</h1>
+
     <a href="scorecard.html" class="scorecard-link">
-  Open Live Scorecard
-</a>
+      Open Live Scorecard
+    </a>
+
     <div class="subtitle">
       Captain Pairings Board
+    </div>
+
+    <div
+      id="syncStatus"
+      class="sync-status"
+    >
+      <span class="sync-dot"></span>
+      <span id="syncText">
+        Connecting to shared database...
+      </span>
     </div>
 
   </header>
@@ -388,14 +435,10 @@
       Select a player, then tap an empty pairing slot.
     </div>
 
-    <!-- MATCHES FIRST -->
-
     <div
       class="matches"
       id="matches"
     ></div>
-
-    <!-- PLAYER SELECTION SECOND -->
 
     <div class="rosters">
 
@@ -427,14 +470,10 @@
 
     </div>
 
-    <!-- PAIRING HISTORY THIRD -->
-
     <div
       id="pairingHistory"
       class="pairing-history"
     ></div>
-
-    <!-- CONTROLS LAST -->
 
     <div class="controls">
 
@@ -457,6 +496,27 @@
   </div>
 
   <script>
+
+    /* =========================================================
+       SUPABASE CONNECTION
+    ========================================================= */
+
+    const SUPABASE_URL =
+      "https://dxajaneijkrywjoveac.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable__CPedEYs1OS2ZYZh2DieiQ_0Ww_0e5k";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+
+    /* =========================================================
+       TOURNAMENT DATA
+    ========================================================= */
 
     const rounds = [
 
@@ -486,6 +546,7 @@
       }
 
     ];
+
 
     const claytonTeam = [
 
@@ -521,6 +582,7 @@
 
     ];
 
+
     const ryanTeam = [
 
       {
@@ -555,19 +617,58 @@
 
     ];
 
+
     const allPlayers = [
       ...claytonTeam,
       ...ryanTeam
     ];
 
+
+    /* =========================================================
+       APP STATE
+    ========================================================= */
+
     let currentRound = 0;
+
     let selectedPlayer = null;
 
-    let pairings = JSON.parse(
-      localStorage.getItem(
-        "scottsdale26Pairings"
-      )
-    ) || {};
+    let pairings = {};
+
+    let isLoading = false;
+
+    let realtimeTimer = null;
+
+
+    /* =========================================================
+       STATUS
+    ========================================================= */
+
+    function setSyncStatus(
+      text,
+      status = "connected"
+    ) {
+
+      const statusDiv =
+        document.getElementById(
+          "syncStatus"
+        );
+
+      const textDiv =
+        document.getElementById(
+          "syncText"
+        );
+
+      statusDiv.className =
+        `sync-status ${status}`;
+
+      textDiv.textContent = text;
+
+    }
+
+
+    /* =========================================================
+       PLAYER HELPERS
+    ========================================================= */
 
     function getPlayer(name) {
 
@@ -577,6 +678,7 @@
 
     }
 
+
     function getPlayerNames(team) {
 
       return team.map(
@@ -585,28 +687,37 @@
 
     }
 
+
+    function emptyRound() {
+
+      return [
+
+        {
+          clayton: ["", ""],
+          ryan: ["", ""]
+        },
+
+        {
+          clayton: ["", ""],
+          ryan: ["", ""]
+        },
+
+        {
+          clayton: ["", ""],
+          ryan: ["", ""]
+        }
+
+      ];
+
+    }
+
+
     function getRoundData() {
 
       if (!pairings[currentRound]) {
 
-        pairings[currentRound] = [
-
-          {
-            clayton: ["", ""],
-            ryan: ["", ""]
-          },
-
-          {
-            clayton: ["", ""],
-            ryan: ["", ""]
-          },
-
-          {
-            clayton: ["", ""],
-            ryan: ["", ""]
-          }
-
-        ];
+        pairings[currentRound] =
+          emptyRound();
 
       }
 
@@ -614,14 +725,468 @@
 
     }
 
-    function saveData() {
 
-      localStorage.setItem(
-        "scottsdale26Pairings",
-        JSON.stringify(pairings)
+    /* =========================================================
+       LOAD PAIRINGS FROM SUPABASE
+    ========================================================= */
+
+    async function loadPairingsFromSupabase() {
+
+      if (isLoading) {
+        return;
+      }
+
+      isLoading = true;
+
+      setSyncStatus(
+        "Loading shared pairings...",
+        "saving"
       );
 
+      try {
+
+        const {
+          data: pairingRows,
+          error: pairingError
+        } = await supabaseClient
+          .from("pairings")
+          .select("*")
+          .order(
+            "round_number",
+            {
+              ascending: true
+            }
+          )
+          .order(
+            "pairing_number",
+            {
+              ascending: true
+            }
+          );
+
+
+        if (pairingError) {
+          throw pairingError;
+        }
+
+
+        const {
+          data: playerRows,
+          error: playerError
+        } = await supabaseClient
+          .from("pairing_players")
+          .select("*")
+          .order(
+            "created_at",
+            {
+              ascending: true
+            }
+          );
+
+
+        if (playerError) {
+          throw playerError;
+        }
+
+
+        const newPairings = {};
+
+        const playersByPairing = {};
+
+
+        playerRows.forEach(
+          row => {
+
+            if (
+              !playersByPairing[
+                row.pairing_id
+              ]
+            ) {
+
+              playersByPairing[
+                row.pairing_id
+              ] = {
+                A: [],
+                B: []
+              };
+
+            }
+
+
+            playersByPairing[
+              row.pairing_id
+            ][
+              row.side
+            ].push(
+              row.player_name
+            );
+
+          }
+        );
+
+
+        pairingRows.forEach(
+          row => {
+
+            const roundIndex =
+              row.round_number - 1;
+
+            const pairingIndex =
+              row.pairing_number - 1;
+
+
+            if (
+              !newPairings[
+                roundIndex
+              ]
+            ) {
+
+              newPairings[
+                roundIndex
+              ] = emptyRound();
+
+            }
+
+
+            const assignedPlayers =
+              playersByPairing[
+                row.id
+              ] || {
+                A: [],
+                B: []
+              };
+
+
+            newPairings[
+              roundIndex
+            ][
+              pairingIndex
+            ] = {
+
+              clayton: [
+                assignedPlayers.A[0] || "",
+                assignedPlayers.A[1] || ""
+              ],
+
+              ryan: [
+                assignedPlayers.B[0] || "",
+                assignedPlayers.B[1] || ""
+              ]
+
+            };
+
+          }
+        );
+
+
+        pairings = newPairings;
+
+        render();
+
+        setSyncStatus(
+          "Live shared database connected",
+          "connected"
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Supabase load error:",
+          error
+        );
+
+        setSyncStatus(
+          "Database connection error",
+          "error"
+        );
+
+        alert(
+          "Could not load the shared pairings database."
+        );
+
+      }
+
+      finally {
+
+        isLoading = false;
+
+      }
+
     }
+
+
+    /* =========================================================
+       SAVE CURRENT ROUND TO SUPABASE
+    ========================================================= */
+
+    async function saveCurrentRoundToSupabase() {
+
+      setSyncStatus(
+        "Saving changes...",
+        "saving"
+      );
+
+
+      try {
+
+        const roundNumber =
+          currentRound + 1;
+
+
+        const roundData =
+          getRoundData();
+
+
+        const pairingPayload =
+          roundData.map(
+            (match, index) => ({
+
+              round_number:
+                roundNumber,
+
+              pairing_number:
+                index + 1,
+
+              team_a:
+                "Clayton",
+
+              team_b:
+                "Ryan"
+
+            })
+          );
+
+
+        const {
+          data: savedPairings,
+          error: pairingError
+        } = await supabaseClient
+          .from("pairings")
+          .upsert(
+            pairingPayload,
+            {
+              onConflict:
+                "round_number,pairing_number"
+            }
+          )
+          .select();
+
+
+        if (pairingError) {
+          throw pairingError;
+        }
+
+
+        for (
+          let index = 0;
+          index < savedPairings.length;
+          index++
+        ) {
+
+          const savedPairing =
+            savedPairings.find(
+              row =>
+                row.pairing_number ===
+                index + 1
+            );
+
+
+          await supabaseClient
+            .from("pairing_players")
+            .delete()
+            .eq(
+              "pairing_id",
+              savedPairing.id
+            );
+
+
+          const match =
+            roundData[index];
+
+
+          const playerPayload = [];
+
+
+          match.clayton
+            .filter(
+              player => player
+            )
+            .forEach(
+              player => {
+
+                playerPayload.push({
+
+                  pairing_id:
+                    savedPairing.id,
+
+                  player_name:
+                    player,
+
+                  side:
+                    "A"
+
+                });
+
+              }
+            );
+
+
+          match.ryan
+            .filter(
+              player => player
+            )
+            .forEach(
+              player => {
+
+                playerPayload.push({
+
+                  pairing_id:
+                    savedPairing.id,
+
+                  player_name:
+                    player,
+
+                  side:
+                    "B"
+
+                });
+
+              }
+            );
+
+
+          if (
+            playerPayload.length > 0
+          ) {
+
+            const {
+              error: playerInsertError
+            } = await supabaseClient
+              .from("pairing_players")
+              .insert(
+                playerPayload
+              );
+
+
+            if (
+              playerInsertError
+            ) {
+              throw playerInsertError;
+            }
+
+          }
+
+        }
+
+
+        setSyncStatus(
+          "Changes saved for everyone",
+          "connected"
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Supabase save error:",
+          error
+        );
+
+        setSyncStatus(
+          "Could not save changes",
+          "error"
+        );
+
+        alert(
+          "Your pairing change could not be saved."
+        );
+
+      }
+
+    }
+
+
+    /* =========================================================
+       CLEAR ROUND FROM SUPABASE
+    ========================================================= */
+
+    async function clearRoundFromSupabase(
+      roundNumber
+    ) {
+
+      const {
+        data: existingPairings,
+        error: lookupError
+      } = await supabaseClient
+        .from("pairings")
+        .select("id")
+        .eq(
+          "round_number",
+          roundNumber
+        );
+
+
+      if (lookupError) {
+        throw lookupError;
+      }
+
+
+      const pairingIds =
+        existingPairings.map(
+          row => row.id
+        );
+
+
+      if (
+        pairingIds.length > 0
+      ) {
+
+        const {
+          error: playersDeleteError
+        } = await supabaseClient
+          .from("pairing_players")
+          .delete()
+          .in(
+            "pairing_id",
+            pairingIds
+          );
+
+
+        if (
+          playersDeleteError
+        ) {
+          throw playersDeleteError;
+        }
+
+      }
+
+
+      const {
+        error: pairingDeleteError
+      } = await supabaseClient
+        .from("pairings")
+        .delete()
+        .eq(
+          "round_number",
+          roundNumber
+        );
+
+
+      if (
+        pairingDeleteError
+      ) {
+        throw pairingDeleteError;
+      }
+
+    }
+
+
+    /* =========================================================
+       RENDER
+    ========================================================= */
 
     function render() {
 
@@ -639,6 +1204,7 @@
       renderPairingHistory();
 
     }
+
 
     function renderTabs() {
 
@@ -665,10 +1231,12 @@
 
     }
 
+
     function renderMatches() {
 
       const roundData =
         getRoundData();
+
 
       document.getElementById(
         "matches"
@@ -695,7 +1263,10 @@
 
                     ${
                       match.clayton.map(
-                        (player, slotIndex) => `
+                        (
+                          player,
+                          slotIndex
+                        ) => `
 
                           <div
                             class="slot clayton-slot"
@@ -741,9 +1312,11 @@
 
                 </div>
 
+
                 <div class="vs">
                   VS
                 </div>
+
 
                 <div class="pairing-side">
 
@@ -755,7 +1328,10 @@
 
                     ${
                       match.ryan.map(
-                        (player, slotIndex) => `
+                        (
+                          player,
+                          slotIndex
+                        ) => `
 
                           <div
                             class="slot ryan-slot"
@@ -810,6 +1386,7 @@
 
     }
 
+
     function getUsedPlayers() {
 
       return getRoundData()
@@ -827,10 +1404,12 @@
 
     }
 
+
     function renderPlayers() {
 
       const usedPlayers =
         getUsedPlayers();
+
 
       document.getElementById(
         "claytonPlayers"
@@ -844,6 +1423,7 @@
               usedPlayers
             )
         ).join("");
+
 
       document.getElementById(
         "ryanPlayers"
@@ -860,6 +1440,7 @@
 
     }
 
+
     function playerButton(
       player,
       teamClass,
@@ -870,6 +1451,7 @@
         usedPlayers.includes(
           player.name
         );
+
 
       return `
 
@@ -888,16 +1470,19 @@
                 : ""
             }
           "
+
           onclick="
             selectPlayer(
               '${player.name}'
             )
           "
+
           ${
             used
               ? "disabled"
               : ""
           }
+
         >
 
           <span>
@@ -914,7 +1499,10 @@
 
     }
 
-    function selectPlayer(player) {
+
+    function selectPlayer(
+      player
+    ) {
 
       selectedPlayer =
         selectedPlayer === player
@@ -925,13 +1513,20 @@
 
     }
 
-    function placePlayer(
+
+    /* =========================================================
+       PLACE PLAYER
+    ========================================================= */
+
+    async function placePlayer(
       matchIndex,
       team,
       slotIndex
     ) {
 
-      if (!selectedPlayer) {
+      if (
+        !selectedPlayer
+      ) {
 
         alert(
           "Select a player first."
@@ -941,15 +1536,18 @@
 
       }
 
+
       const claytonNames =
         getPlayerNames(
           claytonTeam
         );
 
+
       const ryanNames =
         getPlayerNames(
           ryanTeam
         );
+
 
       if (
         team === "clayton" &&
@@ -966,6 +1564,7 @@
 
       }
 
+
       if (
         team === "ryan" &&
         !ryanNames.includes(
@@ -981,8 +1580,10 @@
 
       }
 
+
       const roundData =
         getRoundData();
+
 
       roundData[
         matchIndex
@@ -992,15 +1593,23 @@
         slotIndex
       ] = selectedPlayer;
 
-      selectedPlayer = null;
 
-      saveData();
+      selectedPlayer = null;
 
       render();
 
+      await saveCurrentRoundToSupabase();
+
     }
 
-    function changeRound(index) {
+
+    /* =========================================================
+       ROUND CHANGE
+    ========================================================= */
+
+    function changeRound(
+      index
+    ) {
 
       currentRound = index;
 
@@ -1010,62 +1619,195 @@
 
     }
 
-    function clearRound() {
+
+    /* =========================================================
+       CLEAR CURRENT ROUND
+    ========================================================= */
+
+    async function clearRound() {
 
       if (
         !confirm(
-          "Clear this round?"
+          "Clear this round for everyone?"
         )
       ) {
         return;
       }
 
-      pairings[currentRound] = [
 
-        {
-          clayton: ["", ""],
-          ryan: ["", ""]
-        },
+      try {
 
-        {
-          clayton: ["", ""],
-          ryan: ["", ""]
-        },
+        setSyncStatus(
+          "Clearing round...",
+          "saving"
+        );
 
-        {
-          clayton: ["", ""],
-          ryan: ["", ""]
+
+        await clearRoundFromSupabase(
+          currentRound + 1
+        );
+
+
+        pairings[
+          currentRound
+        ] = emptyRound();
+
+
+        selectedPlayer = null;
+
+        render();
+
+
+        setSyncStatus(
+          "Round cleared for everyone",
+          "connected"
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          error
+        );
+
+        setSyncStatus(
+          "Could not clear round",
+          "error"
+        );
+
+        alert(
+          "Could not clear the round."
+        );
+
+      }
+
+    }
+
+
+    /* =========================================================
+       RESET ALL ROUNDS
+    ========================================================= */
+
+    async function resetAll() {
+
+      if (
+        !confirm(
+          "Reset all five rounds for everyone?"
+        )
+      ) {
+        return;
+      }
+
+
+      try {
+
+        setSyncStatus(
+          "Resetting all rounds...",
+          "saving"
+        );
+
+
+        const {
+          data: existingPairings,
+          error: lookupError
+        } = await supabaseClient
+          .from("pairings")
+          .select("id");
+
+
+        if (
+          lookupError
+        ) {
+          throw lookupError;
         }
 
-      ];
 
-      selectedPlayer = null;
+        const pairingIds =
+          existingPairings.map(
+            row => row.id
+          );
 
-      saveData();
 
-      render();
+        if (
+          pairingIds.length > 0
+        ) {
 
-    }
+          const {
+            error: playersDeleteError
+          } = await supabaseClient
+            .from("pairing_players")
+            .delete()
+            .in(
+              "pairing_id",
+              pairingIds
+            );
 
-    function resetAll() {
 
-      if (
-        !confirm(
-          "Reset all five rounds?"
-        )
-      ) {
-        return;
+          if (
+            playersDeleteError
+          ) {
+            throw playersDeleteError;
+          }
+
+        }
+
+
+        const {
+          error: pairingDeleteError
+        } = await supabaseClient
+          .from("pairings")
+          .delete()
+          .neq(
+            "id",
+            "00000000-0000-0000-0000-000000000000"
+          );
+
+
+        if (
+          pairingDeleteError
+        ) {
+          throw pairingDeleteError;
+        }
+
+
+        pairings = {};
+
+        selectedPlayer = null;
+
+        render();
+
+
+        setSyncStatus(
+          "All rounds reset",
+          "connected"
+        );
+
       }
 
-      pairings = {};
+      catch (error) {
 
-      selectedPlayer = null;
+        console.error(
+          error
+        );
 
-      saveData();
+        setSyncStatus(
+          "Could not reset rounds",
+          "error"
+        );
 
-      render();
+        alert(
+          "Could not reset the tournament."
+        );
+
+      }
 
     }
+
+
+    /* =========================================================
+       PAIRING HISTORY
+    ========================================================= */
 
     function renderPairingHistory() {
 
@@ -1074,7 +1816,10 @@
           "pairingHistory"
         );
 
-      if (currentRound === 0) {
+
+      if (
+        currentRound === 0
+      ) {
 
         historyDiv.style.display =
           "none";
@@ -1083,16 +1828,21 @@
 
       }
 
+
       historyDiv.style.display =
         "block";
+
 
       const playerNames =
         allPlayers.map(
           player => player.name
         );
 
+
       const teammates = {};
+
       const opponents = {};
+
 
       playerNames.forEach(
         player => {
@@ -1106,6 +1856,7 @@
         }
       );
 
+
       for (
         let roundIndex = 0;
         roundIndex < currentRound;
@@ -1113,11 +1864,17 @@
       ) {
 
         const round =
-          pairings[roundIndex];
+          pairings[
+            roundIndex
+          ];
 
-        if (!round) {
+
+        if (
+          !round
+        ) {
           continue;
         }
+
 
         round.forEach(
           match => {
@@ -1127,10 +1884,12 @@
                 player => player
               );
 
+
             const ryanPair =
               match.ryan.filter(
                 player => player
               );
+
 
             if (
               claytonPair.length === 2
@@ -1142,6 +1901,7 @@
                 claytonPair[1]
               );
 
+
               teammates[
                 claytonPair[1]
               ].add(
@@ -1149,6 +1909,7 @@
               );
 
             }
+
 
             if (
               ryanPair.length === 2
@@ -1160,6 +1921,7 @@
                 ryanPair[1]
               );
 
+
               teammates[
                 ryanPair[1]
               ].add(
@@ -1167,6 +1929,7 @@
               );
 
             }
+
 
             claytonPair.forEach(
               claytonPlayer => {
@@ -1179,6 +1942,7 @@
                     ].add(
                       ryanPlayer
                     );
+
 
                     opponents[
                       ryanPlayer
@@ -1197,8 +1961,11 @@
 
       }
 
+
       let teammateHTML = "";
+
       let opponentHTML = "";
+
 
       playerNames.forEach(
         player => {
@@ -1206,10 +1973,14 @@
           const playerData =
             getPlayer(player);
 
+
           const isClaytonTeam =
             getPlayerNames(
               claytonTeam
-            ).includes(player);
+            ).includes(
+              player
+            );
+
 
           const sameTeam =
             isClaytonTeam
@@ -1220,6 +1991,7 @@
                   ryanTeam
                 );
 
+
           const oppositeTeam =
             isClaytonTeam
               ? getPlayerNames(
@@ -1228,6 +2000,7 @@
               : getPlayerNames(
                   claytonTeam
                 );
+
 
           const availableTeammates =
             sameTeam.filter(
@@ -1240,6 +2013,7 @@
                 )
             );
 
+
           const availableOpponents =
             oppositeTeam.filter(
               otherPlayer =>
@@ -1250,6 +2024,7 @@
                 )
             );
 
+
           teammateHTML += `
 
             <div class="history-row">
@@ -1257,24 +2032,29 @@
               <div
                 class="history-player"
               >
+
                 ${playerData.name}
                 • HCP
                 ${playerData.handicap}
+
               </div>
 
               <div
                 class="history-names"
               >
+
                 ${
                   availableTeammates.length
                     ? availableTeammates.join(", ")
                     : "Has played with everyone"
                 }
+
               </div>
 
             </div>
 
           `;
+
 
           opponentHTML += `
 
@@ -1283,19 +2063,23 @@
               <div
                 class="history-player"
               >
+
                 ${playerData.name}
                 • HCP
                 ${playerData.handicap}
+
               </div>
 
               <div
                 class="history-names"
               >
+
                 ${
                   availableOpponents.length
                     ? availableOpponents.join(", ")
                     : "Has played against everyone"
                 }
+
               </div>
 
             </div>
@@ -1304,6 +2088,7 @@
 
         }
       );
+
 
       historyDiv.innerHTML = `
 
@@ -1339,7 +2124,80 @@
 
     }
 
-    render();
+
+    /* =========================================================
+       REALTIME UPDATES
+    ========================================================= */
+
+    function scheduleRealtimeReload() {
+
+      clearTimeout(
+        realtimeTimer
+      );
+
+
+      realtimeTimer =
+        setTimeout(
+          () => {
+
+            loadPairingsFromSupabase();
+
+          },
+          500
+        );
+
+    }
+
+
+    supabaseClient
+
+      .channel(
+        "scottsdale-pairings-live"
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pairings"
+        },
+        scheduleRealtimeReload
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pairing_players"
+        },
+        scheduleRealtimeReload
+      )
+
+      .subscribe(
+        status => {
+
+          if (
+            status === "SUBSCRIBED"
+          ) {
+
+            setSyncStatus(
+              "Live shared database connected",
+              "connected"
+            );
+
+          }
+
+        }
+      );
+
+
+    /* =========================================================
+       START APP
+    ========================================================= */
+
+    loadPairingsFromSupabase();
 
   </script>
 
