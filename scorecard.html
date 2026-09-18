@@ -710,11 +710,11 @@
     function getPlayerCourseHandicap(playerName, course) {
       const handicapIndex = Number(players[playerName]?.handicap || 0);
 
-      // Ryan D and Brian play the White Tees.
+      // Ryan D and Brad play the White Tees.
       // Everyone else plays Blue at Dinosaur and Purple at We-Ko-Pa.
       const isWhiteTee =
         playerName === "Ryan D" ||
-        playerName === "Brian";
+        playerName === "Brad";
 
       let courseRating;
       let slopeRating;
@@ -965,7 +965,7 @@
 
                     <small>
 PLAYING HCP ${getPlayerCourseHandicap(playerName, course)}
-${(playerName === "Ryan D" || playerName === "Brian") ? " • WHITE TEES" : ""}                   </small>
+${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}                   </small>
 
                   </td>
               `;
