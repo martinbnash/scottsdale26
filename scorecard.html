@@ -1027,8 +1027,10 @@ function calculateNetScore(
                     <br>
 
                     <small>
-PLAYING HCP ${getPlayerCourseHandicap(playerName, course)}
-${(playerName === "Ryan D" || playerName === "Brian") ? " • WHITE TEES" : ""}                   </small>
+  PLAYING HCP ${getPlayerCourseHandicap(playerName, course)}
+  • ${getTeeInfo(playerName, course).tee} TEES
+  • HI ${players[playerName].handicap}
+</small>
 
                   </td>
               `;
