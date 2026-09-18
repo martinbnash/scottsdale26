@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scottsdale 26 | Parlay HQ</title>
+<meta name="theme-color" content="#0b1110">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#080d0c;--panel:#101816;--panel2:#151f1c;--line:#293731;
+  --text:#f4f6f2;--muted:#aeb9b2;--accent:#c7a45a;--accent2:#e2c77e;
+  --green:#6f927b;--danger:#d87979;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 80% 0%,#1c3028 0,#0b1110 32%,#080d0c 70%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1050px;margin:auto;padding:0 22px}
+header{padding:48px 0 36px;border-bottom:1px solid var(--line)}
+.eyebrow{color:var(--accent2);font-size:13px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
+h1{font-size:clamp(44px,8vw,78px);line-height:.95;letter-spacing:-.055em;margin:12px 0}
+header p{color:var(--muted);max-width:700px;font-size:18px;margin:0}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{padding:11px 16px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.04);font-weight:800}
+.btn:hover{border-color:var(--accent)}
+section{padding:42px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h2{margin:0 0 4px}
+.team-total{font-size:38px;font-weight:950;color:var(--accent2)}
+.small{color:var(--muted);font-size:13px}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);background:rgba(255,255,255,.025)}
+td{color:var(--muted)}
+td:first-child{color:var(--text);font-weight:800}
+tr:last-child td{border-bottom:0}
+input[type=text]{width:100%;max-width:280px;background:#0a100e;color:var(--text);border:1px solid #52645b;border-radius:8px;padding:10px 11px;font-weight:700}
+input[type=checkbox]{width:24px;height:24px;accent-color:var(--green);cursor:pointer}
+.pick-label{display:flex;align-items:center;gap:10px}
+.correct{color:var(--green);font-weight:900}
+.status{margin-top:14px;padding:12px 14px;border-radius:10px;background:#101816;color:var(--muted);border:1px solid var(--line)}
+.callout{background:linear-gradient(135deg,#1c2d25,#121b18);border:1px solid #40574b;border-radius:16px;padding:20px}
+footer{padding:35px 0 60px;color:var(--muted);text-align:center}
+@media(max-width:800px){.grid{grid-template-columns:1fr}th,td{padding:11px 12px}}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+  <div class="eyebrow">Scottsdale 26 · Tournament HQ</div>
+  <h1>12-MAN PARLAY</h1>
+  <p>Check the box when a golfer's parlay pick is correct. Every correct pick adds <strong>+1 point</strong> to that golfer's team. Results are stored in Supabase so the same totals appear on every device.</p>
+  <div class="nav">
+    <a class="btn" href="index.html">← Home</a>
+    <a class="btn" href="scorecard.html">Live Scorecard</a>
+    <a class="btn" href="scoreboard.html">Live Leaderboard</a>
+  </div>
+</div>
+</header>
+
+<section>
+<div class="wrap">
+  <div class="grid">
+    <div class="card">
+      <div class="small">CLAYTON'S TEAM</div>
+      <div class="team-total" id="clayton-total">+0</div>
+      <div class="small">Parlay bonus points</div>
+    </div>
+    <div class="card">
+      <div class="small">RYAN'S TEAM</div>
+      <div class="team-total" id="ryan-total">+0</div>
+      <div class="small">Parlay bonus points</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+  <div class="callout">
+    <strong>How to use this page:</strong> Enter each golfer's parlay pick in the Pick column. When that pick is correct, check the box. The +1 team bonus updates automatically and is saved to the live tournament database.
+  </div>
+</div>
+</section>
+
+<section>
+<div class="wrap">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Golfer</th><th>Parlay Pick</th><th>Correct?</th><th>Bonus</th></tr>
+      </thead>
+      <tbody id="parlay-body"></tbody>
+    </table>
+  </div>
+  <div id="status" class="status">Connecting to live parlay database...</div>
+</div>
+</section>
+
+<footer>
+<div class="wrap"><strong>SCOTTSDALE 26</strong><br>September 24–27, 2026 · Parlay HQ</div>
+</footer>
+
+<script>
+const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_09A0o2ImL-FLS8AiunnNTw_iWP1tG8L";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const players = [
+  {name:"Clayton",team:"Clayton"},
+  {name:"Marty",team:"Clayton"},
+  {name:"Raymond",team:"Clayton"},
+  {name:"Brian",team:"Clayton"},
+  {name:"Michael",team:"Clayton"},
+  {name:"Aaron",team:"Clayton"},
+  {name:"Ryan",team:"Ryan"},
+  {name:"Jon",team:"Ryan"},
+  {name:"Ryan D",team:"Ryan"},
+  {name:"Brad",team:"Ryan"},
+  {name:"Brent",team:"Ryan"},
+  {name:"Travis",team:"Ryan"}
+];
+
+const results = {};
+
+function render(){
+  const body = document.getElementById("parlay-body");
+  body.innerHTML = "";
+  players.forEach(p=>{
+    const row = document.createElement("tr");
+    const item = results[p.name] || {pick:"",correct:false};
+    row.innerHTML = `
+      <td>${p.name}</td>
+      <td><input type="text" value="${escapeHtml(item.pick || "")}" placeholder="Enter pick..." onchange="savePick('${escapeJs(p.name)}', this.value)"></td>
+      <td>
+        <label class="pick-label">
+          <input type="checkbox" ${item.correct ? "checked" : ""} onchange="saveCorrect('${escapeJs(p.name)}', this.checked)">
+          <span class="${item.correct ? "correct" : ""}">${item.correct ? "CORRECT +1" : "Not yet"}</span>
+        </label>
+      </td>
+      <td class="correct">${item.correct ? "+1" : "0"}</td>
+    `;
+    body.appendChild(row);
+  });
+  updateTotals();
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+function escapeJs(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
+
+function updateTotals(){
+  let c=0,r=0;
+  players.forEach(p=>{
+    if(results[p.name]?.correct) p.team==="Clayton" ? c++ : r++;
+  });
+  document.getElementById("clayton-total").textContent = "+"+c;
+  document.getElementById("ryan-total").textContent = "+"+r;
+}
+
+async function load(){
+  const {data,error}=await supabaseClient.from("parlay_results").select("player_name, pick, won");
+  if(error){
+    document.getElementById("status").textContent="SUPABASE ERROR: "+error.message;
+    return;
+  }
+  (data||[]).forEach(x=>results[x.player_name]={pick:x.pick||"",correct:Boolean(x.won)});
+  render();
+  document.getElementById("status").textContent="Live parlay results loaded. Changes are shared across devices.";
+}
+
+async function save(playerName, patch){
+  results[playerName]={...(results[playerName]||{pick:"",correct:false}),...patch};
+  render();
+  document.getElementById("status").textContent="Saving...";
+  const item=results[playerName];
+  const {error}=await supabaseClient.from("parlay_results").upsert(
+    {player_name:playerName,pick:item.pick||"",won:Boolean(item.correct)},
+    {onConflict:"player_name"}
+  );
+  document.getElementById("status").textContent=error ? "SUPABASE ERROR: "+error.message : "Saved. Everyone viewing the site will see the updated result.";
+}
+
+function savePick(playerName,pick){save(playerName,{pick});}
+function saveCorrect(playerName,correct){save(playerName,{correct});}
+
+supabaseClient.channel("scottsdale26-parlay")
+  .on("postgres_changes",{event:"*",schema:"public",table:"parlay_results"},load)
+  .subscribe();
+
+load();
+</script>
+</body>
+</html>
