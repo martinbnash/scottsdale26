@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -707,22 +708,10 @@
       =====================================================
     */
 
-  function getPlayerCourseHandicap(playerName) {
-  const frozenHandicap = Number(players[playerName]?.handicap || 0);
-
-  // Standard Scottsdale 26 playing handicap:
-  // GHIN Handicap Index × 85%, rounded to nearest whole number.
-  let playingHandicap = Math.round(frozenHandicap * 0.85);
-
-  // Ryan D and Brian are playing from the White Tees,
-  // one stroke up from everyone else.
-  // This affects ONLY their playing handicap/stroke allocation.
-  if (playerName === "Ryan D" || playerName === "Brian") {
-    playingHandicap += 1;
-  }
-
-  return playingHandicap;
-}
+    function getPlayerCourseHandicap(playerName) {
+      const frozenHandicap = Number(players[playerName]?.handicap || 0);
+      return Math.round(frozenHandicap * 0.85);
+    }
 
     function getsStrokesOnHole(playerName, holeIndex, course) {
       const playingHandicap = getPlayerCourseHandicap(playerName);
