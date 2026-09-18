@@ -712,15 +712,17 @@
   const handicapIndex = Number(players[playerName]?.handicap || 0);
 
   // Ryan D and Brian play the White Tees.
-  // Everyone else plays the normal Purple/Blue tees.
-  const isWhiteTee = playerName === "Ryan D" || playerName === "Brian";
+  // Everyone else plays the normal Scottsdale 26 tees.
+  const isWhiteTee =
+    playerName === "Ryan D" ||
+    playerName === "Brian";
 
   let courseRating;
   let slopeRating;
   let par;
 
+  // ROUND 1 — Dinosaur Mountain
   if (course === dinosaurMountain) {
-    // Dinosaur Mountain
     par = 70;
 
     if (isWhiteTee) {
@@ -730,21 +732,23 @@
       courseRating = 67.5;
       slopeRating = 125;
     }
+  }
 
-  } else if (course === weKoPaCholla) {
-    // We-Ko-Pa Cholla
+  // ROUNDS 2 & 5 — We-Ko-Pa Cholla
+  else if (course === weKoPaCholla) {
     par = 72;
 
     if (isWhiteTee) {
       courseRating = 67.5;
       slopeRating = 119;
     } else {
-      courseRating = 70.7;
-      slopeRating = 133;
+      courseRating = 71.7;
+      slopeRating = 135;
     }
+  }
 
-  } else if (course === weKoPaSaguaro) {
-    // We-Ko-Pa Saguaro
+  // ROUNDS 3 & 4 — We-Ko-Pa Saguaro
+  else if (course === weKoPaSaguaro) {
     par = 71;
 
     if (isWhiteTee) {
@@ -754,19 +758,80 @@
       courseRating = 70.2;
       slopeRating = 132;
     }
+  }
 
-  } else {
+  else {
     return 0;
   }
 
-  // WHS Course Handicap calculation
+  // WHS Course Handicap
   const courseHandicap =
     handicapIndex * (slopeRating / 113) +
     (courseRating - par);
 
-  // Scottsdale 26 competition allowance = 85%
-  // Round only after applying the 85% allowance.
-  return Math.round(courseHandicap * 0.85);
+  // Scottsdale 26 competition allowance
+  // Apply 85% before final rounding.
+  const playingHandicap =
+    Math.round(courseHandicap * 0.85);
+
+  return playingHandicap;
+}
+
+
+function getsStrokesOnHole(playerName, holeIndex, course) {
+  const playingHandicap =
+    getPlayerCourseHandicap(playerName, course);
+
+  const holeRank =
+    Number(course.handicap[holeIndex]);
+
+  let strokes = 0;
+
+  if (playingHandicap >= holeRank) {
+    strokes++;
+  }
+
+  if (
+    playingHandicap > 18 &&
+    playingHandicap - 18 >= holeRank
+  ) {
+    strokes++;
+  }
+
+  return strokes;
+}
+
+
+function getsStrokeDot(playerName, holeIndex, course) {
+  return getsStrokesOnHole(
+    playerName,
+    holeIndex,
+    course
+  ) > 0;
+}
+
+
+function calculateNetScore(
+  playerName,
+  grossScore,
+  holeIndex,
+  course
+) {
+  if (
+    grossScore === "" ||
+    grossScore === null ||
+    grossScore === undefined
+  ) {
+    return "";
+  }
+
+  return Number(grossScore) -
+    getsStrokesOnHole(
+      playerName,
+      holeIndex,
+      course
+    );
+}
 }
 
     function getsStrokesOnHole(playerName, holeIndex, course) {
