@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -708,7 +707,7 @@
       =====================================================
     */
 
-function getPlayerCourseHandicap(playerName, course) {
+    function getPlayerCourseHandicap(playerName, course) {
   const handicapIndex = Number(players[playerName]?.handicap || 0);
 
   // Ryan D and Brian play the White Tees.
@@ -767,70 +766,6 @@ function getPlayerCourseHandicap(playerName, course) {
   // Scottsdale 26 competition allowance = 85%
   // Round only after applying the 85% allowance.
   return Math.round(courseHandicap * 0.85);
-}
-  // Scottsdale 26 competition allowance
-  // Apply 85% before final rounding.
-  const playingHandicap =
-    Math.round(courseHandicap * 0.85);
-
-  return playingHandicap;
-}
-
-
-function getsStrokesOnHole(playerName, holeIndex, course) {
-  const playingHandicap =
-    getPlayerCourseHandicap(playerName, course);
-
-  const holeRank =
-    Number(course.handicap[holeIndex]);
-
-  let strokes = 0;
-
-  if (playingHandicap >= holeRank) {
-    strokes++;
-  }
-
-  if (
-    playingHandicap > 18 &&
-    playingHandicap - 18 >= holeRank
-  ) {
-    strokes++;
-  }
-
-  return strokes;
-}
-
-
-function getsStrokeDot(playerName, holeIndex, course) {
-  return getsStrokesOnHole(
-    playerName,
-    holeIndex,
-    course
-  ) > 0;
-}
-
-
-function calculateNetScore(
-  playerName,
-  grossScore,
-  holeIndex,
-  course
-) {
-  if (
-    grossScore === "" ||
-    grossScore === null ||
-    grossScore === undefined
-  ) {
-    return "";
-  }
-
-  return Number(grossScore) -
-    getsStrokesOnHole(
-      playerName,
-      holeIndex,
-      course
-    );
-}
 }
 
     function getsStrokesOnHole(playerName, holeIndex, course) {
@@ -1026,10 +961,8 @@ function calculateNetScore(
                     <br>
 
                     <small>
-  PLAYING HCP ${getPlayerCourseHandicap(playerName, course)}
-  • ${getTeeInfo(playerName, course).tee} TEES
-  • HI ${players[playerName].handicap}
-</small>
+PLAYING HCP ${getPlayerCourseHandicap(playerName, course)}
+${(playerName === "Ryan D" || playerName === "Brian") ? " • WHITE TEES" : ""}                   </small>
 
                   </td>
               `;
