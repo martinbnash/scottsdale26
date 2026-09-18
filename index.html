@@ -49,14 +49,15 @@
   .rule h3{margin:0 0 10px;font-size:20px}
   .rule p{margin:0;color:var(--muted)}
   .formula{margin-top:15px;padding:14px 16px;border-radius:9px;background:#0a100e;border:1px dashed #52645b;color:var(--accent2);font-weight:900;text-align:center}
-  .tees{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
-  table{width:100%;border-collapse:collapse}
+  .tees{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+  table{width:100%;min-width:640px;border-collapse:collapse}
   th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line)}
   th{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);background:rgba(255,255,255,.025)}
   td{color:var(--muted)}
   td:first-child{color:var(--text);font-weight:750}
   tr:last-child td{border-bottom:0}
   .white{color:var(--accent2);font-weight:900}
+  .playing-hcp{font-weight:900;color:var(--text)}
   .note{margin-top:14px;color:var(--muted);font-size:14px}
   .callout{background:linear-gradient(135deg,#1c2d25,#121b18);border:1px solid #40574b;border-radius:16px;padding:28px;margin-top:20px}
   .callout strong{color:var(--accent2)}
@@ -127,34 +128,71 @@
 
 <section id="tees">
 <div class="wrap">
-  <div class="section-head"><div><div class="kicker">Handicaps &amp; Tees</div><h2>Know your number.</h2></div></div>
-  <div class="rule full" style="margin-bottom:18px">
-    <h3>How the tournament handicap works</h3>
-    <p>Scottsdale 26 uses a tournament-specific <strong>85% Playing Handicap allowance</strong>. Each golfer's GHIN Handicap Index is frozen one week before the trip. That Index is converted to a <strong>Course Handicap based on the course and tees being played</strong>. The 85% allowance is then applied and rounded to the nearest whole number.</p>
-    <div class="formula">Playing Handicap = Course Handicap × 85% → nearest whole number</div>
-    <p style="margin-top:15px">The number shown on the scorecard may therefore be different from a golfer's GHIN Handicap Index. Stroke holes are determined from the final Playing Handicap and are used for net scoring in Best Ball and Match Play.</p>
+  <div class="section-head">
+    <div>
+      <div class="kicker">Teams, Handicaps &amp; Tees</div>
+      <h2>Know your number.</h2>
+    </div>
   </div>
 
-  <div class="tees">
-    <table>
-      <thead><tr><th>Golfer</th><th>Tee Assignment</th></tr></thead>
-      <tbody>
-        <tr><td>Clayton</td><td>Blue / Purple</td></tr>
-        <tr><td>Marty</td><td>Blue / Purple</td></tr>
-        <tr><td>Michael</td><td>Blue / Purple</td></tr>
-        <tr><td>Aaron</td><td>Blue / Purple</td></tr>
-        <tr><td>Raymond</td><td>Blue / Purple</td></tr>
-        <tr><td>Brian</td><td>Blue / Purple</td></tr>
-        <tr><td>Ryan Hempton</td><td>Blue / Purple</td></tr>
-        <tr><td class="white">Brad</td><td class="white">WHITE TEES</td></tr>
-        <tr><td>Jon</td><td>Blue / Purple</td></tr>
-        <tr><td class="white">Ryan D</td><td class="white">WHITE TEES</td></tr>
-        <tr><td>Travis</td><td>Blue / Purple</td></tr>
-        <tr><td>Brent</td><td>Blue / Purple</td></tr>
-      </tbody>
-    </table>
+  <div class="rule full" style="margin-bottom:18px">
+    <h3>How Scottsdale 26 Handicaps Work</h3>
+    <p>Your <strong>GHIN Handicap Index</strong> is frozen one week before the tournament. For each round, that Index is converted to a <strong>Course Handicap based on the course and tees being played</strong>. Scottsdale 26 then applies the <strong>85% tournament allowance</strong>, with the result rounded to the nearest whole number.</p>
+    <div class="formula">Playing Handicap = Course Handicap × 85% → nearest whole number</div>
+    <p style="margin-top:15px">The numbers below are the actual <strong>Playing Handicaps used for each round</strong>. Because Brad and Ryan D are playing the White Tees, their handicap is calculated from the White Tee Course Rating and Slope rather than the Purple Tees.</p>
   </div>
-  <div class="callout"><strong>White Tee clarification:</strong> Brad and Ryan D are playing from the White Tees as a Scottsdale 26 tournament decision. There is no automatic USGA age-based entitlement to move tees. Because tee selection changes Course Rating and Slope, their Course Handicaps are calculated specifically from the White Tees before the 85% tournament allowance is applied.</div>
+
+  <div class="rules">
+    <div class="rule" style="padding:0;overflow:hidden">
+      <div style="padding:20px 22px;background:linear-gradient(135deg,#1c2d25,#121b18);border-bottom:1px solid var(--line)">
+        <h3 style="margin:5px 0 0;font-size:27px">CLAYTON'S TEAM</h3>
+      </div>
+      <div class="tees" style="border:0;border-radius:0">
+        <table>
+          <thead>
+            <tr><th>Golfer</th><th>GHIN</th><th>R1<br>Dinosaur</th><th>R2/R5<br>Cholla</th><th>R3/R4<br>Saguaro</th><th>Tees</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Clayton</td><td>10.3</td><td>8</td><td>10</td><td>9</td><td>Blue / Purple</td></tr>
+            <tr><td>Marty</td><td>7.3</td><td>5</td><td>7</td><td>7</td><td>Blue / Purple</td></tr>
+            <tr><td>Raymond</td><td>13.5</td><td>10</td><td>14</td><td>13</td><td>Blue / Purple</td></tr>
+            <tr><td>Brian</td><td>12.0</td><td>9</td><td>12</td><td>11</td><td>Blue / Purple</td></tr>
+            <tr><td>Michael</td><td>20.4</td><td>17</td><td>20</td><td>20</td><td>Blue / Purple</td></tr>
+            <tr><td>Aaron</td><td>18.6</td><td>15</td><td>19</td><td>18</td><td>Blue / Purple</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="rule" style="padding:0;overflow:hidden">
+      <div style="padding:20px 22px;background:linear-gradient(135deg,#1c2d25,#121b18);border-bottom:1px solid var(--line)">
+        <h3 style="margin:5px 0 0;font-size:27px">RYAN'S TEAM</h3>
+      </div>
+      <div class="tees" style="border:0;border-radius:0">
+        <table>
+          <thead>
+            <tr><th>Golfer</th><th>GHIN</th><th>R1<br>Dinosaur</th><th>R2/R5<br>Cholla</th><th>R3/R4<br>Saguaro</th><th>Tees</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Ryan</td><td>14.0</td><td>11</td><td>14</td><td>14</td><td>Blue / Purple</td></tr>
+            <tr><td>Jon</td><td>7.4</td><td>5</td><td>8</td><td>7</td><td>Blue / Purple</td></tr>
+            <tr><td>Ryan D</td><td>19.9</td><td>14</td><td class="white">15</td><td class="white">17</td><td class="white">WHITE</td></tr>
+            <tr><td>Brad</td><td>15.3</td><td>9</td><td class="white">11</td><td class="white">13</td><td class="white">WHITE</td></tr>
+            <tr><td>Brent</td><td>12.1</td><td>9</td><td>12</td><td>11</td><td>Blue / Purple</td></tr>
+            <tr><td>Travis</td><td>15.9</td><td>13</td><td>16</td><td>15</td><td>Blue / Purple</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>White Tee clarification:</strong> Brad and Ryan D play the White Tees for all Scottsdale 26 rounds. Their Playing Handicaps therefore use the White Tee ratings and slopes. For Dinosaur Mountain, the White Tee is 65.6/117; for We-Ko-Pa Cholla it is 68.6/122; and for We-Ko-Pa Saguaro it is 68.8/125. The other 10 golfers use Blue at Dinosaur Mountain and Purple at We-Ko-Pa.
+  </div>
+
+  <div class="note">
+    <strong>Course/tee basis:</strong> Dinosaur Mountain Blue = 67.5/125; Cholla Purple = 71.7/135; Saguaro Purple = 70.2/132. White Tee ratings are 65.6/117 at Dinosaur, 68.6/122 at Cholla, and 68.8/125 at Saguaro. Playing Handicaps are calculated using the WHS Course Handicap formula and then applying the Scottsdale 26 85% allowance. USGA course data supports the Cholla ratings and slopes, and We-Ko-Pa's published Saguaro scorecard confirms the Saguaro 72.0/137 and Purple 70.2/132 framework. citeturn0search0turn0search3turn0search24
+  </div>
 </div>
 </section>
 
@@ -175,8 +213,8 @@
   <div class="section-head"><div><div class="kicker">Your Tournament HQ</div><h2>Everything live, right here.</h2></div></div>
   <div class="grid">
     <a class="card" href="scorecard.html"><h3>Live Scorecard →</h3><p>Enter gross scores, see net scores, stroke dots and match results.</p></a>
-    <a class="card" href="scoreboard.html"><h3>Live Leaderboard →</h3><p>Follow team points and the championship race as rounds are completed.</p></a>
-    <a class="card" href="#rules"><h3>Pairings →</h3><p>The official pairings for Scottsdale 26.</p></a>
+    <a class="card" href="scoreboards.html"><h3>Live Leaderboard →</h3><p>Follow team points and the championship race as rounds are completed.</p></a>
+    <a class="card" href="#rules"><h3>Pairings Page →</h3><p>The official Scottsdale 26 pairings page..</p></a>
   </div>
 </div>
 </section>
