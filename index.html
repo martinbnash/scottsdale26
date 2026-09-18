@@ -24,26 +24,7 @@ const supabaseClient = supabase.createClient(
 );
 </script>
   <style>
-.locked-slot {
-  cursor: not-allowed;
-  border-style: solid;
-  opacity: .85;
-}
 
-.locked-player {
-  opacity: .35;
-  cursor: not-allowed;
-}
-
-.round-locked {
-  color: #fbbf24;
-  font-weight: bold;
-  margin-top: 8px;
-}
-
-button:disabled {
-  cursor: not-allowed;
-}
     :root {
       --bg: #0b1220;
       --panel: #172033;
@@ -461,9 +442,9 @@ button:disabled {
 
   <div class="board">
 
-    <div class="instructions" id="instructions">
-  Select a player, then tap an empty pairing slot.
-</div>
+    <div class="instructions">
+      Select a player, then tap an empty pairing slot.
+    </div>
 
     <div
       class="matches"
@@ -514,12 +495,12 @@ button:disabled {
         Clear Current Round
       </button>
 
-     <button
-  class="reset"
-  onclick="resetAll()"
->
-  Reset All Rounds
-</button>
+      <button
+        class="reset"
+        onclick="resetAll()"
+      >
+        Reset All Rounds
+      </button>
 
     </div>
 
@@ -647,15 +628,8 @@ button:disabled {
        APP STATE
     ========================================================= */
 
-let currentRound = 0;
+    let currentRound = 0;
 
-// Rounds 1-4 are officially locked.
-// Round 5 remains editable.
-const LOCKED_ROUNDS = [0, 1, 2, 3];
-
-function isCurrentRoundLocked() {
-  return LOCKED_ROUNDS.includes(currentRound);
-}
     let selectedPlayer = null;
 
     let pairings = {};
@@ -1223,194 +1197,12 @@ function isCurrentRoundLocked() {
       ).textContent =
         rounds[currentRound].course;
 
-function renderMatches() {
+      renderMatches();
 
-  const roundData = getRoundData();
-  const locked = isCurrentRoundLocked();
-
-  document.getElementById("matches").innerHTML =
-    roundData.map(
-      (match, matchIndex) => `
-
-        <div class="match">
-
-          <div class="match-title">
-            MATCH ${matchIndex + 1}
-          </div>
-
-          <div class="match-row">
-
-            <div class="pairing-side">
-
-              <div class="pair-label">
-                CLAYTON'S TEAM
-              </div>
-
-              <div class="player-slots">
-
-                ${
-                  match.clayton.map(
-                    (player, slotIndex) => `
-
-                      <div
-                        class="slot clayton-slot ${
-                          locked ? "locked-slot" : ""
-                        }"
-                        ${
-                          locked
-                            ? ""
-                            : `onclick="
-                                placePlayer(
-                                  ${matchIndex},
-                                  'clayton',
-                                  ${slotIndex}
-                                )
-                              "`
-                        }
-                      >
-
-                        ${
-                          player
-                            ? `
-                              <div>
-                                ${player}
-                              </div>
-
-                              <div class="slot-handicap">
-                                HCP ${
-                                  getPlayer(player).handicap
-                                }
-                              </div>
-                            `
-                            : locked
-                              ? `
-                                <div>LOCKED</div>
-                              `
-                              : `
-                                <div>Select Player</div>
-                              `
-                        }
-
-                      </div>
-
-                    `
-                  ).join("")
-                }
-
-              </div>
-
-            </div>
-
-            <div class="vs">
-              VS
-            </div>
-
-            <div class="pairing-side">
-
-              <div class="pair-label">
-                RYAN'S TEAM
-              </div>
-
-              <div class="player-slots">
-
-                ${
-                  match.ryan.map(
-                    (player, slotIndex) => `
-
-                      <div
-                        class="slot ryan-slot ${
-                          locked ? "locked-slot" : ""
-                        }"
-                        ${
-                          locked
-                            ? ""
-                            : `onclick="
-                                placePlayer(
-                                  ${matchIndex},
-                                  'ryan',
-                                  ${slotIndex}
-                                )
-                              "`
-                        }
-                      >
-
-                        ${
-                          player
-                            ? `
-                              <div>
-                                ${player}
-                              </div>
-
-                              <div class="slot-handicap">
-                                HCP ${
-                                  getPlayer(player).handicap
-                                }
-                              </div>
-                            `
-                            : locked
-                              ? `
-                                <div>LOCKED</div>
-                              `
-                              : `
-                                <div>Select Player</div>
-                              `
-                        }
-
-                      </div>
-
-                    `
-                  ).join("")
-                }
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      `
-    ).join("");
-}
-   function renderPlayers() {
-
-  const usedPlayers = getUsedPlayers();
-  const locked = isCurrentRoundLocked();
-
-  document.getElementById("claytonPlayers").innerHTML =
-    claytonTeam.map(
-      player =>
-        playerButton(
-          player,
-          "clayton-player",
-          usedPlayers,
-          locked
-        )
-    ).join("");
-
-  document.getElementById("ryanPlayers").innerHTML =
-    ryanTeam.map(
-      player =>
-        playerButton(
-          player,
-          "ryan-player",
-          usedPlayers,
-          locked
-        )
-    ).join("");
-}
+      renderPlayers();
 
       renderPairingHistory();
-const instructions =
-  document.getElementById("instructions");
 
-if (instructions) {
-  instructions.innerHTML =
-    isCurrentRoundLocked()
-      ? `🔒 <strong>ROUND ${currentRound + 1} LOCKED</strong> — Pairings are final and cannot be changed.`
-      : `Select a player, then tap an empty pairing slot.`;
-}
     }
 
 
@@ -1650,54 +1442,62 @@ if (instructions) {
 
 
     function playerButton(
-  player,
-  teamClass,
-  usedPlayers,
-  locked = false
-) {
+      player,
+      teamClass,
+      usedPlayers
+    ) {
 
-  const used =
-    usedPlayers.includes(player.name);
+      const used =
+        usedPlayers.includes(
+          player.name
+        );
 
-  return `
 
-    <button
-      class="
-        player
-        ${teamClass}
-        ${selectedPlayer === player.name ? "selected" : ""}
-        ${used ? "used" : ""}
-        ${locked ? "locked-player" : ""}
-      "
+      return `
 
-      ${
-        locked
-          ? "disabled"
-          : `onclick="
-              selectPlayer('${player.name}')
-            "`
-      }
+        <button
+          class="
+            player
+            ${teamClass}
+            ${
+              selectedPlayer === player.name
+                ? "selected"
+                : ""
+            }
+            ${
+              used
+                ? "used"
+                : ""
+            }
+          "
 
-      ${
-        used || locked
-          ? "disabled"
-          : ""
-      }
+          onclick="
+            selectPlayer(
+              '${player.name}'
+            )
+          "
 
-    >
+          ${
+            used
+              ? "disabled"
+              : ""
+          }
 
-      <span>
-        ${player.name}
-      </span>
+        >
 
-      <span class="handicap">
-        HCP ${player.handicap}
-      </span>
+          <span>
+            ${player.name}
+          </span>
 
-    </button>
+          <span class="handicap">
+            HCP ${player.handicap}
+          </span>
 
-  `;
-}
+        </button>
+
+      `;
+
+    }
 
 
     function selectPlayer(
@@ -1722,10 +1522,7 @@ if (instructions) {
       matchIndex,
       team,
       slotIndex
-    ) {  if (isCurrentRoundLocked()) {
-    alert("This round is locked. Pairings cannot be changed.");
-    return;
-  }
+    ) {
 
       if (
         !selectedPlayer
@@ -1828,10 +1625,7 @@ if (instructions) {
     ========================================================= */
 
     async function clearRound() {
-  if (isCurrentRoundLocked()) {
-    alert("This round is locked and cannot be cleared.");
-    return;
-  }
+
       if (
         !confirm(
           "Clear this round for everyone?"
@@ -1896,14 +1690,6 @@ if (instructions) {
     ========================================================= */
 
     async function resetAll() {
-
-  alert(
-    "Reset All Rounds is disabled. Rounds 1-4 are locked."
-  );
-
-  return;
-
-  // Existing reset code remains below... {
 
       if (
         !confirm(
