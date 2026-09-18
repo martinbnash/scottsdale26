@@ -8,18 +8,21 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script>
-    const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
+<script>
+  const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_09A0o2ImL-FLS8AiunnNTw_iWP1tG8L";
 
-    const SUPABASE_KEY = "sb_publishable_09A0o2ImL-FLS8AiunnNTw_iWP1tG8L";
+  let supabaseClient = null;
 
-    const supabaseClient = window.supabase.createClient(
+  if (window.supabase) {
+    supabaseClient = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
-  </script>
-
-  <style>
+  } else {
+    console.error("Supabase library failed to load.");
+  }
+</script>  <style>
     .live-scoreboard-btn {
   display: inline-block;
   margin-top: 8px;
