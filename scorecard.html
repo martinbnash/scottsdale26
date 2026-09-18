@@ -321,7 +321,117 @@
       display: none;
     }
 
+    .parlay-section {
+      margin: 25px 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .parlay-section h2 {
+      margin: 0 0 6px;
+      color: var(--gold);
+      text-align: center;
+    }
+
+    .parlay-help {
+      text-align: center;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .parlay-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 16px;
+    }
+
+    .parlay-team {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .parlay-team h3 {
+      margin: 0 0 8px;
+      text-align: center;
+    }
+
+    .parlay-player {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 8px;
+      border-top: 1px solid var(--line);
+    }
+
+    .parlay-player:first-of-type {
+      border-top: 0;
+    }
+
+    .parlay-player label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .parlay-player input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    .parlay-bonus {
+      color: var(--gold);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .parlay-total {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .parlay-total-box {
+      background: #111827;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .parlay-total-box .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .parlay-total-box .value {
+      color: var(--gold);
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .parlay-status {
+      text-align: center;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+
     @media (max-width: 900px) {
+      .parlay-grid,
+      .parlay-total {
+        grid-template-columns: 1fr;
+      }
+
       .match-results {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -360,6 +470,37 @@
     <div id="courseInfo" class="course-info"></div>
 
     <div id="scorecards"></div>
+
+    <div class="parlay-section">
+      <h2>🏆 PARLAY BONUS POINTS</h2>
+      <p class="parlay-help">Check the box when a golfer's parlay pick wins. Each checked box = +1 team point.</p>
+
+      <div class="parlay-grid">
+        <div class="parlay-team">
+          <h3>TEAM CLAYTON</h3>
+          <div id="parlay-clayton"></div>
+        </div>
+
+        <div class="parlay-team">
+          <h3>TEAM RYAN</h3>
+          <div id="parlay-ryan"></div>
+        </div>
+      </div>
+
+      <div class="parlay-total">
+        <div class="parlay-total-box">
+          <div class="label">CLAYTON TEAM BONUS</div>
+          <div class="value" id="parlay-clayton-total">+0</div>
+        </div>
+        <div class="parlay-total-box">
+          <div class="label">RYAN TEAM BONUS</div>
+          <div class="value" id="parlay-ryan-total">+0</div>
+        </div>
+      </div>
+
+      <div id="parlay-status" class="parlay-status">Loading parlay results...</div>
+    </div>
+
 
     <div class="controls">
       <button class="save-btn" onclick="saveAllScores()">
@@ -521,6 +662,8 @@
     let currentRound = 1;
 
     let scores = {};
+    let parlayResults = {};
+    let parlaySaving = false;
 
 
     function getCourse(round) {
@@ -1780,6 +1923,128 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
       clearStatus();
     }
 
+
+
+    /*
+       =====================================================
+       PARLAY BONUS POINTS
+       =====================================================
+       Stored in Supabase so every device sees the same result.
+       Table required:
+       parlay_results(player_name text primary key, won boolean)
+    */
+
+    const parlayPlayers = Object.keys(players);
+
+    async function loadParlayResults() {
+      try {
+        const { data, error } = await supabaseClient
+          .from("parlay_results")
+          .select("player_name, won");
+
+        if (error) throw error;
+
+        parlayResults = {};
+        (data || []).forEach(row => {
+          parlayResults[row.player_name] = Boolean(row.won);
+        });
+
+        renderParlay();
+      } catch (error) {
+        console.error("PARLAY LOAD ERROR:", error);
+        document.getElementById("parlay-status").textContent =
+          "Parlay results unavailable: " + error.message;
+      }
+    }
+
+    function renderParlay() {
+      const clayton = document.getElementById("parlay-clayton");
+      const ryan = document.getElementById("parlay-ryan");
+      if (!clayton || !ryan) return;
+
+      clayton.innerHTML = "";
+      ryan.innerHTML = "";
+
+      parlayPlayers.forEach(playerName => {
+        const team = players[playerName].team;
+        const row = document.createElement("div");
+        row.className = "parlay-player";
+        row.innerHTML = `
+          <label>
+            <input
+              type="checkbox"
+              ${parlayResults[playerName] ? "checked" : ""}
+              onchange="updateParlay('${playerName}', this.checked)"
+            >
+            <span>${playerName}</span>
+          </label>
+          <span class="parlay-bonus">+1</span>
+        `;
+
+        if (team === "Clayton") clayton.appendChild(row);
+        else ryan.appendChild(row);
+      });
+
+      updateParlayTotals();
+    }
+
+    function updateParlayTotals() {
+      let claytonTotal = 0;
+      let ryanTotal = 0;
+
+      parlayPlayers.forEach(playerName => {
+        if (!parlayResults[playerName]) return;
+        if (players[playerName].team === "Clayton") claytonTotal++;
+        else ryanTotal++;
+      });
+
+      document.getElementById("parlay-clayton-total").textContent = `+${claytonTotal}`;
+      document.getElementById("parlay-ryan-total").textContent = `+${ryanTotal}`;
+    }
+
+    async function updateParlay(playerName, won) {
+      parlayResults[playerName] = won;
+      updateParlayTotals();
+
+      const status = document.getElementById("parlay-status");
+      status.textContent = "Saving parlay result...";
+
+      try {
+        const { error } = await supabaseClient
+          .from("parlay_results")
+          .upsert(
+            {
+              player_name: playerName,
+              won: Boolean(won)
+            },
+            { onConflict: "player_name" }
+          );
+
+        if (error) throw error;
+
+        status.textContent = "Parlay result saved to the live tournament database.";
+        setTimeout(() => {
+          if (status.textContent === "Parlay result saved to the live tournament database.") {
+            status.textContent = "Changes are shared across devices.";
+          }
+        }, 1800);
+      } catch (error) {
+        console.error("PARLAY SAVE ERROR:", error);
+        parlayResults[playerName] = !won;
+        renderParlay();
+        status.textContent = "PARLAY SAVE ERROR: " + error.message;
+      }
+    }
+
+    function startParlayRealtime() {
+      supabaseClient.channel("scottsdale26-parlay-results")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "parlay_results" },
+          async () => { await loadParlayResults(); }
+        )
+        .subscribe();
+    }
 
     /*
       =====================================================
