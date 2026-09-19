@@ -377,6 +377,13 @@ const supabaseClient = supabase.createClient(
       color: white;
     }
 
+    .locked-slot {
+      border-style: solid;
+      border-color: var(--gold);
+      cursor: not-allowed;
+      opacity: 0.95;
+    }
+
     .scorecard-link {
       display: inline-block;
       margin-top: 15px;
@@ -629,6 +636,15 @@ const supabaseClient = supabase.createClient(
     ========================================================= */
 
     let currentRound = 0;
+
+    // PAIRING LOCKS
+    // Zero-based indexes: 0=Round 1, 1=Round 2, 2=Round 3, 3=Round 4.
+    // To unlock a round later, remove its number from this array.
+    const LOCKED_ROUNDS = [0, 1, 2, 3];
+
+    function isRoundLocked(roundIndex = currentRound) {
+      return LOCKED_ROUNDS.includes(roundIndex);
+    }
 
     let selectedPlayer = null;
 
@@ -1195,13 +1211,33 @@ const supabaseClient = supabase.createClient(
       document.getElementById(
         "course"
       ).textContent =
-        rounds[currentRound].course;
+        rounds[currentRound].course +
+        (isRoundLocked() ? " • 🔒 PAIRINGS LOCKED" : " • EDITABLE");
+
+      document.querySelector(".instructions").textContent =
+        isRoundLocked()
+          ? "🔒 This round is locked. Pairings are view-only and cannot be changed."
+          : "Select a player, then tap an empty pairing slot.";
 
       renderMatches();
 
       renderPlayers();
 
       renderPairingHistory();
+
+      const clearButton = document.querySelector(".clear");
+      if (clearButton) {
+        clearButton.disabled = isRoundLocked();
+        clearButton.style.opacity = isRoundLocked() ? "0.45" : "1";
+        clearButton.style.cursor = isRoundLocked() ? "not-allowed" : "pointer";
+      }
+
+      const resetButton = document.querySelector(".reset");
+      if (resetButton) {
+        resetButton.disabled = LOCKED_ROUNDS.length > 0;
+        resetButton.style.opacity = LOCKED_ROUNDS.length > 0 ? "0.45" : "1";
+        resetButton.style.cursor = LOCKED_ROUNDS.length > 0 ? "not-allowed" : "pointer";
+      }
 
     }
 
@@ -1269,14 +1305,8 @@ const supabaseClient = supabase.createClient(
                         ) => `
 
                           <div
-                            class="slot clayton-slot"
-                            onclick="
-                              placePlayer(
-                                ${matchIndex},
-                                'clayton',
-                                ${slotIndex}
-                              )
-                            "
+                            class="slot clayton-slot ${isRoundLocked() ? "locked-slot" : ""}"
+                            ${isRoundLocked() ? "" : `onclick="placePlayer(${matchIndex}, 'clayton', ${slotIndex})"`}
                           >
 
                             ${
@@ -1334,14 +1364,8 @@ const supabaseClient = supabase.createClient(
                         ) => `
 
                           <div
-                            class="slot ryan-slot"
-                            onclick="
-                              placePlayer(
-                                ${matchIndex},
-                                'ryan',
-                                ${slotIndex}
-                              )
-                            "
+                            class="slot ryan-slot ${isRoundLocked() ? "locked-slot" : ""}"
+                            ${isRoundLocked() ? "" : `onclick="placePlayer(${matchIndex}, 'ryan', ${slotIndex})"`}
                           >
 
                             ${
@@ -1524,6 +1548,11 @@ const supabaseClient = supabase.createClient(
       slotIndex
     ) {
 
+      if (isRoundLocked()) {
+        alert("This round is locked. The pairings are view-only.");
+        return;
+      }
+
       if (
         !selectedPlayer
       ) {
@@ -1626,6 +1655,11 @@ const supabaseClient = supabase.createClient(
 
     async function clearRound() {
 
+      if (isRoundLocked()) {
+        alert("This round is locked and cannot be cleared.");
+        return;
+      }
+
       if (
         !confirm(
           "Clear this round for everyone?"
@@ -1690,6 +1724,11 @@ const supabaseClient = supabase.createClient(
     ========================================================= */
 
     async function resetAll() {
+
+      if (LOCKED_ROUNDS.length > 0) {
+        alert("Rounds 1-4 are locked. Reset All is disabled while any round is locked.");
+        return;
+      }
 
       if (
         !confirm(
