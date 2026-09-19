@@ -307,7 +307,7 @@
   </header>
 
   <div class="nav">
-    <a href="index.html">Pairings Board</a>
+    <a href="index.html">Home</a>
     <a href="scorecard.html">Live Scorecard</a>
     <a href="scoreboard.html">Live Scoreboard</a>
   </div>
@@ -342,6 +342,18 @@
     </div>
 
     <div id="rounds"></div>
+
+    <div class="details" style="margin-bottom:20px;">
+      <div class="details-title">PARLAY BONUS POINTS</div>
+      <div class="bonus-row">
+        <span>Team Clayton</span>
+        <strong id="parlayClaytonBonus">+0</strong>
+      </div>
+      <div class="bonus-row">
+        <span>Team Ryan</span>
+        <strong id="parlayRyanBonus">+0</strong>
+      </div>
+    </div>
 
     <div id="lastUpdate" class="last-update"></div>
 
@@ -468,6 +480,9 @@
     let allPairings = [];
     let allPairingPlayers = [];
 
+    // Each winning parlay pick = +1 championship point for that player's team.
+    let parlayBonuses = { Clayton: 0, Ryan: 0 };
+
 
     /* =====================================================
        STATUS
@@ -491,7 +506,8 @@
         const [
           scoresResponse,
           pairingsResponse,
-          playersResponse
+          playersResponse,
+          parlayResponse
         ] = await Promise.all([
 
           supabaseClient
@@ -506,6 +522,10 @@
 
           supabaseClient
             .from("pairing_players")
+            .select("*"),
+
+          supabaseClient
+            .from("parlay_results")
             .select("*")
         ]);
 
@@ -528,6 +548,25 @@
         allPairingPlayers =
           playersResponse.data || [];
 
+        // The parlay table is optional; if it does not exist yet,
+        // the normal scoreboard continues to work with +0 parlay points.
+        parlayBonuses = { Clayton: 0, Ryan: 0 };
+
+        if (!parlayResponse.error && parlayResponse.data) {
+          parlayResponse.data.forEach(row => {
+            const team = row.team || row.team_name || row.assigned_team;
+            const correct =
+              row.correct === true ||
+              row.won === true ||
+              row.is_correct === true ||
+              row.result === "correct" ||
+              row.result === "won";
+
+            if (correct && (team === "Clayton" || team === "Ryan")) {
+              parlayBonuses[team] += 1;
+            }
+          });
+        }
 
         renderScoreboard();
 
@@ -979,8 +1018,11 @@
 
       else if (frontComplete) {
 
+        claytonPoints += 1.5;
+        ryanPoints += 1.5;
+
         frontText =
-          "Front 9 tied";
+          "Front 9 tied • +1.5 each";
       }
 
 
@@ -1024,8 +1066,11 @@
 
       else if (matchComplete) {
 
+        claytonPoints += 1.5;
+        ryanPoints += 1.5;
+
         backText =
-          "Back 9 tied";
+          "Back 9 tied • +1.5 each";
       }
 
 
@@ -1072,8 +1117,11 @@
 
         else {
 
+          claytonPoints += 2.5;
+          ryanPoints += 2.5;
+
           strokeText =
-            `18 tied (${claytonTotal}-${ryanTotal})`;
+            `18 tied • +2.5 each (${claytonTotal}-${ryanTotal})`;
         }
       }
 
@@ -1373,6 +1421,11 @@
       }
 
 
+      // Parlay points are championship bonus points and are added on top
+      // of the golf scoring points.
+      championshipClayton += parlayBonuses.Clayton;
+      championshipRyan += parlayBonuses.Ryan;
+
       document.getElementById(
         "claytonTotal"
       ).textContent =
@@ -1383,6 +1436,12 @@
         "ryanTotal"
       ).textContent =
         championshipRyan;
+
+      document.getElementById("parlayClaytonBonus").textContent =
+        `+${parlayBonuses.Clayton}`;
+
+      document.getElementById("parlayRyanBonus").textContent =
+        `+${parlayBonuses.Ryan}`;
 
 
       const leaderText =
@@ -1466,6 +1525,18 @@
             event: "*",
             schema: "public",
             table: "pairing_players"
+          },
+          () => {
+            loadData();
+          }
+        )
+
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "parlay_results"
           },
           () => {
             loadData();
