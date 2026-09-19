@@ -116,6 +116,17 @@
   @keyframes memoryScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
   .course-thumb{display:block;width:120px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line)}
+
+  .course-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .course-card{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+  .course-photos{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;height:220px;gap:3px;background:#080d0b}
+  .course-photos img{width:100%;height:100%;object-fit:cover;display:block}
+  .course-photos img:first-child{grid-row:1 / 3}
+  .course-card-body{padding:20px}
+  .course-card-body h3{margin:2px 0 5px;font-size:24px}
+  .course-card-body p{color:var(--muted);margin:0 0 16px}
+  @media(max-width:800px){.course-cards{grid-template-columns:1fr}.course-photos{height:200px}}
+
   @media(max-width:800px){.course-thumb{width:100%;height:105px;max-width:none}}
 
   @media(max-width:800px){
@@ -181,7 +192,7 @@
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Raymond + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Ryan D</div></div>
         </div>
       </div>
-      <div class="time"><img class="course-thumb" src="https://www.golfzoo.com/images/ire/ff_vDINGCR3.jpg" alt="Dinosaur Mountain"></div>
+      <div class="time">12:30 PM</div>
     </div>
 
     <div class="round">
@@ -193,7 +204,7 @@
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Aaron + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan + Travis</div></div>
         </div>
       </div>
-      <div class="time"><img class="course-thumb" src="https://ygt-res.cloudinary.com/image/upload/c_fill%2Ch_630%2Cq_80%2Cw_1200/v1614093580/Venues/We-Ko-Pa%20Cholla/we-ko-pa-cholla-1.jpg" alt="We-Ko-Pa Cholla"></div>
+      <div class="time">8:00 AM</div>
     </div>
 
     <div class="round">
@@ -205,7 +216,7 @@
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Michael + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Jon</div></div>
         </div>
       </div>
-      <div class="time"><img class="course-thumb" src="https://reslogic.b-cdn.net/gz/images/ire/ff_vSAGWEK1.jpg" alt="We-Ko-Pa Saguaro"></div>
+      <div class="time">1:20 PM</div>
     </div>
 
     <div class="round">
@@ -217,7 +228,7 @@
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Michael + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Travis</div></div>
         </div>
       </div>
-      <div class="time"><img class="course-thumb" src="https://reslogic.b-cdn.net/gz/images/ire/ff_vSAGWEK1.jpg" alt="We-Ko-Pa Saguaro"></div>
+      <div class="time">9:20 AM</div>
     </div>
 
     <div class="round">
@@ -319,6 +330,61 @@
 <footer>
   <div class="wrap"><strong>SCOTTSDALE 26</strong><br>September 24–27, 2026 · Official Tournament Site</div>
 </footer>
+
+
+<section id="courses">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="kicker">The Courses</div>
+        <h2>Know the battlefield.</h2>
+      </div>
+    </div>
+    <div class="course-cards">
+      <div class="course-card">
+        <div class="course-photos">
+          <img src="https://www.golfzoo.com/images/ire/ff_vDINGCR3.jpg" alt="Dinosaur Mountain">
+          <img src="https://www.golfzoo.com/images/ire/ff_vDINGCR3.jpg" alt="Dinosaur Mountain">
+          <img src="https://www.golfzoo.com/images/ire/ff_vDINGCR3.jpg" alt="Dinosaur Mountain">
+        </div>
+        <div class="course-card-body">
+          <div class="kicker">Round 1</div>
+          <h3>Dinosaur Mountain</h3>
+          <p>Gold Canyon, Arizona · Blue Tees</p>
+          <a class="btn" href="https://www.zommagolf.com/courses/az/dinosaur-mountain-at-gold-canyon-golf-resort" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-photos">
+          <img src="https://wekopa.com/wp-content/uploads/2015/10/Cholla-Scorecard-570x580.png" alt="We-Ko-Pa Cholla scorecard">
+          <img src="https://wekopa.com/wp-content/uploads/2015/10/Cholla-Scorecard-570x580.png" alt="We-Ko-Pa Cholla">
+          <img src="https://wekopa.com/wp-content/uploads/2015/10/Cholla-Scorecard-570x580.png" alt="We-Ko-Pa Cholla">
+        </div>
+        <div class="course-card-body">
+          <div class="kicker">Rounds 2 &amp; 5</div>
+          <h3>We-Ko-Pa Cholla</h3>
+          <p>Fort McDowell, Arizona · Purple Tees</p>
+          <a class="btn" href="https://wekopa.com/cholla-course/" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
+        </div>
+      </div>
+
+      <div class="course-card">
+        <div class="course-photos">
+          <img src="https://wekopa.com/wp-content/uploads/2024/07/WKPS-SC-2024-Saguaro.pdf" alt="We-Ko-Pa Saguaro scorecard">
+          <img src="https://wekopa.com/wp-content/uploads/2024/07/WKPS-SC-2024-Saguaro.pdf" alt="We-Ko-Pa Saguaro">
+          <img src="https://wekopa.com/wp-content/uploads/2024/07/WKPS-SC-2024-Saguaro.pdf" alt="We-Ko-Pa Saguaro">
+        </div>
+        <div class="course-card-body">
+          <div class="kicker">Rounds 3 &amp; 4</div>
+          <h3>We-Ko-Pa Saguaro</h3>
+          <p>Fort McDowell, Arizona · Purple Tees</p>
+          <a class="btn" href="https://wekopa.com/saguaro-course/" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section id="memories">
   <div class="wrap">
