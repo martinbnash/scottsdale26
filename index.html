@@ -131,6 +131,20 @@
   .course-card-body p{color:var(--muted);margin:0 0 16px}
 @media(max-width:800px){.course-cards{grid-template-columns:1fr}.course-photos{height:200px}}
 
+
+  .rules-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .rule-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:20px}
+  .rule-card h3{margin:0 0 9px;font-size:18px}
+  .rule-card p{margin:0 0 10px;color:var(--muted);line-height:1.55}
+  .rule-card p:last-child{margin-bottom:0}
+  .rule-card ul{margin:0;padding-left:20px;color:var(--muted);line-height:1.6}
+  .rule-card li{margin:5px 0}
+  .rules-note{margin-top:18px;color:var(--muted);font-size:14px}
+
+  .btn-small{font-size:11px;padding:8px 12px;letter-spacing:.06em}
+
+  @media(max-width:800px){.rules-grid{grid-template-columns:1fr}}
+
   @media(max-width:800px){.course-thumb{width:100%;height:105px;max-width:none}}
 
   @media(max-width:800px){
@@ -194,7 +208,8 @@
 
 <section id="schedule">
 <div class="wrap">
-  <div class="section-head"><div><div class="kicker">Tournament Schedule</div><h2>Five rounds. Four days.</h2></div></div>
+  <div class="section-head"><div><div class="kicker">Tournament Schedule</div><h2>Five rounds. Four days.
+      <a class="btn btn-small" href="https://martinbnash.github.io/scottsdale26/pairings.html">VIEW PAIRINGS ↗</a></h2></div></div>
   <div class="schedule">
 
     <div class="round">
@@ -258,25 +273,65 @@
 </section>
 
 <section id="rules">
-<div class="wrap">
-  
-<p class="rules-contact">* For any rules question or ruling, contact either captain: <strong>Clayton</strong> or <strong>Ryan Hempton</strong>.</p>
-<div><strong>Ryan Hempton</strong><span>Team Ryan Captain</span></div>
-  </div>
-  <p class="contact-note">Captains are the point people for rulings during the tournament. If there is a question, pause and get a captain's ruling before continuing play.</p>
-</div>
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Official Rules</div>
+        <h2>How Scottsdale 26 is played.</h2>
+      </div>
+    </div>
 
-  <div class="section-head"><div><div class="kicker">Official Rules</div><h2>The rules sheet.</h2>
-      <a class="btn" href="https://martinbnash.github.io/scottsdale26/pairings.html">VIEW PAIRINGS ↗</a></div></div>
-  <div class="rules">
-    <div class="rule"><h3>01 · Match Scoring</h3><p>Front 9 net Best Ball Match Play = <strong>3 points</strong>. Back 9 = <strong>3 points</strong>. Overall 18-hole net Best Ball = <strong>5 points</strong>. In addition, each hole won earns 1 point.</p></div>
-    <div class="rule"><h3>02 · Birdie &amp; Eagle Bonuses</h3><p>A gross birdie earns <strong>+1</strong> and a gross eagle earns <strong>+2</strong>, but only when that side wins the hole. If the bonus is tied, the bonus points are split evenly.</p></div>
-    <div class="rule"><h3>03 · Putting</h3><p>Putts inside the leather are expected to be gimmes. Opponents may require a putt to be holed.</p></div>
-    <div class="rule"><h3>04 · Maximum Score</h3><p>Maximum score is double par, except par 5s have a maximum of <strong>9</strong>. Once a golfer reaches the maximum, they must pick up.</p></div>
-    <div class="rule"><h3>05 · Desert Rule</h3><p>A ball leaving maintained turf is treated as a lateral hazard. Take lateral relief at the point of entry and add a <strong>one-stroke penalty</strong>.</p></div>
-    <div class="rule"><h3>06 · Final Round</h3><p>All Round 5 points are worth <strong>1.5×</strong>. The final round pairings are submitted blind.</p></div>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <h3>Match Format</h3>
+        <p>12 golfers are split into two fixed teams of six. Each round consists of three 2-man best-ball matches.</p>
+        <ul>
+          <li><strong>Front 9:</strong> net match play best ball — 1 point per hole won, plus 3 points for winning the front 9.</li>
+          <li><strong>Back 9:</strong> net match play best ball — 1 point per hole won, plus 3 points for winning the back 9.</li>
+          <li><strong>Full 18:</strong> net stroke play best ball — 5 points for winning the overall 18.</li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <h3>Handicaps</h3>
+        <p>GHIN Handicap Indexes are frozen one week before the trip. Convert to Course Handicap for the tees being played, then apply the <strong>85% tournament allowance</strong> and round to the nearest whole number.</p>
+        <p>If a golfer does not have a GHIN, the tournament committee assigns a handicap.</p>
+      </div>
+
+      <div class="rule-card">
+        <h3>Birdie &amp; Eagle Bonuses</h3>
+        <p>Gross birdie = <strong>+1 point</strong>. Gross eagle = <strong>+2 points</strong>.</p>
+        <p>The bonus only applies when that side wins the hole. If a bonus is tied, the bonus points are split evenly.</p>
+      </div>
+
+      <div class="rule-card">
+        <h3>Maximum Score</h3>
+        <p>Maximum score is <strong>double par</strong>, except on par 5s where the maximum is <strong>9</strong>. Once a golfer reaches the maximum, the ball must be picked up.</p>
+      </div>
+
+      <div class="rule-card">
+        <h3>Desert / Lateral Rule</h3>
+        <p>A ball leaving maintained turf is treated as a lateral hazard. Take lateral relief at the point of entry with a <strong>one-stroke penalty</strong>.</p>
+      </div>
+
+      <div class="rule-card">
+        <h3>Putting Concessions</h3>
+        <p>Putts inside the leather are expected to be gimmes, but an opponent may require the putt to be holed.</p>
+      </div>
+
+      <div class="rule-card">
+        <h3>Final Round</h3>
+        <p>Final-round points are worth <strong>1.5×</strong>. Final-round pairings are submitted blind.</p>
+      </div>
+
+      <div class="rule-card">
+        <h3>Parlay Bonus</h3>
+        <p>The 12-man parlay is a separate $100 allocation already included in the $300 entry fee. A correct individual parlay pick gives that golfer's team <strong>+1 bonus point</strong>. If the parlay wins, the winnings are split evenly among all 12 golfers.</p>
+      </div>
+    </div>
+
+    <p class="rules-note">* For any rules question or ruling, <strong>both captains must be contacted</strong>: <strong>Clayton</strong> and <strong>Ryan Hempton</strong>.</p>
   </div>
-</div>
 </section>
 
 <section id="tees">
