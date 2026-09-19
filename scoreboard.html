@@ -526,7 +526,7 @@
 
           supabaseClient
             .from("parlay_results")
-            .select("*")
+            .select("player_name, pick, won")
         ]);
 
 
@@ -553,16 +553,26 @@
         parlayBonuses = { Clayton: 0, Ryan: 0 };
 
         if (!parlayResponse.error && parlayResponse.data) {
-          parlayResponse.data.forEach(row => {
-            const team = row.team || row.team_name || row.assigned_team;
-            const correct =
-              row.correct === true ||
-              row.won === true ||
-              row.is_correct === true ||
-              row.result === "correct" ||
-              row.result === "won";
+          const teamByPlayer = {
+            Clayton: "Clayton",
+            Marty: "Clayton",
+            Raymond: "Clayton",
+            Brian: "Clayton",
+            Michael: "Clayton",
+            Aaron: "Clayton",
+            Ryan: "Ryan",
+            Jon: "Ryan",
+            "Ryan D": "Ryan",
+            Brad: "Ryan",
+            Brent: "Ryan",
+            Travis: "Ryan"
+          };
 
-            if (correct && (team === "Clayton" || team === "Ryan")) {
+          parlayResponse.data.forEach(row => {
+            const team = teamByPlayer[row.player_name];
+
+            // parlay.html stores a correct pick as won = true.
+            if (row.won === true && team) {
               parlayBonuses[team] += 1;
             }
           });
