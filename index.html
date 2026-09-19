@@ -63,6 +63,53 @@
   .money{font-size:28px;font-weight:950;color:var(--accent2)}
   footer{padding:45px 0 70px;color:var(--muted);text-align:center}
   footer strong{color:var(--text)}
+
+  .pairings-grid{display:grid;gap:10px;margin-top:12px}
+  .pairing-line{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;background:#0b1210;border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .side{font-weight:800}
+  .side.right{text-align:right}
+  .vs{color:var(--accent);font-size:11px;font-weight:950;letter-spacing:.12em}
+  .team-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:2px}
+  .team-label.clayton{color:#9fb8a8}
+  .team-label.ryan{color:var(--accent2)}
+  .team-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .team-card{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:16px;padding:22px}
+  .team-card h3{font-size:25px;margin:0}
+  .captain{color:var(--accent2);font-size:13px;font-weight:800;margin-top:3px}
+  .players{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .player{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .player img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;object-position:top center}
+  .player-info{padding:9px 10px 11px}
+  .player-info strong{display:block}
+  .player-info span{color:var(--muted);font-size:12px}
+  .handicap-teams{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .team-table{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+  .team-table h3{margin:0;padding:18px 18px 12px;font-size:21px}
+  .team-table table{font-size:13px}
+  .team-table th,.team-table td{padding:11px 10px}
+  .team-table th:not(:first-child),.team-table td:not(:first-child){text-align:center}
+  .hi{color:var(--text);font-weight:850}
+  .ph{color:var(--accent2);font-weight:900}
+  .instructions{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .step-num{display:inline-flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;background:var(--accent);color:#12130f;font-weight:950;margin-bottom:10px}
+  .step h3{margin:0 0 7px}
+  .step p{margin:0;color:var(--muted)}
+  .payout-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  .big-payout{background:linear-gradient(135deg,#1c2d25,#121b18);border:1px solid #40574b;border-radius:16px;padding:30px}
+  .big-payout .amount{font-size:clamp(42px,6vw,70px);line-height:1;font-weight:950;color:var(--accent2)}
+  .big-payout .per{font-size:18px;font-weight:850;margin-top:8px}
+  .payout-list{display:grid;gap:12px}
+  .payout-item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .payout-item strong{display:block;font-size:20px;color:var(--accent2)}
+  .payout-item span{color:var(--muted);font-size:14px}
+  @media(max-width:800px){
+    .team-layout,.handicap-teams,.payout-hero,.instructions{grid-template-columns:1fr}
+    .players{grid-template-columns:repeat(2,1fr)}
+    .pairing-line{grid-template-columns:1fr;gap:4px}
+    .side.right{text-align:left}
+    .vs{display:none}
+  }
   @media(max-width:800px){
     header{min-height:610px}.grid,.rules{grid-template-columns:1fr}.rule.full{grid-column:auto}
     .round{grid-template-columns:75px 1fr}.time{grid-column:2;text-align:left}
@@ -79,9 +126,10 @@
       <p><span class="date">September 24–27, 2026</span><br>12 golfers. 2 teams. 5 rounds. One championship.</p>
       <div class="buttons">
         <a class="btn primary" href="scorecard.html">LIVE SCORECARD</a>
-        <a class="btn" href="#schedule">SCHEDULE</a>
+        <a class="btn" href="#schedule">SCHEDULE + PAIRINGS</a>
         <a class="btn" href="#rules">RULES</a>
         <a class="btn" href="#tees">HANDICAPS &amp; TEES</a>
+        <a class="btn" href="#scorecard-guide">HOW TO PLAY</a>
         <a class="btn" href="parlay.html">PARLAY</a>
       </div>
     </div>
@@ -93,7 +141,7 @@
   <div class="section-head"><div><div class="kicker">The Format</div><h2>How the championship works.</h2></div></div>
   <div class="grid">
     <div class="card"><h3>12 → 2 Teams</h3><p>Two fixed teams of six compete throughout the event. Each round features three 2-man Best Ball matches.</p></div>
-    <div class="card"><h3>18 Holes × 3</h3><p>Every match produces points from the Front 9, Back 9 and the overall 18-hole net Best Ball.</p></div>
+    <div class="card"><h3>18 Holes × 3</h3><p>Every match produces 1 point per hole won, plus points for the Front 9, Back 9 and overall 18-hole net Best Ball.</p></div>
     <div class="card"><h3>Final Round × 1.5</h3><p>The final round carries a 1.5× multiplier, making every point count as the championship comes down to the finish.</p></div>
   </div>
 </div>
@@ -103,11 +151,63 @@
 <div class="wrap">
   <div class="section-head"><div><div class="kicker">Tournament Schedule</div><h2>Five rounds. Four days.</h2></div></div>
   <div class="schedule">
-    <div class="round"><div class="round-num">Round 1<br>Sep 24</div><div><strong>Dinosaur Mountain</strong><span>Blue tees • 12:30 / 12:40 / 12:50</span></div><div class="time">12:30 PM</div></div>
-    <div class="round"><div class="round-num">Round 2<br>Sep 25</div><div><strong>We-Ko-Pa Cholla</strong><span>Purple tees • 8:00 / 8:10 / 8:20</span></div><div class="time">8:00 AM</div></div>
-    <div class="round"><div class="round-num">Round 3<br>Sep 25</div><div><strong>We-Ko-Pa Saguaro</strong><span>Purple tees • 1:20 / 1:30 / 1:40</span></div><div class="time">1:20 PM</div></div>
-    <div class="round"><div class="round-num">Round 4<br>Sep 26</div><div><strong>We-Ko-Pa Saguaro</strong><span>Purple tees • 9:20 / 9:20 / 9:30</span></div><div class="time">9:20 AM</div></div>
-    <div class="round"><div class="round-num">Round 5<br>Sep 27</div><div><strong>We-Ko-Pa Cholla</strong><span>Purple tees • 8:30 / 8:40 / 8:50</span></div><div class="time">8:30 AM</div></div>
+
+    <div class="round">
+      <div class="round-num">Round 1<br>Sep 24</div>
+      <div><strong>Dinosaur Mountain</strong><span>Blue tees • 12:30 / 12:40 / 12:50</span>
+        <div class="pairings-grid">
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Aaron</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan + Brad</div></div>
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Marty + Michael</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Travis + Brent</div></div>
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Raymond + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Ryan D</div></div>
+        </div>
+      </div>
+      <div class="time">12:30 PM</div>
+    </div>
+
+    <div class="round">
+      <div class="round-num">Round 2<br>Sep 25</div>
+      <div><strong>We-Ko-Pa Cholla</strong><span>Purple tees • 8:00 / 8:10 / 8:20</span>
+        <div class="pairings-grid">
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Michael</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Brent</div></div>
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Marty + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Ryan D</div></div>
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Aaron + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan + Travis</div></div>
+        </div>
+      </div>
+      <div class="time">8:00 AM</div>
+    </div>
+
+    <div class="round">
+      <div class="round-num">Round 3<br>Sep 25</div>
+      <div><strong>We-Ko-Pa Saguaro</strong><span>Purple tees • 1:20 / 1:30 / 1:40</span>
+        <div class="pairings-grid">
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan + Brent</div></div>
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Marty + Aaron</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan D + Travis</div></div>
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Michael + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Jon</div></div>
+        </div>
+      </div>
+      <div class="time">1:20 PM</div>
+    </div>
+
+    <div class="round">
+      <div class="round-num">Round 4<br>Sep 26</div>
+      <div><strong>We-Ko-Pa Saguaro</strong><span>Purple tees • 9:20 / 9:20 / 9:30</span>
+        <div class="pairings-grid">
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Marty</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Ryan</div></div>
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Aaron + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan D + Brent</div></div>
+          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Michael + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Travis</div></div>
+        </div>
+      </div>
+      <div class="time">9:20 AM</div>
+    </div>
+
+    <div class="round">
+      <div class="round-num">Round 5<br>Sep 27</div>
+      <div><strong>We-Ko-Pa Cholla</strong><span>Purple tees • 8:30 / 8:40 / 8:50 • Final round points ×1.5</span>
+        <div class="callout" style="margin-top:12px"><strong>Blind pairings:</strong> Final-round pairings are submitted blind and revealed before the round. This keeps the final-round matchups part of the championship drama.</div>
+      </div>
+      <div class="time">8:30 AM</div>
+    </div>
+
   </div>
 </div>
 </section>
@@ -131,43 +231,56 @@
   <div class="section-head"><div><div class="kicker">Handicaps &amp; Tees</div><h2>Know your number.</h2></div></div>
   <div class="rule full" style="margin-bottom:18px">
     <h3>How the tournament handicap works</h3>
-    <p>Scottsdale 26 uses a tournament-specific <strong>85% Playing Handicap allowance</strong>. Each golfer's GHIN Handicap Index is frozen one week before the trip. That Index is converted to a <strong>Course Handicap based on the course and tees being played</strong>. The 85% allowance is then applied and rounded to the nearest whole number.</p>
+    <p>Each golfer's draft-night GHIN Handicap Index is shown below. That Index is converted to a <strong>tee- and course-specific Course Handicap</strong>, then the Scottsdale 26 <strong>85% Playing Handicap allowance</strong> is applied and rounded to the nearest whole number.</p>
     <div class="formula">Playing Handicap = Course Handicap × 85% → nearest whole number</div>
-    <p style="margin-top:15px">The number shown on the scorecard may therefore be different from a golfer's GHIN Handicap Index. Stroke holes are determined from the final Playing Handicap and are used for net scoring in Best Ball and Match Play.</p>
+    <p style="margin-top:15px">The three course columns are the actual Playing Handicap used for that course. Stroke holes are based on that Playing Handicap and drive the net Best Ball and Match Play calculations.</p>
   </div>
-
-  <div class="tees">
-    <table>
-      <thead><tr><th>Golfer</th><th>Tee Assignment</th></tr></thead>
-      <tbody>
-        <tr><td>Clayton</td><td>Blue / Purple</td></tr>
-        <tr><td>Marty</td><td>Blue / Purple</td></tr>
-        <tr><td>Michael</td><td>Blue / Purple</td></tr>
-        <tr><td>Aaron</td><td>Blue / Purple</td></tr>
-        <tr><td>Raymond</td><td>Blue / Purple</td></tr>
-        <tr><td>Brian</td><td>Blue / Purple</td></tr>
-        <tr><td>Ryan Hempton</td><td>Blue / Purple</td></tr>
-        <tr><td class="white">Brad</td><td class="white">WHITE TEES</td></tr>
-        <tr><td>Jon</td><td>Blue / Purple</td></tr>
-        <tr><td class="white">Ryan D</td><td class="white">WHITE TEES</td></tr>
-        <tr><td>Travis</td><td>Blue / Purple</td></tr>
-        <tr><td>Brent</td><td>Blue / Purple</td></tr>
-      </tbody>
-    </table>
+  <div class="handicap-teams">
+    <div class="team-table"><h3>Team Clayton</h3><table>
+      <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
+      <tbody><tr><td>Clayton</td><td class="hi">10.3</td><td>Blue</td><td class="ph">8</td><td class="ph">10</td><td class="ph">9</td></tr><tr><td>Marty</td><td class="hi">7.3</td><td>Blue</td><td class="ph">5</td><td class="ph">7</td><td class="ph">7</td></tr><tr><td>Brian</td><td class="hi">12.0</td><td>Blue</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr><tr><td>Aaron</td><td class="hi">18.6</td><td>Blue</td><td class="ph">15</td><td class="ph">19</td><td class="ph">18</td></tr><tr><td>Michael</td><td class="hi">20.4</td><td>Blue</td><td class="ph">17</td><td class="ph">20</td><td class="ph">20</td></tr><tr><td>Raymond</td><td class="hi">13.5</td><td>Blue</td><td class="ph">10</td><td class="ph">14</td><td class="ph">13</td></tr></tbody></table></div>
+    <div class="team-table"><h3>Team Ryan</h3><table>
+      <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
+      <tbody><tr><td>Ryan</td><td class="hi">14.0</td><td>Blue</td><td class="ph">11</td><td class="ph">14</td><td class="ph">14</td></tr><tr><td>Brad</td><td class="hi">15.3</td><td>White</td><td class="ph">9</td><td class="ph">11</td><td class="ph">13</td></tr><tr><td>Jon</td><td class="hi">7.4</td><td>Blue</td><td class="ph">5</td><td class="ph">8</td><td class="ph">7</td></tr><tr><td>Ryan D</td><td class="hi">19.9</td><td>White</td><td class="ph">14</td><td class="ph">15</td><td class="ph">17</td></tr><tr><td>Travis</td><td class="hi">15.9</td><td>Blue</td><td class="ph">13</td><td class="ph">16</td><td class="ph">15</td></tr><tr><td>Brent</td><td class="hi">12.1</td><td>Blue</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr></tbody></table></div>
   </div>
-  <div class="callout"><strong>White Tee clarification:</strong> Brad and Ryan D are playing from the White Tees as a Scottsdale 26 tournament decision. There is no automatic USGA age-based entitlement to move tees. Because tee selection changes Course Rating and Slope, their Course Handicaps are calculated specifically from the White Tees before the 85% tournament allowance is applied.</div>
+  <div class="callout"><strong>White Tee clarification:</strong> Brad and Ryan D are playing from the White Tees as a Scottsdale 26 tournament decision. Their tee-specific Course Handicaps are calculated separately before the 85% tournament allowance is applied. Everyone else plays Blue at Dinosaur Mountain and Purple at We-Ko-Pa.</div>
 </div>
 </section>
 
-<section>
+<section id="payouts">
 <div class="wrap">
-  <div class="section-head"><div><div class="kicker">Payouts</div><h2>There's something on the line.</h2></div></div>
-  <div class="grid">
-    <div class="card"><div class="money">$250</div><h3>Entry Fee</h3><p>Overall event entry for each golfer. With 12 golfers, the entry pool is $3,000.</p></div>
-    <div class="card"><div class="money">$50/day</div><h3>Daily Low Pair</h3><p>$50 daily pool, split $25/$25 between the winning pair. Five rounds = $250 in daily payouts.</p></div>
-    <a class="card" href="parlay.html"><div class="money">$100</div><h3>12-Man Parlay →</h3><p>The $100 parlay is separate from the entry pool. If it wins, winnings are split evenly among all 12 golfers. A correct individual pick gives that golfer's team +1 bonus point.</p></a>
+  <div class="section-head"><div><div class="kicker">Payout Structure</div><h2>There's something on the line.</h2></div></div>
+  <div class="payout-hero">
+    <div class="big-payout">
+      <div class="kicker">Championship Team</div>
+      <div class="amount">$2,900</div>
+      <div class="per">Total team payout · $483.33 per player</div>
+      <p style="color:var(--muted);margin-bottom:0">The winning team receives the remaining overall entry pool after the four daily winning-team payouts.</p>
+    </div>
+    <div class="payout-list">
+      <div class="payout-item"><strong>$300 × 12 = $3,600</strong><span>Total championship entry pool.</span></div>
+      <div class="payout-item"><strong>$150 / day</strong><span>Daily winning-team payout. All 6 golfers on the team that wins the day receive $25 each. Four tournament days = $600.</span></div>
+      <div class="payout-item"><strong>$100 Parlay</strong><span>Included within each golfer's $300 entry fee. If it wins, winnings are split evenly among all 12 golfers.</span></div>
+    </div>
   </div>
-  <div class="callout"><strong>Overall entry pool:</strong> $3,000 from 12 × $250 entries. After $250 in daily low-pair payouts, <strong>$2,750 remains for the overall team payout</strong>. The $100 12-man parlay is separate.</div>
+  <div class="callout"><strong>Entry fee &amp; payout math:</strong> Each golfer pays <strong>$300 total</strong>. The $100 parlay is already included in that $300 entry fee — it is not an additional charge or deduction. The full $3,600 pool is allocated across the parlay, daily payouts, and championship payout.</div>
+  <div class="callout"><strong>Daily payout rule:</strong> The winning team receives <strong>$150 per tournament day</strong> — $25 for each of the 6 players. Friday is a single $150 payout even though the group plays 36 holes that day.</div>
+  <div class="callout"><strong>Championship math:</strong> $3,600 entry pool − $500 daily payouts = <strong>$3,000 to the championship team</strong>. Split six ways, that is <strong>$500.00 per player</strong> (with final cents settled by the banker).</div>
+</div>
+</section>
+
+<section id="scorecard-guide">
+<div class="wrap">
+  <div class="section-head"><div><div class="kicker">How To Play</div><h2>Scorecard instructions.</h2></div></div>
+  <div class="instructions">
+    <div class="step"><div class="step-num">1</div><h3>Enter gross scores</h3><p>On the live scorecard, enter each golfer's <strong>gross score</strong> for every hole. The scorecard uses the assigned tee and frozen Playing Handicap automatically.</p></div>
+    <div class="step"><div class="step-num">2</div><h3>Watch the stroke dots</h3><p>A dot shows the holes where a golfer receives a handicap stroke. Net score = gross score minus the applicable stroke(s).</p></div>
+    <div class="step"><div class="step-num">3</div><h3>Best Ball drives the match</h3><p>For each hole, each side uses its <strong>lowest net score</strong>. That best-ball score determines who wins the hole and the match segments.</p></div>
+    <div class="step"><div class="step-num">4</div><h3>Three scoring buckets</h3><p>Every match awards <strong>1 point for each hole won</strong>, plus <strong>3 points for the Front 9</strong>, <strong>3 for the Back 9</strong>, and <strong>5 for the overall 18</strong>. Ties split the applicable points; there are no carryovers.</p></div>
+    <div class="step"><div class="step-num">5</div><h3>Birdies &amp; eagles matter</h3><p>A <strong>gross birdie = +1</strong> and a <strong>gross eagle = +2</strong>, but only when that side wins the hole. If the bonus is tied, the bonus is split evenly.</p></div>
+    <div class="step"><div class="step-num">6</div><h3>Just enter the scores</h3><p>Scores save automatically as they are entered. The live scorecard feeds the match results and team scoreboard, so you do not need a separate Save All Scores button.</p></div>
+  </div>
+  <div class="callout"><strong>What happens after the round:</strong> The scorecard calculates net Best Ball results, hole points, Front 9, Back 9, 18-hole points and birdie/eagle bonuses. Round 5 is worth <strong>1.5×</strong>, so the final round can swing the championship.</div>
 </div>
 </section>
 
