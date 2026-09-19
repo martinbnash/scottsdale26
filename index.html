@@ -103,6 +103,26 @@
   .payout-item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
   .payout-item strong{display:block;font-size:20px;color:var(--accent2)}
   .payout-item span{color:var(--muted);font-size:14px}
+
+  #memories{overflow:hidden}
+  .memory-gallery{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#0b1210;padding:14px}
+  .memory-track{display:flex;gap:14px;width:max-content;animation:memoryScroll 32s linear infinite}
+  .memory-gallery:hover .memory-track{animation-play-state:paused}
+  .memory-placeholder{width:230px;height:170px;flex:0 0 230px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.02));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .memory-placeholder span{font-size:38px;margin-bottom:8px}
+  .memory-placeholder strong{font-size:16px}
+  .memory-placeholder small{color:var(--muted);margin-top:4px}
+  .memory-note{margin-top:14px}
+  @keyframes memoryScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  .course-thumb{display:block;width:120px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line)}
+  @media(max-width:800px){.course-thumb{width:100%;height:105px;max-width:none}}
+
+  @media(max-width:800px){
+    .memory-placeholder{width:190px;height:145px;flex-basis:190px}
+    .memory-track{animation-duration:26s}
+  }
+
   @media(max-width:800px){
     .team-layout,.handicap-teams,.payout-hero,.instructions{grid-template-columns:1fr}
     .players{grid-template-columns:repeat(2,1fr)}
@@ -161,7 +181,7 @@
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Raymond + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Ryan D</div></div>
         </div>
       </div>
-      <div class="time">12:30 PM</div>
+      <div class="time"><img class="course-thumb" src="https://www.golfzoo.com/images/ire/ff_vDINGCR3.jpg" alt="Dinosaur Mountain"></div>
     </div>
 
     <div class="round">
@@ -173,7 +193,7 @@
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Aaron + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan + Travis</div></div>
         </div>
       </div>
-      <div class="time">8:00 AM</div>
+      <div class="time"><img class="course-thumb" src="https://ygt-res.cloudinary.com/image/upload/c_fill%2Ch_630%2Cq_80%2Cw_1200/v1614093580/Venues/We-Ko-Pa%20Cholla/we-ko-pa-cholla-1.jpg" alt="We-Ko-Pa Cholla"></div>
     </div>
 
     <div class="round">
@@ -185,19 +205,19 @@
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Michael + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Jon</div></div>
         </div>
       </div>
-      <div class="time">1:20 PM</div>
+      <div class="time"><img class="course-thumb" src="https://reslogic.b-cdn.net/gz/images/ire/ff_vSAGWEK1.jpg" alt="We-Ko-Pa Saguaro"></div>
     </div>
 
     <div class="round">
       <div class="round-num">Round 4<br>Sep 26</div>
-      <div><strong>We-Ko-Pa Saguaro</strong><span>Purple tees • 9:20 / 9:20 / 9:30</span>
+      <div><strong>We-Ko-Pa Saguaro</strong><span>Purple tees • 9:20 / 9:30 / 9:40</span>
         <div class="pairings-grid">
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Marty</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Ryan</div></div>
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Aaron + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan D + Brent</div></div>
           <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Michael + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Travis</div></div>
         </div>
       </div>
-      <div class="time">9:20 AM</div>
+      <div class="time"><img class="course-thumb" src="https://reslogic.b-cdn.net/gz/images/ire/ff_vSAGWEK1.jpg" alt="We-Ko-Pa Saguaro"></div>
     </div>
 
     <div class="round">
@@ -263,7 +283,7 @@
       <div class="payout-item"><strong>$100 Parlay</strong><span>Included within each golfer's $300 entry fee. If it wins, winnings are split evenly among all 12 golfers.</span></div>
     </div>
   </div>
-  <div class="callout"><strong>Entry fee &amp; payout math:</strong> Each golfer pays <strong>$300 total</strong>. The $100 parlay is already included in that $300 entry fee — it is not an additional charge or deduction. The full $3,600 pool is allocated across the parlay, daily payouts, and championship payout.</div>
+  <div class="callout"><strong>Entry fee &amp; payout math:</strong> Each golfer pays <strong>$300 total</strong>. The $100 parlay is already included in that $300 entry fee — it is not an additional charge or deduction. The full $3,600 pool is allocated across the parlay, daily payouts, and championship payout.<br><br><strong>Pay Ryan via Venmo:</strong> <a href="https://venmo.com/u/Ryan-Hempton" target="_blank" rel="noopener noreferrer" style="color:var(--accent2);font-weight:900;">@Ryan-Hempton ↗</a></div>
   <div class="callout"><strong>Daily payout rule:</strong> The winning team receives <strong>$150 per tournament day</strong> — $25 for each of the 6 players. Friday is a single $150 payout even though the group plays 36 holes that day.</div>
   <div class="callout"><strong>Championship math:</strong> $3,600 entry pool − $500 daily payouts = <strong>$3,000 to the championship team</strong>. Split six ways, that is <strong>$500.00 per player</strong> (with final cents settled by the banker).</div>
 </div>
@@ -299,5 +319,31 @@
 <footer>
   <div class="wrap"><strong>SCOTTSDALE 26</strong><br>September 24–27, 2026 · Official Tournament Site</div>
 </footer>
+
+<section id="memories">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <div class="kicker">Scottsdale 26 Memories</div>
+        <h2>The Memories.</h2>
+      </div>
+      <a class="btn" href="https://share.icloud.com/photos/004jxnNHCXT74nXiZgi9yjlQw" target="_blank" rel="noopener noreferrer">VIEW FULL ALBUM ↗</a>
+    </div>
+    <div class="memory-gallery">
+      <div class="memory-track">
+        <div class="memory-placeholder"><span>📸</span><strong>Scottsdale 26</strong><small>Add trip photos here</small></div>
+        <div class="memory-placeholder"><span>⛳</span><strong>On the Course</strong><small>Photos &amp; videos</small></div>
+        <div class="memory-placeholder"><span>🏆</span><strong>The Championship</strong><small>Moments from the weekend</small></div>
+        <div class="memory-placeholder"><span>🍻</span><strong>Off the Course</strong><small>The good stuff</small></div>
+        <div class="memory-placeholder"><span>📸</span><strong>Scottsdale 26</strong><small>Add trip photos here</small></div>
+        <div class="memory-placeholder"><span>⛳</span><strong>On the Course</strong><small>Photos &amp; videos</small></div>
+      </div>
+    </div>
+    <div class="callout memory-note">
+      <strong>Keep the memories coming.</strong> Everyone can add photos and videos to the shared iCloud album. The button above opens the full album.
+    </div>
+  </div>
+</section>
+
 </body>
 </html>
