@@ -117,7 +117,6 @@
 
   .course-thumb{display:block;width:120px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line)}
 
-
   .course-photos img{cursor:pointer;transition:transform .2s ease}
   .course-photos img:hover{transform:scale(1.02)}
 
@@ -131,7 +130,6 @@
   .course-card-body p{color:var(--muted);margin:0 0 16px}
 @media(max-width:800px){.course-cards{grid-template-columns:1fr}.course-photos{height:200px}}
 
-
   .rules-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
   .rule-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:20px}
   .rule-card h3{margin:0 0 9px;font-size:18px}
@@ -140,11 +138,6 @@
   .rule-card ul{margin:0;padding-left:20px;color:var(--muted);line-height:1.6}
   .rule-card li{margin:5px 0}
   .rules-note{margin-top:18px;color:var(--muted);font-size:14px}
-  .tee-legend{margin:0 0 14px;padding:12px 15px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);color:var(--muted);font-size:14px}
-  .tee-legend strong{color:var(--text)}
-
-  .btn-small{font-size:11px;padding:8px 12px;letter-spacing:.06em}
-
   @media(max-width:800px){.rules-grid{grid-template-columns:1fr}}
 
   @media(max-width:800px){.course-thumb{width:100%;height:105px;max-width:none}}
@@ -169,6 +162,9 @@
 
   .top-leaderboard{text-align:center;padding:12px 16px;background:var(--accent);border-bottom:1px solid var(--line)}
   .top-leaderboard a{display:inline-block;color:#08100c;font-weight:950;letter-spacing:.08em;text-decoration:none;font-size:14px}
+
+  .tee-note{margin:12px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.035);color:var(--muted);font-size:13px;line-height:1.5}
+  .tee-note strong{color:var(--text)}
 
 </style>
 </head>
@@ -211,7 +207,7 @@
 <section id="schedule">
 <div class="wrap">
   <div class="section-head"><div><div class="kicker">Tournament Schedule</div><h2>Five rounds. Four days.
-      <a class="btn btn-small" href="https://martinbnash.github.io/scottsdale26/pairings.html">VIEW PAIRINGS ↗</a></h2></div></div>
+      <a class="btn" href="https://martinbnash.github.io/scottsdale26/pairings.html">VIEW PAIRINGS ↗</a></h2></div></div>
   <div class="schedule">
 
     <div class="round">
@@ -295,12 +291,6 @@
       </div>
 
       <div class="rule-card">
-        <h3>Scorecard &amp; Certification</h3>
-        <p>Enter each golfer's <strong>gross score</strong> for every hole. The scorecard calculates the net Best Ball and match results automatically.</p>
-        <p>When the match is complete, the <strong>marker</strong> must check <strong>Certified by Marker</strong> and the opponent must check <strong>Certified by Opponent</strong>. Once <strong>both boxes are checked</strong>, that match scorecard locks and can no longer be edited. If either box is unchecked, the scorecard remains editable.</p>
-      </div>
-
-      <div class="rule-card">
         <h3>Handicaps</h3>
         <p>GHIN Handicap Indexes are frozen one week before the trip. Convert to Course Handicap for the tees being played, then apply the <strong>85% tournament allowance</strong> and round to the nearest whole number.</p>
         <p>If a golfer does not have a GHIN, the tournament committee assigns a handicap.</p>
@@ -338,7 +328,7 @@
       </div>
     </div>
 
-    <p class="rules-note">* For any rules question or ruling, <strong>both captains must be contacted</strong>: <strong>Clayton</strong> and <strong>Ryan Hempton</strong>.</p>
+    <p class="rules-note">* For any rules question or ruling, contact either captain: <strong>Clayton</strong> or <strong>Ryan Hempton</strong>.</p>
   </div>
 </section>
 
@@ -349,18 +339,17 @@
     <h3>How the tournament handicap works</h3>
     <p>Each golfer's draft-night GHIN Handicap Index is shown below. That Index is converted to a <strong>tee- and course-specific Course Handicap</strong>, then the Scottsdale 26 <strong>85% Playing Handicap allowance</strong> is applied and rounded to the nearest whole number.</p>
     <div class="formula">Playing Handicap = Course Handicap × 85% → nearest whole number</div>
-    <p style="margin-top:15px">The three course columns are the actual Playing Handicap used for that course. Dinosaur Mountain is played from Blue (White for Brad and Ryan D); Cholla and Saguaro are played from Purple. Stroke holes are based on that Playing Handicap and drive the net Best Ball and Match Play calculations.</p>
+    <p style="margin-top:15px">The three course columns are the actual Playing Handicap used for that course. Stroke holes are based on that Playing Handicap and drive the net Best Ball and Match Play calculations.</p>
   </div>
-  <div class="tee-legend"><strong>Course tees:</strong> Dinosaur Mountain — Blue (Brad &amp; Ryan D: White) · We-Ko-Pa Cholla — Purple · We-Ko-Pa Saguaro — Purple</div>
   <div class="handicap-teams">
     <div class="team-table"><h3>Team Clayton</h3><table>
-      <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Dinosaur Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
-      <tbody><tr><td>Clayton</td><td class="hi">10.3</td><td>Blue</td><td class="ph">8</td><td class="ph">10</td><td class="ph">9</td></tr><tr><td>Marty</td><td class="hi">7.3</td><td>Blue</td><td class="ph">5</td><td class="ph">7</td><td class="ph">7</td></tr><tr><td>Brian</td><td class="hi">12.0</td><td>Blue</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr><tr><td>Aaron</td><td class="hi">18.6</td><td>Blue</td><td class="ph">15</td><td class="ph">19</td><td class="ph">18</td></tr><tr><td>Michael</td><td class="hi">20.4</td><td>Blue</td><td class="ph">17</td><td class="ph">20</td><td class="ph">20</td></tr><tr><td>Raymond</td><td class="hi">13.5</td><td>Blue</td><td class="ph">10</td><td class="ph">14</td><td class="ph">13</td></tr></tbody></table></div>
+      <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
+      <tbody><tr><td>Clayton</td><td class="hi">10.3</td><td>Blue/Purple</td><td class="ph">8</td><td class="ph">10</td><td class="ph">9</td></tr><tr><td>Marty</td><td class="hi">7.3</td><td>Blue/Purple</td><td class="ph">5</td><td class="ph">7</td><td class="ph">7</td></tr><tr><td>Brian</td><td class="hi">12.0</td><td>Blue/Purple</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr><tr><td>Aaron</td><td class="hi">18.6</td><td>Blue/Purple</td><td class="ph">15</td><td class="ph">19</td><td class="ph">18</td></tr><tr><td>Michael</td><td class="hi">20.4</td><td>Blue/Purple</td><td class="ph">17</td><td class="ph">20</td><td class="ph">20</td></tr><tr><td>Raymond</td><td class="hi">13.5</td><td>Blue/Purple</td><td class="ph">10</td><td class="ph">14</td><td class="ph">13</td></tr></tbody></table></div>
     <div class="team-table"><h3>Team Ryan</h3><table>
-      <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Dinosaur Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
-      <tbody><tr><td>Ryan</td><td class="hi">14.0</td><td>Blue</td><td class="ph">11</td><td class="ph">14</td><td class="ph">14</td></tr><tr><td>Brad</td><td class="hi">15.3</td><td>White</td><td class="ph">9</td><td class="ph">11</td><td class="ph">13</td></tr><tr><td>Jon</td><td class="hi">7.4</td><td>Blue</td><td class="ph">5</td><td class="ph">8</td><td class="ph">7</td></tr><tr><td>Ryan D</td><td class="hi">19.9</td><td>White</td><td class="ph">14</td><td class="ph">15</td><td class="ph">17</td></tr><tr><td>Travis</td><td class="hi">15.9</td><td>Blue</td><td class="ph">13</td><td class="ph">16</td><td class="ph">15</td></tr><tr><td>Brent</td><td class="hi">12.1</td><td>Blue</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr></tbody></table></div>
+      <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
+      <tbody><tr><td>Ryan</td><td class="hi">14.0</td><td>Blue/Purple</td><td class="ph">11</td><td class="ph">14</td><td class="ph">14</td></tr><tr><td>Brad</td><td class="hi">15.3</td><td>White</td><td class="ph">9</td><td class="ph">11</td><td class="ph">13</td></tr><tr><td>Jon</td><td class="hi">7.4</td><td>Blue/Purple</td><td class="ph">5</td><td class="ph">8</td><td class="ph">7</td></tr><tr><td>Ryan D</td><td class="hi">19.9</td><td>White</td><td class="ph">14</td><td class="ph">15</td><td class="ph">17</td></tr><tr><td>Travis</td><td class="hi">15.9</td><td>Blue/Purple</td><td class="ph">13</td><td class="ph">16</td><td class="ph">15</td></tr><tr><td>Brent</td><td class="hi">12.1</td><td>Blue/Purple</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr></tbody></table></div>
   </div>
-  <div class="callout"><strong>Tee clarification:</strong> Dinosaur Mountain is Blue for the field, with Brad and Ryan D from the White Tees. We-Ko-Pa Cholla and Saguaro are Purple for the field. Course Handicaps are calculated from the actual tees played before the 85% tournament allowance is applied.</div>
+  <div class="callout"><strong>Tee clarification:</strong> Standard tee assignment is <strong>Blue/Purple</strong>. Brad and Ryan D play <strong>White</strong>.</div>
 </div>
 </section>
 
@@ -382,7 +371,7 @@
   </div>
   <div class="callout"><strong>Entry fee &amp; payout math:</strong> Each golfer pays <strong>$300 total</strong>. The $100 parlay is already included in that $300 entry fee — it is not an additional charge or deduction. The full $3,600 pool is allocated across the parlay, daily payouts, and championship payout.<br><br><strong>Pay Ryan via Venmo:</strong> <a href="https://venmo.com/u/Ryan-Hempton" target="_blank" rel="noopener noreferrer" style="color:var(--accent2);font-weight:900;">@Ryan-Hempton ↗</a></div>
   <div class="callout"><strong>Daily payout rule:</strong> The winning team receives <strong>$150 per tournament day</strong> — $25 for each of the 6 players. Friday is a single $150 payout even though the group plays 36 holes that day.</div>
-  <div class="callout"><strong>Championship math:</strong> $3,600 entry pool − $500 daily payouts = <strong>$3,000 to the championship team</strong>. Split six ways, that is <strong>$500.00 per player</strong> (with final cents settled by the banker).</div>
+  
 </div>
 </section>
 
@@ -396,6 +385,7 @@
     <div class="step"><div class="step-num">4</div><h3>Three scoring buckets</h3><p>Every match awards <strong>1 point for each hole won</strong>, plus <strong>3 points for the Front 9</strong>, <strong>3 for the Back 9</strong>, and <strong>5 for the overall 18</strong>. Ties split the applicable points; there are no carryovers.</p></div>
     <div class="step"><div class="step-num">5</div><h3>Birdies &amp; eagles matter</h3><p>A <strong>gross birdie = +1</strong> and a <strong>gross eagle = +2</strong>, but only when that side wins the hole. If the bonus is tied, the bonus is split evenly.</p></div>
     <div class="step"><div class="step-num">6</div><h3>Just enter the scores</h3><p>Scores save automatically as they are entered. The live scorecard feeds the match results and team scoreboard, so you do not need a separate Save All Scores button.</p></div>
+    <div class="step"><div class="step-num">7</div><h3>Certify the scorecard at the end</h3><p>After all 18 holes are complete, the <strong>marker</strong> must review the scorecard and check <strong>Certified by Marker</strong>. Then the <strong>opponent</strong> reviews the scores and checks <strong>Certified by Opponent</strong>. <strong>When both boxes are checked, the scorecard locks and can no longer be edited.</strong> If either box is unchecked, the scorecard remains editable.</p></div>
   </div>
   <div class="callout"><strong>What happens after the round:</strong> The scorecard calculates net Best Ball results, hole points, Front 9, Back 9, 18-hole points and birdie/eagle bonuses. Round 5 is worth <strong>1.5×</strong>, so the final round can swing the championship.</div>
 </div>
@@ -417,7 +407,6 @@
   <div class="wrap"><strong>SCOTTSDALE 26</strong><br>September 24–27, 2026 · Official Tournament Site</div>
 </footer>
 
-
 <section id="courses">
   <div class="wrap">
     <div class="section-head">
@@ -436,7 +425,7 @@
         <div class="course-card-body">
           <div class="kicker">Round 1</div>
           <h3>Dinosaur Mountain</h3>
-          <p>Gold Canyon, Arizona · Blue Tees</p>
+          <p>Gold Canyon, Arizona · Blue/Purple or White</p>
           <a class="btn" href="https://www.gcgr.com/golf/dinosaur-mountain" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
         </div>
       </div>
@@ -450,7 +439,7 @@
         <div class="course-card-body">
           <div class="kicker">Rounds 2 &amp; 5</div>
           <h3>We-Ko-Pa Cholla</h3>
-          <p>Fort McDowell, Arizona · Purple Tees</p>
+          <p>Fort McDowell, Arizona · Blue/Purple or White</p>
           <a class="btn" href="https://wekopa.com/cholla-course/" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
         </div>
       </div>
@@ -464,7 +453,7 @@
         <div class="course-card-body">
           <div class="kicker">Rounds 3 &amp; 4</div>
           <h3>We-Ko-Pa Saguaro</h3>
-          <p>Fort McDowell, Arizona · Purple Tees</p>
+          <p>Fort McDowell, Arizona · Blue/Purple or White</p>
           <a class="btn" href="https://wekopa.com/saguaro-course/" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
         </div>
       </div>
