@@ -166,6 +166,113 @@
   .tee-note{margin:12px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.035);color:var(--muted);font-size:13px;line-height:1.5}
   .tee-note strong{color:var(--text)}
 
+
+/* ===== Scottsdale 26 Mobile Optimization ===== */
+@media (max-width: 700px) {
+  html { scroll-behavior: smooth; }
+  body { overflow-x: hidden; font-size: 15px; line-height: 1.5; }
+  .wrap { width: min(100% - 28px, 1100px); margin-inline: auto; }
+
+  .top-leaderboard {
+    position: sticky; top: 0; z-index: 100;
+    padding: 10px 12px;
+  }
+  .top-leaderboard a { font-size: 12px; }
+
+  nav, .nav, .header-nav {
+    gap: 7px !important;
+    flex-wrap: wrap;
+  }
+  nav a, .nav a, .header-nav a {
+    font-size: 11px !important;
+    padding: 7px 9px !important;
+  }
+
+  h1 { font-size: clamp(34px, 10vw, 52px) !important; line-height: .98 !important; }
+  h2 { font-size: clamp(26px, 7vw, 38px) !important; line-height: 1.05 !important; }
+  h3 { font-size: 19px !important; }
+
+  section { padding-block: 34px !important; }
+
+  .section-head {
+    gap: 10px !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .btn {
+    font-size: 11px !important;
+    padding: 9px 12px !important;
+    white-space: normal;
+  }
+  .btn-small {
+    font-size: 10px !important;
+    padding: 7px 10px !important;
+  }
+
+  .round-grid, .schedule-grid, .rounds-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .table-wrap, .table-responsive, .overflow-table {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    min-width: 560px;
+    font-size: 12px;
+  }
+  th, td {
+    padding: 8px 7px !important;
+    white-space: nowrap;
+  }
+
+  .rules-grid, .course-cards, .payout-grid,
+  .handicap-grid, .teams-grid, .cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rule-card, .course-card, .callout {
+    padding: 15px !important;
+    border-radius: 12px !important;
+  }
+
+  .course-photos { height: 180px !important; }
+
+  .stats, .stat-grid, .info-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 9px !important;
+  }
+  .stat, .info-card { padding: 12px !important; }
+
+  p, li, .muted, .kicker { overflow-wrap: anywhere; }
+
+  .memory-gallery {
+    margin-inline: -2px;
+    border-radius: 12px;
+  }
+  .memory-placeholder {
+    width: 175px !important;
+    height: 130px !important;
+    flex-basis: 175px !important;
+  }
+
+  .course-card-body { padding: 15px !important; }
+  footer { padding: 28px 0 !important; }
+}
+
+@media (max-width: 390px) {
+  .wrap { width: min(100% - 22px, 1100px); }
+  .stats, .stat-grid, .info-grid { grid-template-columns: 1fr !important; }
+  table { min-width: 520px; }
+  .memory-placeholder {
+    width: 155px !important;
+    height: 118px !important;
+    flex-basis: 155px !important;
+  }
+}
+
 </style>
 </head>
 <body>
