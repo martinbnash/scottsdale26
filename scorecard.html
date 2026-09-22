@@ -1686,6 +1686,15 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
         }
 
 
+        /*
+          Birdie/eagle bonus is a TEAM bonus.
+          Only the team that wins the hole gets it.
+          Two birdies = +1 total.
+          Two eagles = +2 total.
+          Birdie + eagle = +2 total.
+          Tied or losing hole = 0.
+        */
+
         if (ryanBest < claytonBest) {
 
           ryanHolePoints++;
@@ -1696,9 +1705,6 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
             backRyanHoles++;
           }
 
-          // Award only ONE team bonus per hole.
-          // If both teammates make birdie, the team still gets +1 once.
-          // If either teammate makes an eagle, the team gets +2 once.
           const ryanHoleBonus = Math.max(
             ...ryanScores.map(score => {
               if (score.gross <= course.pars[holeIndex] - 2) return 2;
@@ -1708,10 +1714,8 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
           );
 
           ryanBirdieBonus += ryanHoleBonus;
-        }
 
-
-        if (claytonBest < ryanBest) {
+        } else if (claytonBest < ryanBest) {
 
           claytonHolePoints++;
 
@@ -1721,9 +1725,6 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
             backClaytonHoles++;
           }
 
-          // Award only ONE team bonus per hole.
-          // If both teammates make birdie, the team still gets +1 once.
-          // If either teammate makes an eagle, the team gets +2 once.
           const claytonHoleBonus = Math.max(
             ...claytonScores.map(score => {
               if (score.gross <= course.pars[holeIndex] - 2) return 2;
@@ -1733,6 +1734,7 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
           );
 
           claytonBirdieBonus += claytonHoleBonus;
+
         }
       }
 
@@ -1940,6 +1942,51 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
         status.textContent = "CLEAR ERROR: " + error.message;
       }
     }
+
+    async function clearMatchScores(matchNumber) {
+      const numericMatch = Number(matchNumber);
+
+      if (isScorecardLocked(numericMatch)) {
+        showStatus(
+          `Match ${numericMatch} is certified and locked. Uncheck both certifications before clearing its scores.`,
+          "error"
+        );
+        return;
+      }
+
+      if (!window.confirm(
+        `Clear ALL scores for Match ${numericMatch} in Round ${currentRound}?\n\nThis will permanently delete the saved scores for this match from Supabase.`
+      )) return;
+
+      const status = document.getElementById("autosave-status");
+      status.className = "autosave-status saving";
+      status.textContent = `Clearing Match ${numericMatch}...`;
+
+      try {
+        const { error } = await supabaseClient
+          .from("scores")
+          .delete()
+          .eq("round_number", Number(currentRound))
+          .eq("match_number", numericMatch);
+
+        if (error) throw error;
+
+        const prefix = `${currentRound}_${numericMatch}_`;
+        Object.keys(scores).forEach(key => {
+          if (key.startsWith(prefix)) delete scores[key];
+        });
+
+        renderScorecards();
+
+        status.className = "autosave-status saved";
+        status.textContent = `Match ${numericMatch} scores cleared ✓`;
+      } catch (error) {
+        console.error("CLEAR MATCH SCORES ERROR:", error);
+        status.className = "autosave-status error";
+        status.textContent = "CLEAR ERROR: " + error.message;
+      }
+    }
+
 
     async function saveScoreAutomatically(
       roundNumber,
