@@ -1,678 +1,1901 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scottsdale 26 | Championship</title>
-<meta name="theme-color" content="#0b1110">
-<style>
-  :root{
-    --bg:#080d0c; --panel:#101816; --panel2:#151f1c; --line:#293731;
-    --text:#f4f6f2; --muted:#aeb9b2; --accent:#c7a45a; --accent2:#e2c77e;
-    --green:#6f927b; --white:#fff;
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;background:radial-gradient(circle at 80% 0%,#1c3028 0,#0b1110 32%,#080d0c 70%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
-  a{color:inherit;text-decoration:none}
-  .wrap{max-width:1120px;margin:auto;padding:0 22px}
-  header{min-height:680px;display:flex;align-items:center;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
-  header:before{content:"SCOTTSDALE 26";position:absolute;right:-70px;bottom:20px;font-size:clamp(70px,15vw,180px);font-weight:900;letter-spacing:-.08em;color:rgba(255,255,255,.025);white-space:nowrap}
-  .hero{position:relative;z-index:1;max-width:820px;padding:90px 0}
-  .eyebrow{display:inline-flex;align-items:center;gap:9px;color:var(--accent2);font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
-  .dot{width:7px;height:7px;background:var(--accent);border-radius:50%;box-shadow:0 0 18px rgba(199,164,90,.7)}
-  h1{font-size:clamp(58px,10vw,112px);line-height:.88;letter-spacing:-.065em;margin:22px 0 20px;font-weight:950}
-  .hero p{font-size:clamp(18px,2.2vw,23px);color:var(--muted);max-width:690px;margin:0 0 30px}
-  .date{font-weight:800;color:var(--text)}
-  .buttons{display:flex;flex-wrap:wrap;gap:12px}
-  .btn{padding:13px 18px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.04);font-weight:800;transition:.2s}
-  .btn.primary{background:var(--accent);color:#12130f;border-color:var(--accent)}
-  .btn:hover{transform:translateY(-2px);border-color:var(--accent)}
-  section{padding:72px 0;border-bottom:1px solid var(--line)}
-  .section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:30px}
-  .kicker{font-size:12px;color:var(--accent);font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-  h2{font-size:clamp(32px,5vw,54px);line-height:1;letter-spacing:-.04em;margin:7px 0 0}
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .card{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:14px;padding:24px}
-  .card h3{margin:0 0 9px;font-size:19px}
-  .card p,.card li{color:var(--muted)}
-  .card ul{padding-left:19px;margin:12px 0 0}
-  .schedule{display:grid;gap:10px}
-  .round{display:grid;grid-template-columns:105px 1fr auto;gap:18px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px 20px}
-  .round-num{color:var(--accent);font-weight:900;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
-  .round strong{display:block;font-size:18px}
-  .round span{color:var(--muted);font-size:14px}
-  .time{font-weight:800;text-align:right}
-  .rules{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .rule{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
-  .rule.full{grid-column:1/-1}
-  .rule h3{margin:0 0 10px;font-size:20px}
-  .rule p{margin:0;color:var(--muted)}
-  .formula{margin-top:15px;padding:14px 16px;border-radius:9px;background:#0a100e;border:1px dashed #52645b;color:var(--accent2);font-weight:900;text-align:center}
-  .tees{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
-  table{width:100%;border-collapse:collapse}
-  th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line)}
-  th{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);background:rgba(255,255,255,.025)}
-  td{color:var(--muted)}
-  td:first-child{color:var(--text);font-weight:750}
-  tr:last-child td{border-bottom:0}
-  .white{color:var(--accent2);font-weight:900}
-  .note{margin-top:14px;color:var(--muted);font-size:14px}
-  .callout{background:linear-gradient(135deg,#1c2d25,#121b18);border:1px solid #40574b;border-radius:16px;padding:28px;margin-top:20px}
-  .callout strong{color:var(--accent2)}
-  .money{font-size:28px;font-weight:950;color:var(--accent2)}
-  footer{padding:45px 0 70px;color:var(--muted);text-align:center}
-  footer strong{color:var(--text)}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  .pairings-grid{display:grid;gap:10px;margin-top:12px}
-  .pairing-line{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;background:#0b1210;border:1px solid var(--line);border-radius:10px;padding:11px 13px}
-  .side{font-weight:800}
-  .side.right{text-align:right}
-  .vs{color:var(--accent);font-size:11px;font-weight:950;letter-spacing:.12em}
-  .team-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:2px}
-  .team-label.clayton{color:#9fb8a8}
-  .team-label.ryan{color:var(--accent2)}
-  .team-layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  .team-card{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:16px;padding:22px}
-  .team-card h3{font-size:25px;margin:0}
-  .captain{color:var(--accent2);font-size:13px;font-weight:800;margin-top:3px}
-  .players{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-  .player{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .player img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;object-position:top center}
-  .player-info{padding:9px 10px 11px}
-  .player-info strong{display:block}
-  .player-info span{color:var(--muted);font-size:12px}
-  .handicap-teams{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  .team-table{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
-  .team-table h3{margin:0;padding:18px 18px 12px;font-size:21px}
-  .team-table table{font-size:13px}
-  .team-table th,.team-table td{padding:11px 10px}
-  .team-table th:not(:first-child),.team-table td:not(:first-child){text-align:center}
-  .hi{color:var(--text);font-weight:850}
-  .ph{color:var(--accent2);font-weight:900}
-  .instructions{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-  .step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
-  .step-num{display:inline-flex;width:30px;height:30px;border-radius:50%;align-items:center;justify-content:center;background:var(--accent);color:#12130f;font-weight:950;margin-bottom:10px}
-  .step h3{margin:0 0 7px}
-  .step p{margin:0;color:var(--muted)}
-  .payout-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
-  .big-payout{background:linear-gradient(135deg,#1c2d25,#121b18);border:1px solid #40574b;border-radius:16px;padding:30px}
-  .big-payout .amount{font-size:clamp(42px,6vw,70px);line-height:1;font-weight:950;color:var(--accent2)}
-  .big-payout .per{font-size:18px;font-weight:850;margin-top:8px}
-  .payout-list{display:grid;gap:12px}
-  .payout-item{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
-  .payout-item strong{display:block;font-size:20px;color:var(--accent2)}
-  .payout-item span{color:var(--muted);font-size:14px}
+  <title>Scottsdale 26 Live Scorecard</title>
 
-  #memories{overflow:hidden}
-  .memory-gallery{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:#0b1210;padding:14px}
-  .memory-track{display:flex;gap:14px;width:max-content;animation:memoryScroll 32s linear infinite}
-  .memory-gallery:hover .memory-track{animation-play-state:paused}
-  .memory-placeholder{width:230px;height:170px;flex:0 0 230px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.02));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-  .memory-placeholder span{font-size:38px;margin-bottom:8px}
-  .memory-placeholder strong{font-size:16px}
-  .memory-placeholder small{color:var(--muted);margin-top:4px}
-  .memory-note{margin-top:14px}
-  @keyframes memoryScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  .course-thumb{display:block;width:120px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--line)}
+  <script>
+    const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
 
-  .course-photos img{cursor:pointer;transition:transform .2s ease}
-  .course-photos img:hover{transform:scale(1.02)}
+    const SUPABASE_KEY = "sb_publishable_09A0o2ImL-FLS8AiunnNTw_iWP1tG8L";
 
-  .course-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-  .course-card{overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
-  .course-photos{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;height:220px;gap:3px;background:#080d0b}
-  .course-photos img{width:100%;height:100%;object-fit:cover;display:block}
-  .course-photos img:first-child{grid-row:1 / 3}
-  .course-card-body{padding:20px}
-  .course-card-body h3{margin:2px 0 5px;font-size:24px}
-  .course-card-body p{color:var(--muted);margin:0 0 16px}
-@media(max-width:800px){.course-cards{grid-template-columns:1fr}.course-photos{height:200px}}
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+  </script>
 
-  .rules-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-  .rule-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:20px}
-  .rule-card h3{margin:0 0 9px;font-size:18px}
-  .rule-card p{margin:0 0 10px;color:var(--muted);line-height:1.55}
-  .rule-card p:last-child{margin-bottom:0}
-  .rule-card ul{margin:0;padding-left:20px;color:var(--muted);line-height:1.6}
-  .rule-card li{margin:5px 0}
-  .rules-note{margin-top:18px;color:var(--muted);font-size:14px}
-  @media(max-width:800px){.rules-grid{grid-template-columns:1fr}}
+  <style>
+    .live-scoreboard-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 12px 24px;
 
-  @media(max-width:800px){.course-thumb{width:100%;height:105px;max-width:none}}
+  background: #fbbf24;
+  color: #172033;
 
-  @media(max-width:800px){
-    .memory-placeholder{width:190px;height:145px;flex-basis:190px}
-    .memory-track{animation-duration:26s}
-  }
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 
-  @media(max-width:800px){
-    .team-layout,.handicap-teams,.payout-hero,.instructions{grid-template-columns:1fr}
-    .players{grid-template-columns:repeat(2,1fr)}
-    .pairing-line{grid-template-columns:1fr;gap:4px}
-    .side.right{text-align:left}
-    .vs{display:none}
-  }
-  @media(max-width:800px){
-    header{min-height:610px}.grid,.rules{grid-template-columns:1fr}.rule.full{grid-column:auto}
-    .round{grid-template-columns:75px 1fr}.time{grid-column:2;text-align:left}
-    .section-head{display:block}
-  }
+  border: 2px solid #fbbf24;
+  border-radius: 8px;
 
-  .top-leaderboard{text-align:center;padding:12px 16px;background:var(--accent);border-bottom:1px solid var(--line)}
-  .top-leaderboard a{display:inline-block;color:#08100c;font-weight:950;letter-spacing:.08em;text-decoration:none;font-size:14px}
-
-  .tee-note{margin:12px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.035);color:var(--muted);font-size:13px;line-height:1.5}
-  .tee-note strong{color:var(--text)}
-
-
-/* ===== Scottsdale 26 Mobile Optimization ===== */
-@media (max-width: 700px) {
-  html { scroll-behavior: smooth; }
-  body { overflow-x: hidden; font-size: 15px; line-height: 1.5; }
-  .wrap { width: min(100% - 28px, 1100px); margin-inline: auto; }
-
-  .top-leaderboard {
-    position: sticky; top: 0; z-index: 100;
-    padding: 10px 12px;
-  }
-  .top-leaderboard a { font-size: 12px; }
-
-  nav, .nav, .header-nav {
-    gap: 7px !important;
-    flex-wrap: wrap;
-  }
-  nav a, .nav a, .header-nav a {
-    font-size: 11px !important;
-    padding: 7px 9px !important;
-  }
-
-  h1 { font-size: clamp(34px, 10vw, 52px) !important; line-height: .98 !important; }
-  h2 { font-size: clamp(26px, 7vw, 38px) !important; line-height: 1.05 !important; }
-  h3 { font-size: 19px !important; }
-
-  section { padding-block: 34px !important; }
-
-  .section-head {
-    gap: 10px !important;
-    align-items: flex-start !important;
-    flex-direction: column !important;
-  }
-
-  .btn {
-    font-size: 11px !important;
-    padding: 9px 12px !important;
-    white-space: normal;
-  }
-  .btn-small {
-    font-size: 10px !important;
-    padding: 7px 10px !important;
-  }
-
-  .round-grid, .schedule-grid, .rounds-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .table-wrap, .table-responsive, .overflow-table {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  table {
-    min-width: 560px;
-    font-size: 12px;
-  }
-  th, td {
-    padding: 8px 7px !important;
-    white-space: nowrap;
-  }
-
-  .rules-grid, .course-cards, .payout-grid,
-  .handicap-grid, .teams-grid, .cards-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .rule-card, .course-card, .callout {
-    padding: 15px !important;
-    border-radius: 12px !important;
-  }
-
-  .course-photos { height: 180px !important; }
-
-  .stats, .stat-grid, .info-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 9px !important;
-  }
-  .stat, .info-card { padding: 12px !important; }
-
-  p, li, .muted, .kicker { overflow-wrap: anywhere; }
-
-  .memory-gallery {
-    margin-inline: -2px;
-    border-radius: 12px;
-  }
-  .memory-placeholder {
-    width: 175px !important;
-    height: 130px !important;
-    flex-basis: 175px !important;
-  }
-
-  .course-card-body { padding: 15px !important; }
-  footer { padding: 28px 0 !important; }
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
 }
 
-@media (max-width: 390px) {
-  .wrap { width: min(100% - 22px, 1100px); }
-  .stats, .stat-grid, .info-grid { grid-template-columns: 1fr !important; }
-  table { min-width: 520px; }
-  .memory-placeholder {
-    width: 155px !important;
-    height: 118px !important;
-    flex-basis: 155px !important;
-  }
+.live-scoreboard-btn:hover {
+  background: #fff;
+  color: #172033;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.35);
 }
+    :root {
+      --bg: #0b1220;
+      --panel: #172033;
+      --card: #243247;
+      --line: #40516a;
+      --text: #f8fafc;
+      --muted: #a9b6c8;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --gold: #fbbf24;
+      --green: #22c55e;
+    }
 
+    * {
+      box-sizing: border-box;
+    }
 
-.number-table-scroll {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-}
-.number-table-scroll table {
-  min-width: 760px;
-}
-@media (max-width: 700px) {
-  .number-table-scroll {
-    max-width: 100%;
-    border-radius: 10px;
-    overscroll-behavior-x: contain;
-  }
-  .number-table-scroll table {
-    min-width: 760px !important;
-    width: max-content !important;
-  }
-}
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
 
+    header {
+      text-align: center;
+      padding: 22px 15px;
+      background: #111827;
+      border-bottom: 1px solid var(--line);
+    }
 
-/* Know Your Number mobile table: swipe horizontally */
-.number-table-scroll {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto !important;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-}
-.number-table-scroll table {
-  width: max-content !important;
-  min-width: 820px !important;
-  max-width: none !important;
-}
-@media (max-width: 700px) {
-  .number-table-scroll {
-    position: relative;
-    overflow-x: scroll !important;
-  }
-  .number-table-scroll table {
-    min-width: 820px !important;
-  }
-}
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
 
+    .subtitle {
+      color: var(--gold);
+      margin-top: 8px;
+      font-weight: bold;
+    }
 
-@media (max-width: 700px) {
-  .handicap-teams .team-table {
-    min-width: 0 !important;
-    width: 100% !important;
-    overflow: visible !important;
-  }
-  .handicap-teams .number-table-scroll {
-    display: block !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: scroll !important;
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    touch-action: pan-x !important;
-  }
-  .handicap-teams .number-table-scroll table {
-    display: table !important;
-    width: 820px !important;
-    min-width: 820px !important;
-    max-width: none !important;
-  }
-}
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px;
+      flex-wrap: wrap;
+    }
 
-</style>
+    .nav a,
+    .round-btn {
+      text-decoration: none;
+      border: 0;
+      cursor: pointer;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .nav a:hover,
+    .round-btn:hover {
+      opacity: .85;
+    }
+
+    .round-btn.active {
+      background: var(--gold);
+      color: #111827;
+    }
+
+    .container {
+      width: min(1800px, 98%);
+      margin: auto;
+      padding-bottom: 40px;
+    }
+
+    .status {
+      text-align: center;
+      padding: 10px;
+      margin: 10px auto;
+      border-radius: 8px;
+      max-width: 900px;
+      display: none;
+    }
+
+    .status.error {
+      display: block;
+      background: #7f1d1d;
+      border: 1px solid #ef4444;
+      color: white;
+    }
+
+    .status.success {
+      display: block;
+      background: #14532d;
+      border: 1px solid #22c55e;
+    }
+
+    .status.loading {
+      display: block;
+      background: #1e3a8a;
+      border: 1px solid #3b82f6;
+    }
+
+    .course-info {
+      text-align: center;
+      margin: 15px 0;
+      color: var(--muted);
+    }
+
+    .match {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 22px;
+      overflow-x: auto;
+    }
+
+    .match-header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .match-header h2 {
+      margin: 0;
+      color: var(--gold);
+    }
+
+    .vs {
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .scorecard-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: collapse;
+      background: white;
+      color: #111827;
+    }
+
+    th,
+    td {
+      border: 1px solid #777;
+      text-align: center;
+      padding: 6px;
+      min-width: 48px;
+    }
+
+    th {
+      background: #6b4f0d;
+      color: white;
+      font-weight: bold;
+    }
+
+    .name-cell {
+      text-align: left;
+      font-weight: bold;
+      min-width: 160px;
+      padding-left: 10px;
+    }
+
+    .team-ryan {
+      background: #fee2e2;
+    }
+
+    .team-clayton {
+      background: #dbeafe;
+    }
+
+    .par-row td,
+    .par-row .name-cell {
+      background: #d6c4a4;
+      font-weight: bold;
+    }
+
+    .hdcp-row td,
+    .hdcp-row .name-cell {
+      background: #f1f1f1;
+      font-weight: bold;
+    }
+
+    input.score-input {
+      width: 44px;
+      text-align: center;
+      border: 0;
+      background: transparent;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    input.score-input:focus {
+      outline: 2px solid var(--gold);
+      background: #fffbea;
+    }
+
+    .total-cell {
+      font-weight: bold;
+      background: #f3f4f6;
+    }
+
+    .net-cell {
+      font-weight: bold;
+    }
+
+    .score-cell { position: relative; }
+    .stroke-dot { position:absolute; top:4px; right:5px; width:8px; height:8px; border-radius:50%; background:var(--gold); border:1px solid #8a5b00; box-shadow:0 0 4px rgba(251,191,36,.85); pointer-events:none; }
+
+    .match-results {
+      margin-top: 15px;
+      background: var(--card);
+      border-radius: 10px;
+      padding: 15px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    .result-box {
+      background: #111827;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .result-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .result-value {
+      color: var(--gold);
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .controls {
+      text-align: center;
+      margin: 15px;
+    }
+
+    .save-btn {
+      background: var(--green);
+      color: #052e16;
+      border: 0;
+      border-radius: 8px;
+      padding: 13px 24px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .save-btn:hover {
+      opacity: .9;
+    }
+
+    .autosave-status {
+      text-align: center;
+      margin: 12px auto;
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .autosave-status.saving { color: var(--gold); }
+    .autosave-status.saved { color: var(--green); }
+    .autosave-status.error { color: var(--red); }
+
+    .debug {
+      margin-top: 15px;
+      background: #111827;
+      border: 1px solid var(--line);
+      padding: 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      white-space: pre-wrap;
+      display: none;
+    }
+    @media (max-width: 900px) {
+
+      .match-results {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="top-leaderboard">
-  <a href="https://martinbnash.github.io/scottsdale26/scoreboard.html">LIVE LEADERBOARD ↗</a>
-</div>
+  <header>
+    <h1>SCOTTSDALE 26 CHAMPIONSHIP</h1>
+    <div class="subtitle">LIVE SCORECARD</div>
+  <a href="scoreboard.html" class="live-scoreboard-btn">
+  🏆 OPEN LIVE SCOREBOARD
+</a>
+  </header>
 
-<header>
-  <div class="wrap">
-    <div class="hero">
-      <div class="eyebrow"><span class="dot"></span> Official Tournament Site</div>
-      <h1>SCOTTSDALE<br><span style="color:var(--accent)">26</span></h1>
-      <p><span class="date">September 24–27, 2026</span><br>12 golfers. 2 teams. 5 rounds. One championship.</p>
-      <div class="buttons">
-        <a class="btn primary" href="scorecard.html">LIVE SCORECARD</a>
-        <a class="btn" href="#schedule">SCHEDULE + PAIRINGS</a>
-        
-        <a class="btn" href="#rules">RULES</a>
-        <a class="btn" href="#tees">HANDICAPS &amp; TEES</a>
-        <a class="btn" href="#scorecard-guide">HOW TO PLAY</a>
-        <a class="btn" href="parlay.html">PARLAY</a>
-      </div>
-    </div>
+  <div class="nav">
+    <a href="index.html">Home</a>
+    <button class="round-btn active" onclick="setRound(1)">Round 1</button>
+    <button class="round-btn" onclick="setRound(2)">Round 2</button>
+    <button class="round-btn" onclick="setRound(3)">Round 3</button>
+    <button class="round-btn" onclick="setRound(4)">Round 4</button>
+    <button class="round-btn" onclick="setRound(5)">Round 5</button>
+    
   </div>
-</header>
 
-<section>
-<div class="wrap">
-  <div class="section-head"><div><div class="kicker">The Format</div><h2>How the championship works.</h2></div></div>
-  <div class="grid">
-    <div class="card"><h3>12 → 2 Teams</h3><p>Two fixed teams of six compete throughout the event. Each round features three 2-man Best Ball matches.</p></div>
-    <div class="card"><h3>18 Holes × 3</h3><p>Every match produces 1 point per hole won, plus points for the Front 9, Back 9 and overall 18-hole net Best Ball.</p></div>
-    <div class="card"><h3>Final Round × 1.5</h3><p>The final round carries a 1.5× multiplier, making every point count as the championship comes down to the finish.</p></div>
-  </div>
-</div>
-</section>
+  <div id="status" class="status"></div>
 
-<section id="schedule">
-<div class="wrap">
-  <div class="section-head"><div><div class="kicker">Tournament Schedule</div><h2>Five rounds. Four days.
-      <a class="btn" href="https://martinbnash.github.io/scottsdale26/pairings.html">VIEW PAIRINGS ↗</a></h2></div></div>
-  <div class="schedule">
+  <div class="container">
 
-    <div class="round">
-      <div class="round-num">Round 1<br>Sep 24</div>
-      <div><strong>Dinosaur Mountain</strong><span>Blue tees • 12:30 / 12:40 / 12:50</span>
-        <div class="pairings-grid">
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Aaron</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan + Brad</div></div>
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Marty + Michael</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Travis + Brent</div></div>
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Raymond + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Ryan D</div></div>
-        </div>
-      </div>
-      <div class="time">12:30 PM</div>
-    </div>
+    <div id="courseInfo" class="course-info"></div>
 
-    <div class="round">
-      <div class="round-num">Round 2<br>Sep 25</div>
-      <div><strong>We-Ko-Pa Cholla</strong><span>Purple tees • 8:00 / 8:10 / 8:20</span>
-        <div class="pairings-grid">
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Michael</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Brent</div></div>
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Marty + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Ryan D</div></div>
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Aaron + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan + Travis</div></div>
-        </div>
-      </div>
-      <div class="time">8:00 AM</div>
-    </div>
+    <div id="scorecards"></div>
 
-    <div class="round">
-      <div class="round-num">Round 3<br>Sep 25</div>
-      <div><strong>We-Ko-Pa Saguaro</strong><span>Purple tees • 1:20 / 1:30 / 1:40</span>
-        <div class="pairings-grid">
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan + Brent</div></div>
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Marty + Aaron</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan D + Travis</div></div>
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Michael + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Jon</div></div>
-        </div>
-      </div>
-      <div class="time">1:20 PM</div>
-    </div>
+    <div id="autosave-status" class="autosave-status"></div>
 
-    <div class="round">
-      <div class="round-num">Round 4<br>Sep 26</div>
-      <div><strong>We-Ko-Pa Saguaro</strong><span>Purple tees • 9:20 / 9:30 / 9:40</span>
-        <div class="pairings-grid">
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Clayton + Marty</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Jon + Ryan</div></div>
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Aaron + Brian</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Ryan D + Brent</div></div>
-          <div class="pairing-line"><div class="side"><span class="team-label clayton">Team Clayton</span>Michael + Raymond</div><div class="vs">VS</div><div class="side right"><span class="team-label ryan">Team Ryan</span>Brad + Travis</div></div>
-        </div>
-      </div>
-      <div class="time">9:20 AM</div>
-    </div>
-
-    <div class="round">
-      <div class="round-num">Round 5<br>Sep 27</div>
-      <div><strong>We-Ko-Pa Cholla</strong><span>Purple tees • 8:30 / 8:40 / 8:50 • Final round points ×1.5</span>
-        <div class="callout" style="margin-top:12px"><strong>Blind pairings:</strong> Final-round pairings are submitted blind and revealed before the round. This keeps the final-round matchups part of the championship drama.</div>
-      </div>
-      <div class="time">8:30 AM</div>
-    </div>
+    <div id="debug" class="debug"></div>
 
   </div>
-</div>
-</section>
 
-<section id="rules">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <div class="kicker">Official Rules</div>
-        <h2>How Scottsdale 26 is played.</h2>
-      </div>
-    </div>
+  <script>
 
-    <div class="rules-grid">
-      <div class="rule-card">
-        <h3>Match Format</h3>
-        <p>12 golfers are split into two fixed teams of six. Each round consists of three 2-man best-ball matches.</p>
-        <ul>
-          <li><strong>Front 9:</strong> net match play best ball — 1 point per hole won, plus 3 points for winning the front 9.</li>
-          <li><strong>Back 9:</strong> net match play best ball — 1 point per hole won, plus 3 points for winning the back 9.</li>
-          <li><strong>Full 18:</strong> net stroke play best ball — 5 points for winning the overall 18.</li>
-        </ul>
-      </div>
+    /*
+      =====================================================
+      SCOTTSDALE 26 DATA
+      =====================================================
+    */
 
-      <div class="rule-card">
-        <h3>Handicaps</h3>
-        <p>GHIN Handicap Indexes are frozen one week before the trip. Convert to Course Handicap for the tees being played, then apply the <strong>85% tournament allowance</strong> and round to the nearest whole number.</p>
-        <p>If a golfer does not have a GHIN, the tournament committee assigns a handicap.</p>
-      </div>
+    const players = {
+      "Clayton": {
+        handicap: 10.3,
+        team: "Clayton"
+      },
 
-      <div class="rule-card">
-        <h3>Birdie &amp; Eagle Bonuses</h3>
-        <p>Gross birdie = <strong>+1 point</strong>. Gross eagle = <strong>+2 points</strong>.</p>
-          <ul>
-            <li><strong>Winning hole + gross birdie:</strong> +1 point</li>
-            <li><strong>Winning hole + gross eagle:</strong> +2 points</li>
-            <li><strong>Tied hole:</strong> no birdie/eagle bonus</li>
-            <li><strong>Losing hole:</strong> no birdie/eagle bonus</li>
-          </ul>
-        
-      </div>
+      "Marty": {
+        handicap: 7.3,
+        team: "Clayton"
+      },
 
-      <div class="rule-card">
-        <h3>Maximum Score</h3>
-        <p>Maximum score is <strong>double par</strong>, except on par 5s where the maximum is <strong>9</strong>. Once a golfer reaches the maximum, the ball must be picked up.</p>
-      </div>
+      "Raymond": {
+        handicap: 13.5,
+        team: "Clayton"
+      },
 
-      <div class="rule-card">
-        <h3>Desert / Lateral Rule</h3>
-        <p>A ball leaving maintained turf is treated as a lateral hazard. You may play the ball <strong>as it lies in the desert</strong> if you choose. You may also take an <strong>unplayable ball</strong> option from a desert area under the applicable rules. If taking lateral relief from a ball treated as a lateral hazard, take relief at the point of entry with a <strong>one-stroke penalty</strong>.</p>
-      </div>
+      "Brian": {
+        handicap: 12,
+        team: "Clayton"
+      },
 
-      <div class="rule-card">
-        <h3>Putting Concessions</h3>
-        <p>Putts inside the leather are expected to be gimmes, but an opponent may require the putt to be holed.</p>
-      </div>
+      "Michael": {
+        handicap: 20.4,
+        team: "Clayton"
+      },
 
-      <div class="rule-card">
-        <h3>Final Round</h3>
-        <p>Final-round points are worth <strong>1.5×</strong>. Final-round pairings are submitted blind.</p>
-      </div>
+      "Aaron": {
+        handicap: 18.6,
+        team: "Clayton"
+      },
 
-      <div class="rule-card">
-        <h3>Parlay Bonus</h3>
-        <p>The 12-man parlay is a separate $100 allocation already included in the $300 entry fee. A correct individual parlay pick gives that golfer's team <strong>+1 bonus point</strong>. If the parlay wins, the winnings are split evenly among all 12 golfers.</p>
-      </div>
-    </div>
+      "Ryan": {
+        handicap: 14,
+        team: "Ryan"
+      },
 
-    <p class="rules-note">* For any rules question or ruling, contact <strong>both captains</strong>: <strong>Clayton</strong> and <strong>Ryan Hempton</strong>. Both captains should be consulted on all rulings.</p>
-  </div>
-</section>
+      "Jon": {
+        handicap: 7.4,
+        team: "Ryan"
+      },
 
-<section id="tees">
-<div class="wrap">
-  <div class="section-head"><div><div class="kicker">Handicaps &amp; Tees</div><h2>Know your number.</h2></div></div>
-  <div class="rule full" style="margin-bottom:18px">
-    <h3>How the tournament handicap works</h3>
-    <p>Each golfer's draft-night GHIN Handicap Index is shown below. That Index is converted to a <strong>tee- and course-specific Course Handicap</strong>, then the Scottsdale 26 <strong>85% Playing Handicap allowance</strong> is applied and rounded to the nearest whole number.</p>
-    <div class="formula">Playing Handicap = Course Handicap × 85% → nearest whole number</div>
-    <p style="margin-top:15px">The three course columns are the actual Playing Handicap used for that course. Stroke holes are based on that Playing Handicap and drive the net Best Ball and Match Play calculations.</p>
-  </div>
-  <div class="handicap-teams">
-    <div class="team-table"><h3>Team Clayton</h3><div class="number-table-scroll" aria-label="Know your number table; swipe left and right to view all columns."><table>
-      <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
-      <tbody><tr><td>Clayton</td><td class="hi">10.3</td><td>Blue/Purple</td><td class="ph">8</td><td class="ph">10</td><td class="ph">9</td></tr><tr><td>Marty</td><td class="hi">7.3</td><td>Blue/Purple</td><td class="ph">5</td><td class="ph">7</td><td class="ph">7</td></tr><tr><td>Brian</td><td class="hi">12.0</td><td>Blue/Purple</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr><tr><td>Aaron</td><td class="hi">18.6</td><td>Blue/Purple</td><td class="ph">15</td><td class="ph">19</td><td class="ph">18</td></tr><tr><td>Michael</td><td class="hi">20.4</td><td>Blue/Purple</td><td class="ph">17</td><td class="ph">20</td><td class="ph">20</td></tr><tr><td>Raymond</td><td class="hi">13.5</td><td>Blue/Purple</td><td class="ph">10</td><td class="ph">14</td><td class="ph">13</td></tr></tbody></table></div></div>
-    <div class="team-table"><h3>Team Ryan</h3><div class="number-table-scroll" aria-label="Team Ryan handicap table; swipe left and right to view all columns."><table>
-      <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
-      <tbody><tr><td>Ryan</td><td class="hi">14.0</td><td>Blue/Purple</td><td class="ph">11</td><td class="ph">14</td><td class="ph">14</td></tr><tr><td>Brad</td><td class="hi">15.3</td><td>White</td><td class="ph">9</td><td class="ph">11</td><td class="ph">13</td></tr><tr><td>Jon</td><td class="hi">7.4</td><td>Blue/Purple</td><td class="ph">5</td><td class="ph">8</td><td class="ph">7</td></tr><tr><td>Ryan D</td><td class="hi">19.9</td><td>White</td><td class="ph">14</td><td class="ph">15</td><td class="ph">17</td></tr><tr><td>Travis</td><td class="hi">15.9</td><td>Blue/Purple</td><td class="ph">13</td><td class="ph">16</td><td class="ph">15</td></tr><tr><td>Brent</td><td class="hi">12.1</td><td>Blue/Purple</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr></tbody></table></div></div>
-  </div>
-  <div class="callout"><strong>Tee clarification:</strong> Standard tee assignment is <strong>Blue/Purple</strong>. Brad and Ryan D play <strong>White</strong>.</div>
-</div>
-</section>
+      "Ryan D": {
+        handicap: 19.9,
+        team: "Ryan"
+      },
 
-<section id="payouts">
-<div class="wrap">
-  <div class="section-head"><div><div class="kicker">Payout Structure</div><h2>There's something on the line.</h2></div></div>
-  <div class="payout-hero">
-    <div class="big-payout">
-      <div class="kicker">Championship Team</div>
-      <div class="amount">$2,900</div>
-      <div class="per">Total team payout · $483.33 per player</div>
-      <p style="color:var(--muted);margin-bottom:0">The winning team receives the remaining overall entry pool after the four daily winning-team payouts.</p>
-    </div>
-    <div class="payout-list">
-      <div class="payout-item"><strong>$300 × 12 = $3,600</strong><span>Total championship entry pool.</span></div>
-      <div class="payout-item"><strong>$150 / day</strong><span>Daily winning-team payout. All 6 golfers on the team that wins the day receive $25 each. Four tournament days = $600.</span></div>
-      <div class="payout-item"><strong>$100 Parlay</strong><span>Included within each golfer's $300 entry fee. If it wins, winnings are split evenly among all 12 golfers.</span></div>
-    </div>
-  </div>
-  <div class="callout"><strong>Entry fee &amp; payout math:</strong> Each golfer pays <strong>$300 total</strong>. The $100 parlay is already included in that $300 entry fee — it is not an additional charge or deduction. The full $3,600 pool is allocated across the parlay, daily payouts, and championship payout.<br><br><strong>Pay Ryan via Venmo:</strong> <a href="https://venmo.com/u/Ryan-Hempton" target="_blank" rel="noopener noreferrer" style="color:var(--accent2);font-weight:900;">@Ryan-Hempton ↗</a></div>
-  <div class="callout"><strong>Daily payout rule:</strong> The winning team receives <strong>$150 per tournament day</strong> — $25 for each of the 6 players. Friday is a single $150 payout even though the group plays 36 holes that day.</div>
-  
-</div>
-</section>
+      "Brad": {
+        handicap: 15.3,
+        team: "Ryan"
+      },
 
-<section id="scorecard-guide">
-<div class="wrap">
-  <div class="section-head"><div><div class="kicker">How To Play</div><h2>Scorecard instructions.</h2></div></div>
-  <div class="instructions">
-    <div class="step"><div class="step-num">1</div><h3>Enter gross scores</h3><p>On the live scorecard, enter each golfer's <strong>gross score</strong> for every hole. The scorecard uses the assigned tee and frozen Playing Handicap automatically.</p></div>
-    <div class="step"><div class="step-num">2</div><h3>Watch the stroke dots</h3><p>A dot shows the holes where a golfer receives a handicap stroke. Net score = gross score minus the applicable stroke(s).</p></div>
-    <div class="step"><div class="step-num">3</div><h3>Best Ball drives the match</h3><p>For each hole, each side uses its <strong>lowest net score</strong>. That best-ball score determines who wins the hole and the match segments.</p></div>
-    <div class="step"><div class="step-num">4</div><h3>Three scoring buckets</h3><p>Every match awards <strong>1 point for each hole won</strong>, plus <strong>3 points for the Front 9</strong>, <strong>3 for the Back 9</strong>, and <strong>5 for the overall 18</strong>. Ties split the applicable points; there are no carryovers.</p></div>
-    <div class="step"><div class="step-num">5</div><h3>Birdies &amp; eagles matter</h3><p>Birdie/eagle bonuses are based on <strong>gross scores</strong> and are awarded only when that side wins the hole: <strong>winning hole + gross birdie = +1</strong>; <strong>winning hole + gross eagle = +2</strong>. A tied hole gets <strong>no</strong> birdie/eagle bonus, and a losing side gets <strong>no</strong> birdie/eagle bonus.</p></div>
-    <div class="step"><div class="step-num">6</div><h3>Just enter the scores</h3><p>Scores save automatically as they are entered. The live scorecard feeds the match results and team scoreboard, so you do not need a separate Save All Scores button.</p></div>
-    <div class="step"><div class="step-num">7</div><h3>Certify the scorecard at the end</h3><p>After all 18 holes are complete, the <strong>marker</strong> must review the scorecard and check <strong>Certified by Marker</strong>. Then the <strong>opponent</strong> reviews the scores and checks <strong>Certified by Opponent</strong>. <strong>When both boxes are checked, the scorecard locks and can no longer be edited.</strong> If either box is unchecked, the scorecard remains editable.</p></div>
-  </div>
-  <div class="callout"><strong>What happens after the round:</strong> The scorecard calculates net Best Ball results, hole points, Front 9, Back 9, 18-hole points and birdie/eagle bonuses. Round 5 is worth <strong>1.5×</strong>, so the final round can swing the championship.</div>
-</div>
-</section>
+      "Brent": {
+        handicap: 12.1,
+        team: "Ryan"
+      },
 
-<section>
-<div class="wrap">
-  <div class="section-head"><div><div class="kicker">Your Tournament HQ</div><h2>Everything live, right here.</h2></div></div>
-  <div class="grid">
-    <a class="card" href="scorecard.html"><h3>Live Scorecard →</h3><p>Enter gross scores, see net scores, stroke dots and match results.</p></a>
-    <a class="card" href="scoreboard.html"><h3>Live Leaderboard →</h3><p>Follow team points and the championship race as rounds are completed.</p></a>
-    <a class="card" href="pairings.html"><h3>Pairings →</h3><p>The official pairings for Scottsdale 26.</p></a>
-    <a class="card" href="parlay.html"><h3>Parlay HQ →</h3><p>Enter the 12 picks and check the box when a pick is correct. Results are shared live through Supabase.</p></a>
-  </div>
-</div>
-</section>
+      "Travis": {
+        handicap: 15.9,
+        team: "Ryan"
+      }
+    };
 
-<footer>
-  <div class="wrap"><strong>SCOTTSDALE 26</strong><br>September 24–27, 2026 · Official Tournament Site</div>
-</footer>
 
-<section id="courses">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <div class="kicker">The Courses</div>
-        <h2>Know the battlefield.</h2>
-      </div>
-    </div>
-    <div class="course-cards">
-      <div class="course-card">
-        <div class="course-photos">
-          <img src="https://bogeysacrossamerica.com/wp-content/uploads/2018/07/img_7912.jpg" alt="Dinosaur Mountain first tee">
-          <img src="https://bogeysacrossamerica.com/wp-content/uploads/2018/07/img_7920.jpg" alt="Dinosaur Mountain second hole">
-          <img src="https://bogeysacrossamerica.com/wp-content/uploads/2018/07/img_7935.jpg" alt="Dinosaur Mountain fifth hole">
-        </div>
-        <div class="course-card-body">
-          <div class="kicker">Round 1</div>
-          <h3>Dinosaur Mountain</h3>
-          <p>Gold Canyon, Arizona · Blue/Purple or White</p>
-          <a class="btn" href="https://www.gcgr.com/golf/dinosaur-mountain" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
-        </div>
-      </div>
+    /*
+      =====================================================
+      ROUND PAIRINGS
+      =====================================================
+    */
 
-      <div class="course-card">
-        <div class="course-photos">
-          <img src="https://wekopa.com/wp-content/uploads/2025/02/cholla_rev_slider_2025.jpg" alt="We-Ko-Pa Cholla course">
-          <img src="https://wekopa.com/wp-content/uploads/2025/02/cholla_block_800_home.jpg" alt="We-Ko-Pa Cholla green">
-          <img src="https://wekopa.com/wp-content/uploads/2016/08/cholla2.jpg" alt="We-Ko-Pa Cholla desert golf">
-        </div>
-        <div class="course-card-body">
-          <div class="kicker">Rounds 2 &amp; 5</div>
-          <h3>We-Ko-Pa Cholla</h3>
-          <p>Fort McDowell, Arizona · Blue/Purple or White</p>
-          <a class="btn" href="https://wekopa.com/cholla-course/" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
-        </div>
-      </div>
+    /* Pairings are loaded live from Supabase. No names are hardcoded. */
+    let pairings = { 1: [], 2: [], 3: [], 4: [], 5: [] };
 
-      <div class="course-card">
-        <div class="course-photos">
-          <img src="https://wekopa.com/wp-content/uploads/2025/02/saguaro_rev_slider_2025.jpg" alt="We-Ko-Pa Saguaro course">
-          <img src="https://wekopa.com/wp-content/uploads/2025/02/saguaro_block_800_home_2.jpg" alt="We-Ko-Pa Saguaro course">
-          <img src="https://wekopa.com/wp-content/uploads/2022/09/walking_saguaro-900x604.jpg" alt="We-Ko-Pa Saguaro walking">
-        </div>
-        <div class="course-card-body">
-          <div class="kicker">Rounds 3 &amp; 4</div>
-          <h3>We-Ko-Pa Saguaro</h3>
-          <p>Fort McDowell, Arizona · Blue/Purple or White</p>
-          <a class="btn" href="https://wekopa.com/saguaro-course/" target="_blank" rel="noopener noreferrer">VIEW SCORECARD ↗</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section id="memories">
-  <div class="wrap">
-    <div class="section-head">
-      <div>
-        <div class="kicker">Scottsdale 26 Memories</div>
-        <h2>The Memories.</h2>
-      </div>
-      <a class="btn" href="https://share.icloud.com/photos/004jxnNHCXT74nXiZgi9yjlQw" target="_blank" rel="noopener noreferrer">VIEW FULL ALBUM ↗</a>
-    </div>
-    <div class="memory-gallery">
-      <div class="memory-track">
-        <div class="memory-placeholder"><span>📸</span><strong>Scottsdale 26</strong><small>Add trip photos here</small></div>
-        <div class="memory-placeholder"><span>⛳</span><strong>On the Course</strong><small>Photos &amp; videos</small></div>
-        <div class="memory-placeholder"><span>🏆</span><strong>The Championship</strong><small>Moments from the weekend</small></div>
-        <div class="memory-placeholder"><span>🍻</span><strong>Off the Course</strong><small>The good stuff</small></div>
-        <div class="memory-placeholder"><span>📸</span><strong>Scottsdale 26</strong><small>Add trip photos here</small></div>
-        <div class="memory-placeholder"><span>⛳</span><strong>On the Course</strong><small>Photos &amp; videos</small></div>
-      </div>
-    </div>
-    <div class="callout memory-note">
-      <strong>Keep the memories coming.</strong> Everyone can add photos and videos to the shared iCloud album. The button above opens the full album.
-    </div>
-  </div>
-</section>
+    /*
+      =====================================================
+      COURSE DATA
+
+      Dinosaur Mountain - Blue
+      We-Ko-Pa - Purple
+
+      Round 1 Dinosaur
+      Rounds 2-5 We-Ko-Pa
+      =====================================================
+    */
+
+    const dinosaurMountain = {
+
+      name: "Dinosaur Mountain • Blue Tees",
+
+      pars: [
+        4, 3, 5, 4, 3, 5, 4, 3, 5,
+        3, 5, 4, 5, 3, 4, 5, 3, 4
+      ],
+
+      handicap: [
+        5, 15, 3, 1, 9, 11, 7, 13, 17,
+        16, 18, 12, 2, 6, 4, 14, 8, 10
+      ]
+    };
+
+
+    /*
+      IMPORTANT:
+      We-Ko-Pa Purple data is kept separate because
+      Cholla and Saguaro use different scorecards.
+    */
+
+    const weKoPaCholla = {
+
+      name: "We-Ko-Pa Cholla • Purple Tees",
+
+      pars: [
+        4, 4, 5, 4, 3, 4, 4, 3, 5,
+        4, 5, 3, 4, 4, 3, 5, 4, 4
+      ],
+
+      handicap: [13, 3, 17, 9, 15, 7, 11, 1, 5, 4, 16, 10, 12, 18, 14, 6, 2, 8]
+    };
+
+
+    const weKoPaSaguaro = {
+
+      name: "We-Ko-Pa Saguaro • Purple Tees",
+
+      pars: [
+        4, 4, 5, 4, 3, 4, 4, 3, 5,
+        4, 5, 3, 4, 4, 3, 5, 4, 4
+      ],
+
+      handicap: [5, 11, 9, 1, 15, 7, 13, 3, 17, 14, 18, 6, 8, 2, 16, 12, 10, 4]
+    };
+
+
+    /*
+      =====================================================
+      APP STATE
+      =====================================================
+    */
+
+    let currentRound = 1;
+
+    let scores = {};
+
+
+    function getCourse(round) {
+
+      if (round === 1) {
+        return dinosaurMountain;
+      }
+
+      if (round === 2 || round === 5) {
+        return weKoPaCholla;
+      }
+
+      return weKoPaSaguaro;
+    }
+
+
+    function getScoreKey(round, match, player, hole) {
+
+      return `${round}_${match}_${player}_${hole}`;
+    }
+
+
+    function showStatus(message, type = "loading") {
+
+      const status = document.getElementById("status");
+
+      status.className = `status ${type}`;
+
+      status.textContent = message;
+    }
+
+
+    function clearStatus() {
+
+      const status = document.getElementById("status");
+
+      status.style.display = "none";
+
+      status.textContent = "";
+    }
+
+
+    /*
+      =====================================================
+      DATABASE TEST
+      =====================================================
+    */
+
+    async function testDatabase() {
+
+      showStatus("Testing database connection...", "loading");
+
+      try {
+
+        const { data, error } = await supabaseClient
+          .from("scores")
+          .select("*")
+          .limit(1);
+
+        if (error) {
+
+          console.error("SUPABASE ERROR:", error);
+
+          showStatus(
+            "SUPABASE ERROR: " +
+            error.message +
+            " | Code: " +
+            (error.code || "none"),
+            "error"
+          );
+
+          return false;
+        }
+
+        showStatus(
+          "Connected to Supabase successfully.",
+          "success"
+        );
+
+        setTimeout(clearStatus, 2500);
+
+        return true;
+
+      } catch (error) {
+
+        console.error("DATABASE CONNECTION EXCEPTION:", error);
+
+        showStatus(
+          "DATABASE CONNECTION ERROR: " +
+          error.message,
+          "error"
+        );
+
+        return false;
+      }
+    }
+
+
+    /*
+       =====================================================
+       LOAD LIVE PAIRINGS
+       =====================================================
+     */
+    async function loadPairings() {
+      try {
+        const { data: pairingRows, error: pairingError } = await supabaseClient.from("pairings").select("*").eq("round_number", currentRound).order("pairing_number", { ascending: true });
+        if (pairingError) throw pairingError;
+        const { data: playerRows, error: playerError } = await supabaseClient.from("pairing_players").select("*");
+        if (playerError) throw playerError;
+        const loaded = [];
+        (pairingRows || []).forEach(pairing => {
+          const rows = (playerRows || []).filter(row => String(row.pairing_id) === String(pairing.id));
+          const ryan = rows.filter(row => String(row.side).toUpperCase() === "B").map(row => row.player_name).filter(Boolean);
+          const clayton = rows.filter(row => String(row.side).toUpperCase() === "A").map(row => row.player_name).filter(Boolean);
+          if (ryan.length === 2 && clayton.length === 2) loaded.push({ pairingNumber: Number(pairing.pairing_number), ryan, clayton });
+        });
+        pairings[currentRound] = loaded.sort((a,b) => a.pairingNumber - b.pairingNumber);
+      } catch (error) {
+        console.error("PAIRING LOAD ERROR:", error);
+        pairings[currentRound] = [];
+        showStatus("PAIRING LOAD ERROR: " + error.message, "error");
+      }
+    }
+
+    /*
+      =====================================================
+      LOAD SCORES
+      =====================================================
+    */
+
+    async function loadScores() {
+
+      try {
+
+        const { data, error } = await supabaseClient
+          .from("scores")
+          .select("*")
+          .eq("round_number", currentRound);
+
+        if (error) {
+
+          console.error(error);
+
+          showStatus(
+            "LOAD ERROR: " +
+            error.message +
+            " | Code: " +
+            (error.code || "none"),
+            "error"
+          );
+
+          return;
+        }
+
+        scores = {};
+
+        data.forEach(row => {
+
+          const key = getScoreKey(
+            row.round_number,
+            row.match_number,
+            row.player_name,
+            row.hole_number
+          );
+
+          scores[key] = row.gross_score;
+        });
+
+      } catch (error) {
+
+        console.error(error);
+
+        showStatus(
+          "LOAD EXCEPTION: " + error.message,
+          "error"
+        );
+      }
+    }
+
+
+    /*
+      =====================================================
+      HANDICAP STROKES
+      =====================================================
+    */
+
+    function getPlayerCourseHandicap(playerName, course) {
+      const handicapIndex = Number(players[playerName]?.handicap || 0);
+
+      // Ryan D and Brad play the White Tees.
+      // Everyone else plays Blue at Dinosaur and Purple at We-Ko-Pa.
+      const isWhiteTee =
+        playerName === "Ryan D" ||
+        playerName === "Brad";
+
+      let courseRating;
+      let slopeRating;
+      let par;
+
+      if (course === dinosaurMountain) {
+        // Dinosaur Mountain — Blue / White
+        par = 70;
+
+        if (isWhiteTee) {
+          courseRating = 65.6;
+          slopeRating = 117;
+        } else {
+          courseRating = 67.5;
+          slopeRating = 125;
+        }
+
+      } else if (course === weKoPaCholla) {
+        // We-Ko-Pa Cholla — current USGA ratings
+        par = 72;
+
+        if (isWhiteTee) {
+          courseRating = 68.6;
+          slopeRating = 122;
+        } else {
+          courseRating = 71.7;
+          slopeRating = 135;
+        }
+
+      } else if (course === weKoPaSaguaro) {
+        // We-Ko-Pa Saguaro — Purple / White
+        par = 71;
+
+        if (isWhiteTee) {
+          courseRating = 68.8;
+          slopeRating = 125;
+        } else {
+          courseRating = 70.2;
+          slopeRating = 132;
+        }
+
+      } else {
+        return 0;
+      }
+
+      // WHS Course Handicap:
+      // Handicap Index × (Slope / 113) + (Course Rating - Par)
+      const courseHandicap =
+        handicapIndex * (slopeRating / 113) +
+        (courseRating - par);
+
+      // Scottsdale 26 competition allowance = 85%.
+      // Apply the allowance before final rounding.
+      return Math.round(courseHandicap * 0.85);
+    }
+
+    function getsStrokesOnHole(playerName, holeIndex, course) {
+     const playingHandicap = getPlayerCourseHandicap(playerName, course);
+      const holeRank = Number(course.handicap[holeIndex]);
+      let strokes = 0;
+      if (playingHandicap >= holeRank) strokes++;
+      if (playingHandicap > 18 && playingHandicap - 18 >= holeRank) strokes++;
+      return strokes;
+    }
+
+    function getsStrokeDot(playerName, holeIndex, course) {
+      return getsStrokesOnHole(playerName, holeIndex, course) > 0;
+    }
+
+    function calculateNetScore(playerName, grossScore, holeIndex, course) {
+      if (grossScore === "" || grossScore === null || grossScore === undefined) return "";
+      return Number(grossScore) - getsStrokesOnHole(playerName, holeIndex, course);
+    }
+
+    /*
+      =====================================================
+      RENDER SCORECARD
+      =====================================================
+    */
+
+    function renderScorecards() {
+
+      const course =
+        getCourse(currentRound);
+
+      document.getElementById("courseInfo").innerHTML =
+        `<strong>ROUND ${currentRound}</strong><br>${course.name}`;
+
+      const container =
+        document.getElementById("scorecards");
+
+      container.innerHTML = "";
+
+      const roundPairings = pairings[currentRound] || [];
+      if (roundPairings.length === 0) {
+        container.innerHTML = `<div class="match"><div class="match-header"><h2>WAITING FOR PAIRINGS</h2><div class="vs">No completed pairings have been selected for this round yet. Once a pairing is set on the Pairings Board, it will appear here automatically.</div></div></div>`;
+        return;
+      }
+      roundPairings.forEach(
+        (match, matchIndex) => {
+          const matchNumber = match.pairingNumber;
+
+          const allPlayers = [
+            ...match.ryan,
+            ...match.clayton
+          ];
+
+          const div =
+            document.createElement("div");
+
+          div.className = "match";
+
+          let html = `
+            <div class="match-header">
+              <h2>MATCH ${matchNumber}</h2>
+
+              <div class="vs">
+                ${match.ryan.join(" & ")}
+                VS
+                ${match.clayton.join(" & ")}
+              </div>
+            </div>
+
+            <div class="scorecard-wrap">
+
+              <table>
+
+                <thead>
+
+                  <tr>
+
+                    <th>PLAYER</th>
+          `;
+
+          for (let hole = 1; hole <= 18; hole++) {
+
+            html += `<th>${hole}</th>`;
+          }
+
+          html += `
+                    <th>OUT</th>
+                    <th>IN</th>
+                    <th>TOTAL</th>
+                  </tr>
+
+                </thead>
+
+                <tbody>
+          `;
+
+
+          /*
+            PAR ROW
+          */
+
+          html += `
+            <tr class="par-row">
+
+              <td class="name-cell">
+                PAR
+              </td>
+          `;
+
+          for (
+            let holeIndex = 0;
+            holeIndex < 18;
+            holeIndex++
+          ) {
+
+            html += `
+              <td>
+                ${course.pars[holeIndex]}
+              </td>
+            `;
+          }
+
+          const frontPar =
+            course.pars
+              .slice(0, 9)
+              .reduce((a, b) => a + b, 0);
+
+          const backPar =
+            course.pars
+              .slice(9, 18)
+              .reduce((a, b) => a + b, 0);
+
+          html += `
+              <td>${frontPar}</td>
+              <td>${backPar}</td>
+              <td>${frontPar + backPar}</td>
+            </tr>
+          `;
+
+
+          /*
+            HANDICAP ROW
+          */
+
+          html += `
+            <tr class="hdcp-row">
+
+              <td class="name-cell">
+                HDCP
+              </td>
+          `;
+
+          for (
+            let holeIndex = 0;
+            holeIndex < 18;
+            holeIndex++
+          ) {
+
+            html += `
+              <td>
+                ${course.handicap[holeIndex]}
+              </td>
+            `;
+          }
+
+          html += `
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          `;
+
+
+          /*
+            PLAYER ROWS
+          */
+
+          allPlayers.forEach(
+            playerName => {
+
+              const teamClass =
+                players[playerName].team === "Ryan"
+                  ? "team-ryan"
+                  : "team-clayton";
+
+              html += `
+                <tr class="${teamClass}">
+
+                  <td class="name-cell">
+
+                    ${playerName}
+
+                    <br>
+
+                    <small>
+PLAYING HCP ${getPlayerCourseHandicap(playerName, course)}
+${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}                   </small>
+
+                  </td>
+              `;
+
+              for (
+                let holeIndex = 0;
+                holeIndex < 18;
+                holeIndex++
+              ) {
+
+                const hole =
+                  holeIndex + 1;
+
+                const key =
+                  getScoreKey(
+                    currentRound,
+                    matchNumber,
+                    playerName,
+                    hole
+                  );
+
+                const value =
+                  scores[key] ?? "";
+
+                html += `
+                  <td class="score-cell">
+                    ${getsStrokeDot(playerName, holeIndex, course) ? '<span class="stroke-dot" title="Stroke on this hole"></span>' : ''}
+
+                    <input
+                      class="score-input"
+                      type="number"
+                      min="1"
+                      max="15"
+                      value="${value}"
+
+                      onchange="
+                        updateScore(
+                          '${playerName}',
+                          ${matchNumber},
+                          ${hole},
+                          this.value
+                        )
+                      "
+                    >
+
+                  </td>
+                `;
+              }
+
+              html += `
+                    <td
+                      id="front-${currentRound}-${matchNumber}-${playerName}"
+                      class="total-cell"
+                    >
+                      -
+                    </td>
+
+                    <td
+                      id="back-${currentRound}-${matchNumber}-${playerName}"
+                      class="total-cell"
+                    >
+                      -
+                    </td>
+
+                    <td
+                      id="total-${currentRound}-${matchNumber}-${playerName}"
+                      class="total-cell"
+                    >
+                      -
+                    </td>
+
+                  </tr>
+              `;
+            }
+          );
+
+          html += `
+                </tbody>
+
+              </table>
+
+            </div>
+
+            <div class="match-results">
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  FRONT 9
+                </div>
+
+                <div
+                  class="result-value"
+                  id="front-result-${matchNumber}"
+                >
+                  -
+                </div>
+
+              </div>
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  BACK 9
+                </div>
+
+                <div
+                  class="result-value"
+                  id="back-result-${matchNumber}"
+                >
+                  -
+                </div>
+
+              </div>
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  18-HOLE STROKE
+                </div>
+
+                <div
+                  class="result-value"
+                  id="stroke-result-${matchNumber}"
+                >
+                  -
+                </div>
+
+              </div>
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  BIRDIE / EAGLE BONUS
+                </div>
+
+                <div
+                  class="result-value"
+                  id="bonus-result-${matchNumber}"
+                >
+                  RYAN +0 • CLAYTON +0
+                </div>
+
+              </div>
+
+              <div class="result-box">
+
+                <div class="result-label">
+                  MATCH POINTS
+                </div>
+
+                <div
+                  class="result-value"
+                  id="points-result-${matchNumber}"
+                >
+                  -
+                </div>
+
+              </div>
+
+            </div>
+          `;
+
+          div.innerHTML = html;
+
+          container.appendChild(div);
+
+          updatePlayerTotals(matchNumber);
+
+          calculateMatch(matchNumber);
+        }
+      );
+    }
+
+
+    /*
+      =====================================================
+      UPDATE SCORE
+      =====================================================
+    */
+
+    async function updateScore(
+      playerName,
+      matchNumber,
+      hole,
+      value
+    ) {
+
+      const key =
+        getScoreKey(
+          currentRound,
+          matchNumber,
+          playerName,
+          hole
+        );
+
+      if (value === "") {
+        delete scores[key];
+        return;
+      }
+
+      scores[key] = Number(value);
+
+      updatePlayerTotals(matchNumber);
+      calculateMatch(matchNumber);
+
+      await saveScoreAutomatically(
+        currentRound,
+        matchNumber,
+        playerName,
+        hole,
+        Number(value)
+      );
+    }
+
+
+    /*
+      =====================================================
+      PLAYER TOTALS
+      =====================================================
+    */
+
+    function updatePlayerTotals(matchNumber) {
+
+      const match = (pairings[currentRound] || []).find(m => Number(m.pairingNumber) === Number(matchNumber));
+      if (!match) return;
+
+      const allPlayers = [
+        ...match.ryan,
+        ...match.clayton
+      ];
+
+      allPlayers.forEach(
+        playerName => {
+
+          let front = 0;
+          let back = 0;
+
+          let frontComplete = true;
+          let backComplete = true;
+
+          for (
+            let hole = 1;
+            hole <= 18;
+            hole++
+          ) {
+
+            const key =
+              getScoreKey(
+                currentRound,
+                matchNumber,
+                playerName,
+                hole
+              );
+
+            const value =
+              scores[key];
+
+            if (
+              value === undefined ||
+              value === ""
+            ) {
+
+              if (hole <= 9) {
+                frontComplete = false;
+              } else {
+                backComplete = false;
+              }
+
+              continue;
+            }
+
+            if (hole <= 9) {
+              front += Number(value);
+            } else {
+              back += Number(value);
+            }
+          }
+
+          document.getElementById(
+            `front-${currentRound}-${matchNumber}-${playerName}`
+          ).textContent =
+            frontComplete ? front : "-";
+
+          document.getElementById(
+            `back-${currentRound}-${matchNumber}-${playerName}`
+          ).textContent =
+            backComplete ? back : "-";
+
+          document.getElementById(
+            `total-${currentRound}-${matchNumber}-${playerName}`
+          ).textContent =
+            frontComplete && backComplete
+              ? front + back
+              : "-";
+        }
+      );
+    }
+
+
+    /*
+      =====================================================
+      MATCH CALCULATIONS
+
+      Best ball net match play.
+      Each hole won = 1 point.
+      Front 9 = 3 points.
+      Back 9 = 3 points.
+      Overall 18 = 5 points.
+
+      Birdie +1
+      Eagle +2
+
+      If the hole is tied, birdie/eagle bonus points
+      are split evenly between the two teams.
+      =====================================================
+    */
+
+    function calculateMatch(matchNumber) {
+
+      const match = (pairings[currentRound] || []).find(m => Number(m.pairingNumber) === Number(matchNumber));
+      if (!match) return;
+
+      const course =
+        getCourse(currentRound);
+
+      let ryanHolePoints = 0;
+      let claytonHolePoints = 0;
+
+      let ryanBirdieBonus = 0;
+      let claytonBirdieBonus = 0;
+
+      let frontRyan = 0;
+      let frontClayton = 0;
+
+      let backRyan = 0;
+      let backClayton = 0;
+
+      let frontRyanHoles = 0;
+      let frontClaytonHoles = 0;
+
+      let backRyanHoles = 0;
+      let backClaytonHoles = 0;
+
+      for (
+        let holeIndex = 0;
+        holeIndex < 18;
+        holeIndex++
+      ) {
+
+        const hole =
+          holeIndex + 1;
+
+        const ryanScores =
+          match.ryan.map(
+            playerName => {
+
+              const key =
+                getScoreKey(
+                  currentRound,
+                  matchNumber,
+                  playerName,
+                  hole
+                );
+
+              const gross =
+                scores[key];
+
+              if (
+                gross === undefined
+              ) {
+                return null;
+              }
+
+              return {
+                player: playerName,
+                gross: Number(gross),
+                net: calculateNetScore(
+                  playerName,
+                  gross,
+                  holeIndex,
+                  course
+                )
+              };
+            }
+          );
+
+        const claytonScores =
+          match.clayton.map(
+            playerName => {
+
+              const key =
+                getScoreKey(
+                  currentRound,
+                  matchNumber,
+                  playerName,
+                  hole
+                );
+
+              const gross =
+                scores[key];
+
+              if (
+                gross === undefined
+              ) {
+                return null;
+              }
+
+              return {
+                player: playerName,
+                gross: Number(gross),
+                net: calculateNetScore(
+                  playerName,
+                  gross,
+                  holeIndex,
+                  course
+                )
+              };
+            }
+          );
+
+
+        if (
+          ryanScores.includes(null) ||
+          claytonScores.includes(null)
+        ) {
+          continue;
+        }
+
+
+        const ryanBest =
+          Math.min(
+            ...ryanScores.map(
+              score => score.net
+            )
+          );
+
+        const claytonBest =
+          Math.min(
+            ...claytonScores.map(
+              score => score.net
+            )
+          );
+
+
+        if (hole <= 9) {
+
+          frontRyan += ryanBest;
+          frontClayton += claytonBest;
+        } else {
+
+          backRyan += ryanBest;
+          backClayton += claytonBest;
+        }
+
+
+        /*
+          Hole result + birdie/eagle bonus.
+
+          Normal hole win:
+            Birdie = +1
+            Eagle  = +2
+
+          Tied hole:
+            Any birdie/eagle bonus on the hole is split evenly
+            between the two teams.
+            Birdie = +0.5 to each team
+            Eagle  = +1.0 to each team
+        */
+
+        let ryanHoleBonus = 0;
+        let claytonHoleBonus = 0;
+
+        ryanScores.forEach(score => {
+          if (score.gross <= course.pars[holeIndex] - 2) {
+            ryanHoleBonus += 2;
+          } else if (score.gross === course.pars[holeIndex] - 1) {
+            ryanHoleBonus += 1;
+          }
+        });
+
+        claytonScores.forEach(score => {
+          if (score.gross <= course.pars[holeIndex] - 2) {
+            claytonHoleBonus += 2;
+          } else if (score.gross === course.pars[holeIndex] - 1) {
+            claytonHoleBonus += 1;
+          }
+        });
+
+        if (ryanBest < claytonBest) {
+
+          ryanHolePoints++;
+
+          if (hole <= 9) {
+            frontRyanHoles++;
+          } else {
+            backRyanHoles++;
+          }
+
+          ryanBirdieBonus += ryanHoleBonus;
+
+        } else if (claytonBest < ryanBest) {
+
+          claytonHolePoints++;
+
+          if (hole <= 9) {
+            frontClaytonHoles++;
+          } else {
+            backClaytonHoles++;
+          }
+
+          claytonBirdieBonus += claytonHoleBonus;
+
+        }
+      }
+
+
+      /*
+        Front nine 3 points
+      */
+
+      let frontResult = "TIED";
+
+      let ryanPoints = 0;
+      let claytonPoints = 0;
+
+      if (
+        frontRyanHoles >
+        frontClaytonHoles
+      ) {
+
+        frontResult =
+          "RYAN WINS FRONT";
+
+        ryanPoints += 3;
+
+      } else if (
+        frontClaytonHoles >
+        frontRyanHoles
+      ) {
+
+        frontResult =
+          "CLAYTON WINS FRONT";
+
+        claytonPoints += 3;
+      }
+
+
+      /*
+        Back nine 3 points
+      */
+
+      let backResult = "TIED";
+
+      if (
+        backRyanHoles >
+        backClaytonHoles
+      ) {
+
+        backResult =
+          "RYAN WINS BACK";
+
+        ryanPoints += 3;
+
+      } else if (
+        backClaytonHoles >
+        backRyanHoles
+      ) {
+
+        backResult =
+          "CLAYTON WINS BACK";
+
+        claytonPoints += 3;
+      }
+
+
+      /*
+        18-hole stroke play
+      */
+
+      const ryan18 =
+        frontRyan + backRyan;
+
+      const clayton18 =
+        frontClayton + backClayton;
+
+      let strokeResult = "IN PROGRESS";
+
+      if (
+        ryan18 > 0 &&
+        clayton18 > 0
+      ) {
+
+        if (
+          ryan18 < clayton18
+        ) {
+
+          strokeResult =
+            "RYAN WINS 18";
+
+          ryanPoints += 5;
+
+        } else if (
+          clayton18 < ryan18
+        ) {
+
+          strokeResult =
+            "CLAYTON WINS 18";
+
+          claytonPoints += 5;
+
+        } else {
+
+          strokeResult =
+            "18 TIED";
+        }
+      }
+
+
+      ryanPoints +=
+        ryanHolePoints +
+        ryanBirdieBonus;
+
+      claytonPoints +=
+        claytonHolePoints +
+        claytonBirdieBonus;
+
+
+      /*
+        Round 5 is 1.5x
+      */
+
+      if (currentRound === 5) {
+
+        ryanPoints *= 1.5;
+
+        claytonPoints *= 1.5;
+      }
+
+
+      document.getElementById(
+        `front-result-${matchNumber}`
+      ).textContent =
+        `${frontResult} • ${frontRyanHoles}-${frontClaytonHoles}`;
+
+
+      document.getElementById(
+        `back-result-${matchNumber}`
+      ).textContent =
+        `${backResult} • ${backRyanHoles}-${backClaytonHoles}`;
+
+
+      document.getElementById(
+        `stroke-result-${matchNumber}`
+      ).textContent =
+        `${strokeResult} • ${ryan18 || "-"}-${clayton18 || "-"}`;
+
+
+      document.getElementById(
+        `bonus-result-${matchNumber}`
+      ).textContent =
+        `RYAN +${ryanBirdieBonus} • CLAYTON +${claytonBirdieBonus}`;
+
+      document.getElementById(
+        `points-result-${matchNumber}`
+      ).textContent =
+        `RYAN ${ryanPoints} • CLAYTON ${claytonPoints}`;
+    }
+
+
+    /*
+      =====================================================
+      SAVE TO SUPABASE
+      =====================================================
+    */
+
+    async function saveScoreAutomatically(
+      roundNumber,
+      matchNumber,
+      playerName,
+      holeNumber,
+      grossScore
+    ) {
+
+      const status = document.getElementById("autosave-status");
+      status.className = "autosave-status saving";
+      status.textContent = "Saving...";
+
+      try {
+
+        const { error } =
+          await supabaseClient
+            .from("scores")
+            .upsert(
+              {
+                round_number: Number(roundNumber),
+                match_number: Number(matchNumber),
+                player_name: playerName,
+                hole_number: Number(holeNumber),
+                gross_score: Number(grossScore)
+              },
+              {
+                onConflict:
+                  "round_number,match_number,player_name,hole_number"
+              }
+            );
+
+        if (error) throw error;
+
+        status.className = "autosave-status saved";
+        status.textContent = "Score saved ✓";
+
+        setTimeout(() => {
+          if (status.textContent === "Score saved ✓") {
+            status.textContent = "";
+            status.className = "autosave-status";
+          }
+        }, 1500);
+
+      } catch (error) {
+        console.error("AUTO-SAVE ERROR:", error);
+        status.className = "autosave-status error";
+        status.textContent = "SAVE ERROR: " + error.message;
+      }
+    }
+
+
+    async function saveAllScores() {
+
+      showStatus(
+        "Saving scores...",
+        "loading"
+      );
+
+      const rows = [];
+
+      Object.keys(scores).forEach(
+        key => {
+
+          const [
+            roundNumber,
+            matchNumber,
+            playerName,
+            holeNumber
+          ] =
+            key.split("_");
+
+          rows.push({
+
+            round_number:
+              Number(roundNumber),
+
+            match_number:
+              Number(matchNumber),
+
+            player_name:
+              playerName,
+
+            hole_number:
+              Number(holeNumber),
+
+            gross_score:
+              Number(scores[key])
+          });
+        }
+      );
+
+
+      if (rows.length === 0) {
+
+        showStatus(
+          "No scores to save.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      try {
+
+        const { error } =
+          await supabaseClient
+            .from("scores")
+            .upsert(
+              rows,
+              {
+                onConflict:
+                  "round_number,match_number,player_name,hole_number"
+              }
+            );
+
+
+        if (error) {
+
+          console.error(
+            "SAVE ERROR:",
+            error
+          );
+
+          showStatus(
+            "SAVE ERROR: " +
+            error.message +
+            " | Code: " +
+            (error.code || "none") +
+            " | Details: " +
+            (error.details || "none"),
+            "error"
+          );
+
+          return;
+        }
+
+
+        showStatus(
+          "Scores saved successfully!",
+          "success"
+        );
+
+        setTimeout(
+          clearStatus,
+          2500
+        );
+
+      } catch (error) {
+
+        console.error(
+          "SAVE EXCEPTION:",
+          error
+        );
+
+        showStatus(
+          "SAVE EXCEPTION: " +
+          error.message,
+          "error"
+        );
+      }
+    }
+
+
+    /*
+      =====================================================
+      ROUND CHANGE
+      =====================================================
+    */
+
+    async function setRound(roundNumber) {
+
+      currentRound =
+        roundNumber;
+
+      document
+        .querySelectorAll(".round-btn")
+        .forEach(
+          (button, index) => {
+
+            button.classList.remove(
+              "active"
+            );
+
+            if (
+              index ===
+              roundNumber - 1
+            ) {
+
+              button.classList.add(
+                "active"
+              );
+            }
+          }
+        );
+
+
+      showStatus(
+        "Loading Round " +
+        currentRound +
+        "...",
+        "loading"
+      );
+
+
+       await loadPairings();
+      await loadScores();
+
+      renderScorecards();
+
+      clearStatus();
+    }
+    /*
+      =====================================================
+      START APP
+      =====================================================
+    */
+
+    async function startApp() {
+
+      const connected =
+        await testDatabase();
+
+      if (!connected) {
+        return;
+      }
+
+       await loadPairings();
+      await loadScores();
+
+      renderScorecards();
+       startRealtime();
+    }
+
+
+     function startRealtime() {
+       supabaseClient.channel("scottsdale26-scorecard-pairings")
+         .on("postgres_changes", { event: "*", schema: "public", table: "pairings" }, async () => { await loadPairings(); renderScorecards(); })
+         .on("postgres_changes", { event: "*", schema: "public", table: "pairing_players" }, async () => { await loadPairings(); renderScorecards(); })
+         .subscribe();
+     }
+
+    startApp();
+
+  </script>
 
 </body>
 </html>
