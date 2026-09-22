@@ -118,6 +118,16 @@
       color: #111827;
     }
 
+    .clear-scores-btn {
+      background: #7f1d1d;
+      color: white;
+      border: 1px solid #ef4444;
+    }
+
+    .clear-scores-btn:hover {
+      background: #991b1b;
+    }
+
     .container {
       width: min(1800px, 98%);
       margin: auto;
@@ -434,6 +444,7 @@
     <button class="round-btn" onclick="setRound(3)">Round 3</button>
     <button class="round-btn" onclick="setRound(4)">Round 4</button>
     <button class="round-btn" onclick="setRound(5)">Round 5</button>
+    <button class="round-btn clear-scores-btn" onclick="clearAllScores()">Clear All Scores</button>
     
   </div>
 
@@ -1392,6 +1403,14 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
       if (value === "") {
         delete scores[key];
+        await deleteScoreAutomatically(
+          currentRound,
+          matchNumber,
+          playerName,
+          hole
+        );
+        updatePlayerTotals(matchNumber);
+        calculateMatch(matchNumber);
         return;
       }
 
@@ -1860,6 +1879,94 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
       SAVE TO SUPABASE
       =====================================================
     */
+
+    async function deleteScoreAutomatically(
+      roundNumber,
+      matchNumber,
+      playerName,
+      holeNumber
+    ) {
+      const status = document.getElementById("autosave-status");
+      status.className = "autosave-status saving";
+      status.textContent = "Clearing score...";
+
+      try {
+        const { error } = await supabaseClient
+          .from("scores")
+          .delete()
+          .eq("round_number", Number(roundNumber))
+          .eq("match_number", Number(matchNumber))
+          .eq("player_name", playerName)
+          .eq("hole_number", Number(holeNumber));
+
+        if (error) throw error;
+
+        status.className = "autosave-status saved";
+        status.textContent = "Score cleared ✓";
+
+        setTimeout(() => {
+          if (status.textContent === "Score cleared ✓") {
+            status.textContent = "";
+            status.className = "autosave-status";
+          }
+        }, 1200);
+      } catch (error) {
+        console.error("DELETE SCORE ERROR:", error);
+        status.className = "autosave-status error";
+        status.textContent = "CLEAR ERROR: " + error.message;
+      }
+    }
+
+    function isAnyCurrentRoundScorecardLocked() {
+      return (pairings[currentRound] || []).some(match =>
+        isScorecardLocked(Number(match.pairingNumber))
+      );
+    }
+
+    async function clearAllScores() {
+      if (isAnyCurrentRoundScorecardLocked()) {
+        showStatus(
+          "At least one scorecard is certified and locked. Uncheck both certifications before clearing all scores for this round.",
+          "error"
+        );
+        return;
+      }
+
+      if (!window.confirm(
+        `Clear ALL scores for Round ${currentRound}?\n\nThis will permanently remove the saved scores for this round from the database.`
+      )) return;
+
+      const status = document.getElementById("autosave-status");
+      status.className = "autosave-status saving";
+      status.textContent = "Clearing all scores...";
+
+      try {
+        const { error } = await supabaseClient
+          .from("scores")
+          .delete()
+          .eq("round_number", Number(currentRound));
+
+        if (error) throw error;
+
+        scores = {};
+        renderScorecards();
+
+        status.className = "autosave-status saved";
+        status.textContent = `All Round ${currentRound} scores cleared ✓`;
+
+        setTimeout(() => {
+          if (status.textContent === `All Round ${currentRound} scores cleared ✓`) {
+            status.textContent = "";
+            status.className = "autosave-status";
+          }
+        }, 1800);
+      } catch (error) {
+        console.error("CLEAR ALL SCORES ERROR:", error);
+        status.className = "autosave-status error";
+        status.textContent = "CLEAR ERROR: " + error.message;
+      }
+    }
+
 
     async function saveScoreAutomatically(
       roundNumber,
