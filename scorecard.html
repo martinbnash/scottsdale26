@@ -1504,9 +1504,11 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
       Back 9 = 3 points.
       Overall 18 = 5 points.
 
-      Birdie +1
-      Eagle +2
+      Team birdie bonus +1
+      Team eagle bonus +2
 
+      Only one birdie/eagle bonus is awarded per team per hole,
+      even if both teammates make birdie/eagle.
       Only if the side wins the hole.
       =====================================================
     */
@@ -1659,22 +1661,18 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
             backRyanHoles++;
           }
 
-          ryanScores.forEach(
-            score => {
-
-              if (
-                score.gross <=
-                course.pars[holeIndex] - 2
-              ) {
-                ryanBirdieBonus += 2;
-              } else if (
-                score.gross ===
-                course.pars[holeIndex] - 1
-              ) {
-                ryanBirdieBonus += 1;
-              }
-            }
+          // Award only ONE team bonus per hole.
+          // If both teammates make birdie, the team still gets +1 once.
+          // If either teammate makes an eagle, the team gets +2 once.
+          const ryanHoleBonus = Math.max(
+            ...ryanScores.map(score => {
+              if (score.gross <= course.pars[holeIndex] - 2) return 2;
+              if (score.gross === course.pars[holeIndex] - 1) return 1;
+              return 0;
+            })
           );
+
+          ryanBirdieBonus += ryanHoleBonus;
         }
 
 
@@ -1688,22 +1686,18 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
             backClaytonHoles++;
           }
 
-          claytonScores.forEach(
-            score => {
-
-              if (
-                score.gross <=
-                course.pars[holeIndex] - 2
-              ) {
-                claytonBirdieBonus += 2;
-              } else if (
-                score.gross ===
-                course.pars[holeIndex] - 1
-              ) {
-                claytonBirdieBonus += 1;
-              }
-            }
+          // Award only ONE team bonus per hole.
+          // If both teammates make birdie, the team still gets +1 once.
+          // If either teammate makes an eagle, the team gets +2 once.
+          const claytonHoleBonus = Math.max(
+            ...claytonScores.map(score => {
+              if (score.gross <= course.pars[holeIndex] - 2) return 2;
+              if (score.gross === course.pars[holeIndex] - 1) return 1;
+              return 0;
+            })
           );
+
+          claytonBirdieBonus += claytonHoleBonus;
         }
       }
 
