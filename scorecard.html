@@ -118,13 +118,26 @@
       color: #111827;
     }
 
-    .clear-scores-btn {
-      background: #7f1d1d;
-      color: white;
-      border: 1px solid #ef4444;
+    .match-heading-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
     }
 
-    .clear-scores-btn:hover {
+    .match-clear-btn {
+      border: 1px solid #ef4444;
+      background: #7f1d1d;
+      color: #fff;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .match-clear-btn:hover {
       background: #991b1b;
     }
 
@@ -444,7 +457,6 @@
     <button class="round-btn" onclick="setRound(3)">Round 3</button>
     <button class="round-btn" onclick="setRound(4)">Round 4</button>
     <button class="round-btn" onclick="setRound(5)">Round 5</button>
-    <button class="round-btn clear-scores-btn" onclick="clearAllScores()">Clear All Scores</button>
     
   </div>
 
@@ -1037,7 +1049,11 @@
 
           let html = `
             <div class="match-header">
-              <h2>MATCH ${matchNumber}</h2>
+              <div class="match-heading-row">
+                <h2>MATCH ${matchNumber}</h2>
+                <button type="button" class="match-clear-btn"
+                  onclick="clearMatchScores(${matchNumber})">Clear Scores</button>
+              </div>
 
               <div class="vs">
                 ${match.ryan.join(" & ")}
@@ -1901,6 +1917,14 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
         if (error) throw error;
 
+        const key = getScoreKey(
+          roundNumber,
+          matchNumber,
+          playerName,
+          holeNumber
+        );
+        delete scores[key];
+
         status.className = "autosave-status saved";
         status.textContent = "Score cleared ✓";
 
@@ -1916,57 +1940,6 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
         status.textContent = "CLEAR ERROR: " + error.message;
       }
     }
-
-    function isAnyCurrentRoundScorecardLocked() {
-      return (pairings[currentRound] || []).some(match =>
-        isScorecardLocked(Number(match.pairingNumber))
-      );
-    }
-
-    async function clearAllScores() {
-      if (isAnyCurrentRoundScorecardLocked()) {
-        showStatus(
-          "At least one scorecard is certified and locked. Uncheck both certifications before clearing all scores for this round.",
-          "error"
-        );
-        return;
-      }
-
-      if (!window.confirm(
-        `Clear ALL scores for Round ${currentRound}?\n\nThis will permanently remove the saved scores for this round from the database.`
-      )) return;
-
-      const status = document.getElementById("autosave-status");
-      status.className = "autosave-status saving";
-      status.textContent = "Clearing all scores...";
-
-      try {
-        const { error } = await supabaseClient
-          .from("scores")
-          .delete()
-          .eq("round_number", Number(currentRound));
-
-        if (error) throw error;
-
-        scores = {};
-        renderScorecards();
-
-        status.className = "autosave-status saved";
-        status.textContent = `All Round ${currentRound} scores cleared ✓`;
-
-        setTimeout(() => {
-          if (status.textContent === `All Round ${currentRound} scores cleared ✓`) {
-            status.textContent = "";
-            status.className = "autosave-status";
-          }
-        }, 1800);
-      } catch (error) {
-        console.error("CLEAR ALL SCORES ERROR:", error);
-        status.className = "autosave-status error";
-        status.textContent = "CLEAR ERROR: " + error.message;
-      }
-    }
-
 
     async function saveScoreAutomatically(
       roundNumber,
