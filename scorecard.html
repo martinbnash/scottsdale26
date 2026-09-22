@@ -1488,25 +1488,8 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
           claytonBirdieBonus += claytonHoleBonus;
 
-        } else {
-
-          // Hole is tied: split all birdie/eagle bonus points evenly.
-          const tiedBonus =
-            (ryanHoleBonus + claytonHoleBonus) / 2;
-
-          ryanBirdieBonus += tiedBonus;
-          claytonBirdieBonus += tiedBonus;
         }
-      }
-
-
-      /*
-        Front nine 3 points
-      */
-
-      let frontResult = "TIED";
-
-      let ryanPoints = 0;
+let ryanPoints = 0;
       let claytonPoints = 0;
 
       if (
