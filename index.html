@@ -296,6 +296,58 @@
   }
 }
 
+
+/* Know Your Number mobile table: swipe horizontally */
+.number-table-scroll {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+.number-table-scroll table {
+  width: max-content !important;
+  min-width: 820px !important;
+  max-width: none !important;
+}
+@media (max-width: 700px) {
+  .number-table-scroll {
+    position: relative;
+    overflow-x: scroll !important;
+  }
+  .number-table-scroll table {
+    min-width: 820px !important;
+  }
+}
+
+
+@media (max-width: 700px) {
+  .handicap-teams .team-table {
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+  .handicap-teams .number-table-scroll {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x !important;
+  }
+  .handicap-teams .number-table-scroll table {
+    display: table !important;
+    width: 820px !important;
+    min-width: 820px !important;
+    max-width: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -475,9 +527,9 @@
     <div class="team-table"><h3>Team Clayton</h3><div class="number-table-scroll" aria-label="Know your number table; swipe left and right to view all columns."><table>
       <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
       <tbody><tr><td>Clayton</td><td class="hi">10.3</td><td>Blue/Purple</td><td class="ph">8</td><td class="ph">10</td><td class="ph">9</td></tr><tr><td>Marty</td><td class="hi">7.3</td><td>Blue/Purple</td><td class="ph">5</td><td class="ph">7</td><td class="ph">7</td></tr><tr><td>Brian</td><td class="hi">12.0</td><td>Blue/Purple</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr><tr><td>Aaron</td><td class="hi">18.6</td><td>Blue/Purple</td><td class="ph">15</td><td class="ph">19</td><td class="ph">18</td></tr><tr><td>Michael</td><td class="hi">20.4</td><td>Blue/Purple</td><td class="ph">17</td><td class="ph">20</td><td class="ph">20</td></tr><tr><td>Raymond</td><td class="hi">13.5</td><td>Blue/Purple</td><td class="ph">10</td><td class="ph">14</td><td class="ph">13</td></tr></tbody></table></div></div>
-    <div class="team-table"><h3>Team Ryan</h3><table>
+    <div class="team-table"><h3>Team Ryan</h3><div class="number-table-scroll" aria-label="Team Ryan handicap table; swipe left and right to view all columns."><table>
       <thead><tr><th>Golfer</th><th>GHIN HI</th><th>Tee</th><th>Dinosaur</th><th>Cholla</th><th>Saguaro</th></tr></thead>
-      <tbody><tr><td>Ryan</td><td class="hi">14.0</td><td>Blue/Purple</td><td class="ph">11</td><td class="ph">14</td><td class="ph">14</td></tr><tr><td>Brad</td><td class="hi">15.3</td><td>White</td><td class="ph">9</td><td class="ph">11</td><td class="ph">13</td></tr><tr><td>Jon</td><td class="hi">7.4</td><td>Blue/Purple</td><td class="ph">5</td><td class="ph">8</td><td class="ph">7</td></tr><tr><td>Ryan D</td><td class="hi">19.9</td><td>White</td><td class="ph">14</td><td class="ph">15</td><td class="ph">17</td></tr><tr><td>Travis</td><td class="hi">15.9</td><td>Blue/Purple</td><td class="ph">13</td><td class="ph">16</td><td class="ph">15</td></tr><tr><td>Brent</td><td class="hi">12.1</td><td>Blue/Purple</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr></tbody></table></div>
+      <tbody><tr><td>Ryan</td><td class="hi">14.0</td><td>Blue/Purple</td><td class="ph">11</td><td class="ph">14</td><td class="ph">14</td></tr><tr><td>Brad</td><td class="hi">15.3</td><td>White</td><td class="ph">9</td><td class="ph">11</td><td class="ph">13</td></tr><tr><td>Jon</td><td class="hi">7.4</td><td>Blue/Purple</td><td class="ph">5</td><td class="ph">8</td><td class="ph">7</td></tr><tr><td>Ryan D</td><td class="hi">19.9</td><td>White</td><td class="ph">14</td><td class="ph">15</td><td class="ph">17</td></tr><tr><td>Travis</td><td class="hi">15.9</td><td>Blue/Purple</td><td class="ph">13</td><td class="ph">16</td><td class="ph">15</td></tr><tr><td>Brent</td><td class="hi">12.1</td><td>Blue/Purple</td><td class="ph">9</td><td class="ph">12</td><td class="ph">11</td></tr></tbody></table></div></div>
   </div>
   <div class="callout"><strong>Tee clarification:</strong> Standard tee assignment is <strong>Blue/Purple</strong>. Brad and Ryan D play <strong>White</strong>.</div>
 </div>
