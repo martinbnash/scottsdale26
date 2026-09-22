@@ -333,77 +333,6 @@
       white-space: pre-wrap;
       display: none;
     }
-    .certification-panel {
-      margin-top: 15px;
-      background: #111827;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 14px 16px;
-      display: flex;
-      justify-content: center;
-      gap: 28px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .certification-label {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      color: var(--text);
-      font-weight: bold;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .certification-label input {
-      width: 20px;
-      height: 20px;
-      accent-color: var(--green);
-      cursor: pointer;
-    }
-
-    .certification-label input:disabled {
-      cursor: not-allowed;
-      opacity: .75;
-    }
-
-    .certification-status {
-      width: 100%;
-      text-align: center;
-      font-size: 13px;
-      font-weight: bold;
-      color: var(--muted);
-    }
-
-    .certification-status.locked {
-      color: var(--green);
-    }
-
-    .match.scorecard-locked .scorecard-wrap {
-      position: relative;
-    }
-
-    .match.scorecard-locked .scorecard-wrap::after {
-      content: "SCORECARD CERTIFIED — LOCKED";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(11, 18, 32, .18);
-      color: #166534;
-      font-size: 18px;
-      font-weight: 900;
-      pointer-events: none;
-    }
-
-    .match.scorecard-locked input.score-input {
-      background: #f3f4f6;
-      color: #4b5563;
-      cursor: not-allowed;
-    }
-
     @media (max-width: 900px) {
 
       .match-results {
@@ -601,10 +530,6 @@
     let currentRound = 1;
 
     let scores = {};
-
-    // Certification state is stored separately from hole scores so it can be
-    // shared between devices/users through Supabase.
-    let certifications = {};
 
 
     function getCourse(round) {
@@ -879,118 +804,6 @@
       =====================================================
     */
 
-    function getCertificationKey(round, matchNumber) {
-      return `${round}_${matchNumber}`;
-    }
-
-    function isScorecardLocked(matchNumber) {
-      const certification = certifications[getCertificationKey(currentRound, matchNumber)];
-      return Boolean(certification?.marker_certified && certification?.opponent_certified);
-    }
-
-    async function loadCertifications() {
-      certifications = {};
-
-      try {
-        const { data, error } = await supabaseClient
-          .from("scorecard_certifications")
-          .select("*")
-          .eq("round_number", currentRound);
-
-        if (error) throw error;
-
-        (data || []).forEach(row => {
-          certifications[getCertificationKey(row.round_number, row.match_number)] = {
-            marker_certified: Boolean(row.marker_certified),
-            opponent_certified: Boolean(row.opponent_certified)
-          };
-        });
-      } catch (error) {
-        console.error("CERTIFICATION LOAD ERROR:", error);
-        showStatus(
-          "CERTIFICATION LOAD ERROR: " + error.message +
-          " | Create the scorecard_certifications table if it does not exist.",
-          "error"
-        );
-      }
-    }
-
-    async function updateCertification(matchNumber, type, checked) {
-      const key = getCertificationKey(currentRound, matchNumber);
-      const current = certifications[key] || {
-        marker_certified: false,
-        opponent_certified: false
-      };
-
-      current[type] = Boolean(checked);
-      certifications[key] = current;
-
-      // Re-render this match immediately so the locked/unlocked state is clear.
-      const matchElement = [...document.querySelectorAll(".match")]
-        .find(el => el.dataset.matchNumber === String(matchNumber));
-
-      if (matchElement) {
-        applyCertificationState(matchElement, matchNumber);
-      }
-
-      try {
-        const { error } = await supabaseClient
-          .from("scorecard_certifications")
-          .upsert({
-            round_number: Number(currentRound),
-            match_number: Number(matchNumber),
-            marker_certified: current.marker_certified,
-            opponent_certified: current.opponent_certified,
-            updated_at: new Date().toISOString()
-          }, {
-            onConflict: "round_number,match_number"
-          });
-
-        if (error) throw error;
-
-        const status = document.getElementById("autosave-status");
-        status.className = "autosave-status saved";
-        status.textContent = isScorecardLocked(matchNumber)
-          ? "Scorecard certified and locked ✓"
-          : "Certification updated ✓";
-
-        setTimeout(() => {
-          if (status.textContent.includes("certified") || status.textContent === "Certification updated ✓") {
-            status.textContent = "";
-            status.className = "autosave-status";
-          }
-        }, 1800);
-      } catch (error) {
-        console.error("CERTIFICATION SAVE ERROR:", error);
-        showStatus("CERTIFICATION SAVE ERROR: " + error.message, "error");
-      }
-    }
-
-    function applyCertificationState(matchElement, matchNumber) {
-      const locked = isScorecardLocked(matchNumber);
-      matchElement.classList.toggle("scorecard-locked", locked);
-
-      matchElement.querySelectorAll("input.score-input").forEach(input => {
-        input.disabled = locked;
-      });
-
-      const markerBox = matchElement.querySelector(`input[data-cert-type="marker"]`);
-      const opponentBox = matchElement.querySelector(`input[data-cert-type="opponent"]`);
-
-      if (markerBox) markerBox.checked =
-        Boolean(certifications[getCertificationKey(currentRound, matchNumber)]?.marker_certified);
-      if (opponentBox) opponentBox.checked =
-        Boolean(certifications[getCertificationKey(currentRound, matchNumber)]?.opponent_certified);
-
-      const status = matchElement.querySelector(".certification-status");
-      if (status) {
-        status.textContent = locked
-          ? "✓ Both certifications complete — scorecard is LOCKED"
-          : "Both certifications are required to lock this scorecard.";
-        status.classList.toggle("locked", locked);
-      }
-    }
-
     function renderScorecards() {
 
       const course =
@@ -1022,7 +835,6 @@
             document.createElement("div");
 
           div.className = "match";
-          div.dataset.matchNumber = String(matchNumber);
 
           let html = `
             <div class="match-header">
@@ -1324,30 +1136,6 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
               </div>
 
             </div>
-
-            <div class="certification-panel">
-              <label class="certification-label">
-                <input
-                  type="checkbox"
-                  data-cert-type="marker"
-                  onchange="updateCertification(${matchNumber}, 'marker_certified', this.checked)"
-                >
-                Certified by marker
-              </label>
-
-              <label class="certification-label">
-                <input
-                  type="checkbox"
-                  data-cert-type="opponent"
-                  onchange="updateCertification(${matchNumber}, 'opponent_certified', this.checked)"
-                >
-                Certified by opponent
-              </label>
-
-              <div class="certification-status">
-                Both certifications are required to lock this scorecard.
-              </div>
-            </div>
           `;
 
           div.innerHTML = html;
@@ -1357,7 +1145,6 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
           updatePlayerTotals(matchNumber);
 
           calculateMatch(matchNumber);
-          applyCertificationState(div, matchNumber);
         }
       );
     }
@@ -1375,12 +1162,6 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
       hole,
       value
     ) {
-
-      if (isScorecardLocked(matchNumber)) {
-        showStatus("This scorecard is certified by both marker and opponent and is locked.", "error");
-        renderScorecards();
-        return;
-      }
 
       const key =
         getScoreKey(
@@ -1507,7 +1288,8 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
       Birdie +1
       Eagle +2
 
-      Only if the side wins the hole.
+      If the hole is tied, birdie/eagle bonus points
+      are split evenly between the two teams.
       =====================================================
     */
 
@@ -1649,6 +1431,39 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
         }
 
 
+        /*
+          Hole result + birdie/eagle bonus.
+
+          Normal hole win:
+            Birdie = +1
+            Eagle  = +2
+
+          Tied hole:
+            Any birdie/eagle bonus on the hole is split evenly
+            between the two teams.
+            Birdie = +0.5 to each team
+            Eagle  = +1.0 to each team
+        */
+
+        let ryanHoleBonus = 0;
+        let claytonHoleBonus = 0;
+
+        ryanScores.forEach(score => {
+          if (score.gross <= course.pars[holeIndex] - 2) {
+            ryanHoleBonus += 2;
+          } else if (score.gross === course.pars[holeIndex] - 1) {
+            ryanHoleBonus += 1;
+          }
+        });
+
+        claytonScores.forEach(score => {
+          if (score.gross <= course.pars[holeIndex] - 2) {
+            claytonHoleBonus += 2;
+          } else if (score.gross === course.pars[holeIndex] - 1) {
+            claytonHoleBonus += 1;
+          }
+        });
+
         if (ryanBest < claytonBest) {
 
           ryanHolePoints++;
@@ -1659,26 +1474,9 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
             backRyanHoles++;
           }
 
-          ryanScores.forEach(
-            score => {
+          ryanBirdieBonus += ryanHoleBonus;
 
-              if (
-                score.gross <=
-                course.pars[holeIndex] - 2
-              ) {
-                ryanBirdieBonus += 2;
-              } else if (
-                score.gross ===
-                course.pars[holeIndex] - 1
-              ) {
-                ryanBirdieBonus += 1;
-              }
-            }
-          );
-        }
-
-
-        if (claytonBest < ryanBest) {
+        } else if (claytonBest < ryanBest) {
 
           claytonHolePoints++;
 
@@ -1688,22 +1486,16 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
             backClaytonHoles++;
           }
 
-          claytonScores.forEach(
-            score => {
+          claytonBirdieBonus += claytonHoleBonus;
 
-              if (
-                score.gross <=
-                course.pars[holeIndex] - 2
-              ) {
-                claytonBirdieBonus += 2;
-              } else if (
-                score.gross ===
-                course.pars[holeIndex] - 1
-              ) {
-                claytonBirdieBonus += 1;
-              }
-            }
-          );
+        } else {
+
+          // Hole is tied: split all birdie/eagle bonus points evenly.
+          const tiedBonus =
+            (ryanHoleBonus + claytonHoleBonus) / 2;
+
+          ryanBirdieBonus += tiedBonus;
+          claytonBirdieBonus += tiedBonus;
         }
       }
 
