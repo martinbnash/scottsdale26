@@ -454,6 +454,13 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
       text-align:left;
       white-space:nowrap;
     }
+
+    .hole-handicap-row td {
+      background:#e5e7eb;
+      color:#111827;
+      font-size:11px;
+      font-weight:800;
+    }
 </style>
 </head>
 
@@ -1142,17 +1149,20 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
                 <tbody>
           `;
 
+          // Use the actual course object selected by getCourse(round),
+          // not the display name. This guarantees yardages work on
+          // Rounds 2/5 (Cholla) and Rounds 3/4 (Saguaro).
           const teeCourseKey =
-            course.name.startsWith("Dinosaur Mountain")
+            course === dinosaurMountain
               ? "Dinosaur Mountain"
-              : course.name.startsWith("We-Ko-Pa Cholla")
+              : course === weKoPaCholla
                 ? "We-Ko-Pa Cholla"
-                : course.name.startsWith("We-Ko-Pa Saguaro")
+                : course === weKoPaSaguaro
                   ? "We-Ko-Pa Saguaro"
                   : null;
 
           const teeRows =
-            teeCourseKey ? (TEE_YARDAGES[teeCourseKey] || {}) : {};
+            TEE_YARDAGES[teeCourseKey] || {};
 
           Object.entries(teeRows).forEach(([tee, distances]) => {
             html += `
@@ -1165,6 +1175,17 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
               </tr>
             `;
           });
+
+          const holeHandicaps = course.handicap || [];
+          html += `
+            <tr class="hole-handicap-row">
+              <td class="name-cell tee-yardage-label">HCP</td>
+              ${holeHandicaps.map(h => `<td>${h}</td>`).join("")}
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          `;
 
 
           /*
@@ -1215,31 +1236,7 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
           */
 
           html += `
-            <tr class="hdcp-row">
-
-              <td class="name-cell">
-                HDCP
-              </td>
-          `;
-
-          for (
-            let holeIndex = 0;
-            holeIndex < 18;
-            holeIndex++
-          ) {
-
-            html += `
-              <td>
-                ${course.handicap[holeIndex]}
-              </td>
-            `;
-          }
-
-          html += `
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
+            
           `;
 
 
