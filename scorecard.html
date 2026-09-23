@@ -9,7 +9,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
+    const TEE_YARDAGES = {
+  "Dinosaur Mountain": {"blue": [309, 175, 477, 417, 199, 409, 365, 155, 512, 160, 463, 385, 383, 182, 357, 463, 138, 322], "white": [275, 155, 416, 372, 168, 378, 350, 142, 490, 155, 453, 345, 359, 143, 342, 436, 123, 310]},
+  "We-Ko-Pa Cholla": {"purple": [332, 574, 164, 419, 190, 371, 323, 587, 429, 538, 208, 361, 395, 159, 299, 433, 551, 407], "white": [312, 530, 150, 389, 155, 322, 265, 558, 384, 471, 187, 334, 347, 151, 272, 374, 528, 385]},
+  "We-Ko-Pa Saguaro": {"purple": [443, 299, 383, 609, 159, 406, 305, 498, 130, 322, 194, 461, 457, 527, 233, 315, 372, 490], "white": [426, 288, 362, 595, 146, 380, 290, 482, 121, 306, 176, 423, 417, 513, 209, 290, 358, 470]}
+};
+
+const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
 
     const SUPABASE_KEY = "sb_publishable_09A0o2ImL-FLS8AiunnNTw_iWP1tG8L";
 
@@ -437,7 +443,18 @@
         font-size: 22px;
       }
     }
-  </style>
+  
+    .tee-yardage-row td {
+      background:#f3f4f6;
+      color:#374151;
+      font-size:11px;
+      font-weight:700;
+    }
+    .tee-yardage-label {
+      text-align:left;
+      white-space:nowrap;
+    }
+</style>
 </head>
 
 <body>
@@ -1087,7 +1104,33 @@
                 </thead>
 
                 <tbody>
+
           `;
+
+          const teeCourseKey =
+            course.name.startsWith("Dinosaur Mountain")
+              ? "Dinosaur Mountain"
+              : course.name.startsWith("We-Ko-Pa Cholla")
+                ? "We-Ko-Pa Cholla"
+                : course.name.startsWith("We-Ko-Pa Saguaro")
+                  ? "We-Ko-Pa Saguaro"
+                  : null;
+
+          const teeRows =
+            teeCourseKey ? (TEE_YARDAGES[teeCourseKey] || {}) : {};
+
+          Object.entries(teeRows).forEach(([tee, distances]) => {
+            html += `
+              <tr class="tee-yardage-row">
+                <td class="name-cell tee-yardage-label">${tee.toUpperCase()}</td>
+                ${distances.map(d => `<td>${d}</td>`).join("")}
+                <td>${distances.slice(0,9).reduce((a,b)=>a+b,0)}</td>
+                <td>${distances.slice(9).reduce((a,b)=>a+b,0)}</td>
+                <td>${distances.reduce((a,b)=>a+b,0)}</td>
+              </tr>
+            `;
+          });
+
 
 
           /*
@@ -2195,6 +2238,7 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
        await loadPairings();
       await loadScores();
+      await loadCertifications();
 
       renderScorecards();
 
@@ -2217,17 +2261,66 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
        await loadPairings();
       await loadScores();
+      await loadCertifications();
 
       renderScorecards();
        startRealtime();
     }
 
 
+     let realtimeChannel = null;
+
      function startRealtime() {
-       supabaseClient.channel("scottsdale26-scorecard-pairings")
-         .on("postgres_changes", { event: "*", schema: "public", table: "pairings" }, async () => { await loadPairings(); renderScorecards(); })
-         .on("postgres_changes", { event: "*", schema: "public", table: "pairing_players" }, async () => { await loadPairings(); renderScorecards(); })
-         .subscribe();
+
+       if (realtimeChannel) {
+         supabaseClient.removeChannel(realtimeChannel);
+       }
+
+       realtimeChannel = supabaseClient
+         .channel("scottsdale26-scorecard-live")
+
+         // Scores: every device sees score edits, clears, and deletes.
+         .on(
+           "postgres_changes",
+           { event: "*", schema: "public", table: "scores" },
+           async () => {
+             await loadScores();
+             renderScorecards();
+           }
+         )
+
+         // Pairings: every device sees pairing changes.
+         .on(
+           "postgres_changes",
+           { event: "*", schema: "public", table: "pairings" },
+           async () => {
+             await loadPairings();
+             renderScorecards();
+           }
+         )
+
+         .on(
+           "postgres_changes",
+           { event: "*", schema: "public", table: "pairing_players" },
+           async () => {
+             await loadPairings();
+             renderScorecards();
+           }
+         )
+
+         // Certification/locking: both devices stay synchronized.
+         .on(
+           "postgres_changes",
+           { event: "*", schema: "public", table: "scorecard_certifications" },
+           async () => {
+             await loadCertifications();
+             renderScorecards();
+           }
+         )
+
+         .subscribe((status) => {
+           console.log("SCOTTSDALE REALTIME:", status);
+         });
      }
 
     startApp();
