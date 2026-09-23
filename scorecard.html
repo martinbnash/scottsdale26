@@ -645,7 +645,6 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
     // Certification state is stored separately from hole scores so it can be
     // shared between devices/users through Supabase.
     let certifications = {};
-    let certificationTableAvailable = true;
 
 
     function getCourse(round) {
@@ -896,8 +895,34 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
       return Math.round(courseHandicap * 0.85);
     }
 
-    function getsStrokesOnHole(playerName, holeIndex, course) {
-     const playingHandicap = getPlayerCourseHandicap(playerName, course);
+    function getMatchPlayingHandicaps(match, course) {
+      const allPlayers = [...match.ryan, ...match.clayton];
+
+      const courseHandicaps = allPlayers.map(playerName => ({
+        playerName,
+        playingHandicap: getPlayerCourseHandicap(playerName, course)
+      }));
+
+      // Scottsdale 26:
+      // The existing getPlayerCourseHandicap() calculation already applies
+      // the 85% allowance to EVERY player. For match play, the lowest
+      // resulting Playing Handicap is then the zero-stroke baseline.
+      const lowest = Math.min(
+        ...courseHandicaps.map(p => p.playingHandicap)
+      );
+
+      return Object.fromEntries(
+        courseHandicaps.map(p => [
+          p.playerName,
+          Math.max(0, p.playingHandicap - lowest)
+        ])
+      );
+    }
+
+    function getsStrokesOnHole(playerName, holeIndex, course, matchPlayingHandicaps = null) {
+      const playingHandicap = matchPlayingHandicaps
+        ? Number(matchPlayingHandicaps[playerName] || 0)
+        : getPlayerCourseHandicap(playerName, course);
       const holeRank = Number(course.handicap[holeIndex]);
       let strokes = 0;
       if (playingHandicap >= holeRank) strokes++;
@@ -905,13 +930,20 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
       return strokes;
     }
 
-    function getsStrokeDot(playerName, holeIndex, course) {
-      return getsStrokesOnHole(playerName, holeIndex, course) > 0;
+    function getsStrokeDot(playerName, holeIndex, course, matchPlayingHandicaps = null) {
+      return getsStrokesOnHole(
+        playerName, holeIndex, course, matchPlayingHandicaps
+      ) > 0;
     }
 
-    function calculateNetScore(playerName, grossScore, holeIndex, course) {
+    function calculateNetScore(
+      playerName, grossScore, holeIndex, course, matchPlayingHandicaps = null
+    ) {
       if (grossScore === "" || grossScore === null || grossScore === undefined) return "";
-      return Number(grossScore) - getsStrokesOnHole(playerName, holeIndex, course);
+      return Number(grossScore) -
+        getsStrokesOnHole(
+          playerName, holeIndex, course, matchPlayingHandicaps
+        );
     }
 
     /*
@@ -938,17 +970,7 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
           .select("*")
           .eq("round_number", currentRound);
 
-        if (error) {
-          // The certification table may not exist yet. Do not flash an
-          // application-level error during startup. The scorecard itself
-          // should still load and remain usable.
-          console.warn("Certification table unavailable:", error.message);
-
-          certificationTableAvailable = false;
-          return;
-        }
-
-        certificationTableAvailable = true;
+        if (error) throw error;
 
         (data || []).forEach(row => {
           certifications[getCertificationKey(row.round_number, row.match_number)] = {
@@ -956,10 +978,13 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
             opponent_certified: Boolean(row.opponent_certified)
           };
         });
-
       } catch (error) {
-        console.warn("Certification load skipped:", error.message);
-        certificationTableAvailable = false;
+        console.error("CERTIFICATION LOAD ERROR:", error);
+        showStatus(
+          "CERTIFICATION LOAD ERROR: " + error.message +
+          " | Create the scorecard_certifications table if it does not exist.",
+          "error"
+        );
       }
     }
 
@@ -982,13 +1007,6 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
       }
 
       try {
-
-        if (!certificationTableAvailable) {
-          throw new Error(
-            "The Supabase table public.scorecard_certifications does not exist or is not available in the API schema."
-          );
-        }
-
         const { error } = await supabaseClient
           .from("scorecard_certifications")
           .upsert({
@@ -1073,6 +1091,9 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
             ...match.clayton
           ];
 
+          const matchPlayingHandicaps =
+            getMatchPlayingHandicaps(match, course);
+
           const div =
             document.createElement("div");
 
@@ -1119,7 +1140,6 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
                 </thead>
 
                 <tbody>
-
           `;
 
           const teeCourseKey =
@@ -1145,7 +1165,6 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
               </tr>
             `;
           });
-
 
 
           /*
@@ -1274,7 +1293,7 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
                 html += `
                   <td class="score-cell">
-                    ${getsStrokeDot(playerName, holeIndex, course) ? '<span class="stroke-dot" title="Stroke on this hole"></span>' : ''}
+                    ${getsStrokeDot(playerName, holeIndex, course, matchPlayingHandicaps) ? '<span class="stroke-dot" title="Stroke on this hole"></span>' : ''}
 
                     <input
                       class="score-input"
@@ -1614,6 +1633,9 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
       const course =
         getCourse(currentRound);
 
+      const matchPlayingHandicaps =
+        getMatchPlayingHandicaps(match, course);
+
       let ryanHolePoints = 0;
       let claytonHolePoints = 0;
 
@@ -1669,7 +1691,8 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
                   playerName,
                   gross,
                   holeIndex,
-                  course
+                  course,
+                  matchPlayingHandicaps
                 )
               };
             }
@@ -1703,7 +1726,8 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
                   playerName,
                   gross,
                   holeIndex,
-                  course
+                  course,
+                  matchPlayingHandicaps
                 )
               };
             }
@@ -2253,7 +2277,6 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
        await loadPairings();
       await loadScores();
-      await loadCertifications();
 
       renderScorecards();
 
@@ -2276,80 +2299,17 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
        await loadPairings();
       await loadScores();
-      await loadCertifications();
 
       renderScorecards();
        startRealtime();
     }
 
 
-     let realtimeChannel = null;
-
-
-    function addCertificationRealtime(channel) {
-      if (!certificationTableAvailable) return channel;
-
-      return channel.on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "scorecard_certifications" },
-        async () => {
-          await loadCertifications();
-          renderScorecards();
-        }
-      );
-    }
-
      function startRealtime() {
-
-       if (realtimeChannel) {
-         supabaseClient.removeChannel(realtimeChannel);
-       }
-
-       realtimeChannel = supabaseClient
-         .channel("scottsdale26-scorecard-live")
-
-         // Scores: every device sees score edits, clears, and deletes.
-         .on(
-           "postgres_changes",
-           { event: "*", schema: "public", table: "scores" },
-           async () => {
-             await loadScores();
-             renderScorecards();
-           }
-         )
-
-         // Pairings: every device sees pairing changes.
-         .on(
-           "postgres_changes",
-           { event: "*", schema: "public", table: "pairings" },
-           async () => {
-             await loadPairings();
-             renderScorecards();
-           }
-         )
-
-         .on(
-           "postgres_changes",
-           { event: "*", schema: "public", table: "pairing_players" },
-           async () => {
-             await loadPairings();
-             renderScorecards();
-           }
-         )
-
-         // Certification/locking: both devices stay synchronized.
-         // Certification realtime is enabled only after the table has
-         // successfully loaded. The scorecard/scores realtime channels
-         // remain active regardless.
-         
-
-         ;
-
-       realtimeChannel = addCertificationRealtime(realtimeChannel);
-
-       realtimeChannel.subscribe((status) => {
-         console.log("SCOTTSDALE REALTIME:", status);
-       });
+       supabaseClient.channel("scottsdale26-scorecard-pairings")
+         .on("postgres_changes", { event: "*", schema: "public", table: "pairings" }, async () => { await loadPairings(); renderScorecards(); })
+         .on("postgres_changes", { event: "*", schema: "public", table: "pairing_players" }, async () => { await loadPairings(); renderScorecards(); })
+         .subscribe();
      }
 
     startApp();
