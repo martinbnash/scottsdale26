@@ -645,6 +645,7 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
     // Certification state is stored separately from hole scores so it can be
     // shared between devices/users through Supabase.
     let certifications = {};
+    let certificationTableAvailable = true;
 
 
     function getCourse(round) {
@@ -937,7 +938,17 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
           .select("*")
           .eq("round_number", currentRound);
 
-        if (error) throw error;
+        if (error) {
+          // The certification table may not exist yet. Do not flash an
+          // application-level error during startup. The scorecard itself
+          // should still load and remain usable.
+          console.warn("Certification table unavailable:", error.message);
+
+          certificationTableAvailable = false;
+          return;
+        }
+
+        certificationTableAvailable = true;
 
         (data || []).forEach(row => {
           certifications[getCertificationKey(row.round_number, row.match_number)] = {
@@ -945,13 +956,10 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
             opponent_certified: Boolean(row.opponent_certified)
           };
         });
+
       } catch (error) {
-        console.error("CERTIFICATION LOAD ERROR:", error);
-        showStatus(
-          "CERTIFICATION LOAD ERROR: " + error.message +
-          " | Create the scorecard_certifications table if it does not exist.",
-          "error"
-        );
+        console.warn("Certification load skipped:", error.message);
+        certificationTableAvailable = false;
       }
     }
 
@@ -974,6 +982,13 @@ const SUPABASE_URL = "https://ljgedmrpyuseamwmndwu.supabase.co";
       }
 
       try {
+
+        if (!certificationTableAvailable) {
+          throw new Error(
+            "The Supabase table public.scorecard_certifications does not exist or is not available in the API schema."
+          );
+        }
+
         const { error } = await supabaseClient
           .from("scorecard_certifications")
           .upsert({
@@ -2270,6 +2285,20 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
 
      let realtimeChannel = null;
 
+
+    function addCertificationRealtime(channel) {
+      if (!certificationTableAvailable) return channel;
+
+      return channel.on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "scorecard_certifications" },
+        async () => {
+          await loadCertifications();
+          renderScorecards();
+        }
+      );
+    }
+
      function startRealtime() {
 
        if (realtimeChannel) {
@@ -2309,18 +2338,18 @@ ${(playerName === "Ryan D" || playerName === "Brad") ? " • WHITE TEES" : ""}  
          )
 
          // Certification/locking: both devices stay synchronized.
-         .on(
-           "postgres_changes",
-           { event: "*", schema: "public", table: "scorecard_certifications" },
-           async () => {
-             await loadCertifications();
-             renderScorecards();
-           }
-         )
+         // Certification realtime is enabled only after the table has
+         // successfully loaded. The scorecard/scores realtime channels
+         // remain active regardless.
+         
 
-         .subscribe((status) => {
-           console.log("SCOTTSDALE REALTIME:", status);
-         });
+         ;
+
+       realtimeChannel = addCertificationRealtime(realtimeChannel);
+
+       realtimeChannel.subscribe((status) => {
+         console.log("SCOTTSDALE REALTIME:", status);
+       });
      }
 
     startApp();
