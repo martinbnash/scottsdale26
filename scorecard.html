@@ -467,6 +467,63 @@
       font-weight:800;
     }
 
+    /*
+    =================================================
+    TEE SELECTOR
+    =================================================
+    */
+
+    .tee-selector {
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      margin-top:5px;
+      font-size:11px;
+      font-weight:800;
+      color:#374151;
+      white-space:nowrap;
+    }
+
+    .tee-selector-label {
+      color:#374151;
+      font-size:10px;
+      font-weight:900;
+    }
+
+    .tee-selector select {
+      appearance:auto;
+      -webkit-appearance:auto;
+      border:1px solid #9ca3af;
+      border-radius:5px;
+      background:#ffffff;
+      color:#111827;
+      padding:4px 7px;
+      font-size:12px;
+      font-weight:800;
+      min-width:82px;
+      cursor:pointer;
+    }
+
+    .tee-selector select:focus {
+      outline:2px solid #fbbf24;
+      border-color:#f59e0b;
+    }
+
+    .tee-selector select:disabled {
+      background:#e5e7eb;
+      color:#6b7280;
+      cursor:not-allowed;
+      opacity:.8;
+    }
+
+    .selected-tee-note {
+      display:inline-block;
+      margin-top:3px;
+      font-size:10px;
+      color:#6b7280;
+      font-weight:700;
+    }
+
     @media (max-width:900px) {
 
       .match-results {
@@ -475,6 +532,17 @@
 
       h1 {
         font-size:22px;
+      }
+
+      .tee-selector {
+        display:flex;
+        margin-top:7px;
+      }
+
+      .tee-selector select {
+        font-size:13px;
+        padding:6px 8px;
+        min-width:90px;
       }
     }
 
@@ -730,6 +798,321 @@ let certifications = {};
 
 /*
 =====================================================
+TEE SELECTION STATE
+=====================================================
+
+Ryan D and Brad may independently choose
+Purple or White for Rounds 2-5.
+
+White is the default.
+
+Selections are saved locally so refreshing the
+browser does not reset the choice.
+
+=====================================================
+*/
+
+const TEE_SELECTION_STORAGE_KEY =
+  "scottsdale26_round_tee_selections_v1";
+
+
+let teeSelections = {
+
+  2: {
+    "Ryan D":"white",
+    "Brad":"white"
+  },
+
+  3: {
+    "Ryan D":"white",
+    "Brad":"white"
+  },
+
+  4: {
+    "Ryan D":"white",
+    "Brad":"white"
+  },
+
+  5: {
+    "Ryan D":"white",
+    "Brad":"white"
+  }
+
+};
+
+
+/*
+=====================================================
+LOAD TEE SELECTIONS
+=====================================================
+*/
+
+function loadTeeSelections() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        TEE_SELECTION_STORAGE_KEY
+      );
+
+
+    if(!saved)
+      return;
+
+
+    const parsed =
+      JSON.parse(saved);
+
+
+    [2,3,4,5].forEach(
+      round => {
+
+        ["Ryan D","Brad"].forEach(
+          playerName => {
+
+            const value =
+              parsed?.[round]?.[playerName];
+
+
+            if(
+              value === "purple" ||
+              value === "white"
+            ) {
+
+              teeSelections[round][playerName] =
+                value;
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  } catch(error) {
+
+    console.error(
+      "TEE SELECTION LOAD ERROR:",
+      error
+    );
+
+  }
+
+}
+
+
+/*
+=====================================================
+SAVE TEE SELECTIONS
+=====================================================
+*/
+
+function saveTeeSelections() {
+
+  try {
+
+    localStorage.setItem(
+      TEE_SELECTION_STORAGE_KEY,
+      JSON.stringify(
+        teeSelections
+      )
+    );
+
+  } catch(error) {
+
+    console.error(
+      "TEE SELECTION SAVE ERROR:",
+      error
+    );
+
+  }
+
+}
+
+
+/*
+=====================================================
+GET SELECTED TEE
+=====================================================
+*/
+
+function getSelectedTee(
+  playerName,
+  round
+) {
+
+  if(
+    round >= 2 &&
+    round <= 5 &&
+    (
+      playerName === "Ryan D" ||
+      playerName === "Brad"
+    )
+  ) {
+
+    return (
+      teeSelections[round]?.[playerName] ||
+      "white"
+    );
+
+  }
+
+
+  return null;
+
+}
+
+
+/*
+=====================================================
+SET PLAYER TEE
+=====================================================
+*/
+
+function setPlayerTee(
+  playerName,
+  round,
+  tee
+) {
+
+  /*
+    Only Ryan D and Brad.
+  */
+
+  if(
+    playerName !== "Ryan D" &&
+    playerName !== "Brad"
+  )
+    return;
+
+
+  /*
+    Only Rounds 2-5.
+  */
+
+  if(
+    round < 2 ||
+    round > 5
+  )
+    return;
+
+
+  /*
+    Only Purple / White.
+  */
+
+  if(
+    tee !== "purple" &&
+    tee !== "white"
+  )
+    return;
+
+
+  /*
+    Do not allow tee changes on
+    a locked scorecard.
+  */
+
+  const match =
+    (pairings[round] || [])
+      .find(
+        m =>
+          m.ryan.includes(playerName) ||
+          m.clayton.includes(playerName)
+      );
+
+
+  if(
+    match &&
+    isScorecardLocked(
+      match.pairingNumber
+    )
+  ) {
+
+    showStatus(
+      "This scorecard is certified and locked.",
+      "error"
+    );
+
+    renderScorecards();
+
+    return;
+
+  }
+
+
+  teeSelections[round][playerName] =
+    tee;
+
+
+  saveTeeSelections();
+
+
+  /*
+    Re-render the entire scorecard.
+
+    This is intentional.
+
+    It forces all of the following to
+    recalculate using the new tee:
+
+      Course Handicap
+      85% Playing Handicap
+      Match Handicap
+      Stroke Dots
+      Net Scores
+      Front 9
+      Back 9
+      18-Hole Result
+      Match Points
+  */
+
+  renderScorecards();
+
+
+  const status =
+    document.getElementById(
+      "autosave-status"
+    );
+
+
+  status.className =
+    "autosave-status saved";
+
+
+  status.textContent =
+    `${playerName} tee changed to ${tee === "purple" ? "Purple" : "White"} ✓`;
+
+
+  setTimeout(
+    () => {
+
+      if(
+        status.textContent.includes(
+          "tee changed"
+        )
+      ) {
+
+        status.textContent =
+          "";
+
+        status.className =
+          "autosave-status";
+
+      }
+
+    },
+    1800
+  );
+
+}
+
+
+/*
+=====================================================
 COURSE
 =====================================================
 */
@@ -754,14 +1137,19 @@ TEE ASSIGNMENT
 =====================================================
 */
 
-function getPlayerTee(playerName, course) {
+function getPlayerTee(
+  playerName,
+  course
+) {
 
   /*
-    DINOSAUR MOUNTAIN
+  ===============================================
+  DINOSAUR MOUNTAIN
 
-    Everyone = BLACK
+  Everyone = BLACK
 
-    Ryan D + Brad = BLUE
+  Ryan D + Brad = BLUE
+  ===============================================
   */
 
   if(course === dinosaurMountain) {
@@ -772,15 +1160,17 @@ function getPlayerTee(playerName, course) {
     )
       ? "blue"
       : "black";
+
   }
 
 
   /*
-    WE-KO-PA
+  ===============================================
+  WE-KO-PA
 
-    Everyone = PURPLE
-
-    Ryan D + Brad = WHITE
+  Ryan D + Brad = USER SELECTED
+  Everyone else = PURPLE
+  ===============================================
   */
 
   if(
@@ -788,16 +1178,29 @@ function getPlayerTee(playerName, course) {
     course === weKoPaSaguaro
   ) {
 
-    return (
+    if(
       playerName === "Ryan D" ||
       playerName === "Brad"
-    )
-      ? "white"
-      : "purple";
+    ) {
+
+      return (
+        getSelectedTee(
+          playerName,
+          currentRound
+        ) ||
+        "white"
+      );
+
+    }
+
+
+    return "purple";
+
   }
 
 
   return null;
+
 }
 
 
@@ -1162,7 +1565,9 @@ function getPlayerCourseHandicap(
 
 
   /*
-    DINOSAUR MOUNTAIN
+  ===============================================
+  DINOSAUR MOUNTAIN
+  ===============================================
   */
 
   if(course === dinosaurMountain) {
@@ -1188,7 +1593,9 @@ function getPlayerCourseHandicap(
 
 
   /*
-    WE-KO-PA CHOLLA
+  ===============================================
+  WE-KO-PA CHOLLA
+  ===============================================
   */
 
   else if(
@@ -1214,7 +1621,9 @@ function getPlayerCourseHandicap(
 
 
   /*
-    WE-KO-PA SAGUARO
+  ===============================================
+  WE-KO-PA SAGUARO
+  ===============================================
   */
 
   else if(
@@ -1247,7 +1656,9 @@ function getPlayerCourseHandicap(
 
 
   /*
-    WHS COURSE HANDICAP
+  ===============================================
+  WHS COURSE HANDICAP
+  ===============================================
   */
 
   const courseHandicap =
@@ -1257,7 +1668,9 @@ function getPlayerCourseHandicap(
 
 
   /*
-    SCOTTSDALE 26 = 85%
+  ===============================================
+  SCOTTSDALE 26 = 85%
+  ===============================================
   */
 
   return Math.round(
@@ -1718,6 +2131,24 @@ function applyCertificationState(
     );
 
 
+  /*
+  ===============================================
+  ALSO LOCK TEE DROPDOWNS
+  ===============================================
+  */
+
+  matchElement
+    .querySelectorAll(
+      ".tee-selector select"
+    )
+    .forEach(
+      select => {
+        select.disabled =
+          locked;
+      }
+    );
+
+
   const markerBox =
     matchElement.querySelector(
       'input[data-cert-type="marker"]'
@@ -1773,6 +2204,105 @@ function applyCertificationState(
     );
 
   }
+
+}
+
+
+/*
+=====================================================
+TEE DROPDOWN HTML
+=====================================================
+*/
+
+function getTeeSelectorHtml(
+  playerName,
+  round,
+  matchNumber
+) {
+
+  /*
+    Only Ryan D and Brad.
+  */
+
+  if(
+    playerName !== "Ryan D" &&
+    playerName !== "Brad"
+  ) {
+
+    return "";
+
+  }
+
+
+  /*
+    Only Rounds 2-5.
+  */
+
+  if(
+    round < 2 ||
+    round > 5
+  ) {
+
+    return "";
+
+  }
+
+
+  const selected =
+    getSelectedTee(
+      playerName,
+      round
+    ) || "white";
+
+
+  const locked =
+    isScorecardLocked(
+      matchNumber
+    );
+
+
+  return `
+
+    <div class="tee-selector">
+
+      <span class="tee-selector-label">
+        SELECT TEE:
+      </span>
+
+      <select
+        ${locked ? "disabled" : ""}
+        onchange="
+          setPlayerTee(
+            '${playerName}',
+            ${round},
+            this.value
+          )
+        "
+      >
+
+        <option
+          value="white"
+          ${selected === "white" ? "selected" : ""}
+        >
+          White
+        </option>
+
+        <option
+          value="purple"
+          ${selected === "purple" ? "selected" : ""}
+        >
+          Purple
+        </option>
+
+      </select>
+
+    </div>
+
+    <div class="selected-tee-note">
+      Handicap recalculates automatically
+    </div>
+
+  `;
 
 }
 
@@ -2177,6 +2707,23 @@ function renderScorecards() {
             );
 
 
+          /*
+          ===========================================
+          TEE SELECTOR
+
+          Ryan D / Brad:
+          Rounds 2-5 only.
+          ===========================================
+          */
+
+          const teeSelector =
+            getTeeSelectorHtml(
+              playerName,
+              currentRound,
+              matchNumber
+            );
+
+
           html += `
 
             <tr class="${teamClass}">
@@ -2193,6 +2740,8 @@ function renderScorecards() {
                   • ${tee.toUpperCase()} TEES
 
                 </small>
+
+                ${teeSelector}
 
               </td>
 
@@ -2702,6 +3251,7 @@ function updatePlayerTotals(
 /*
 =====================================================
 MATCH CALCULATIONS
+=====================================================
 
 Each hole won = 1 point
 Front 9 = 3
@@ -3794,6 +4344,14 @@ START APP
 */
 
 async function startApp() {
+
+  /*
+    Load saved tee selections FIRST,
+    before the scorecard is rendered.
+  */
+
+  loadTeeSelections();
+
 
   const connected =
     await testDatabase();
