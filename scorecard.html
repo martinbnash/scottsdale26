@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -684,7 +683,7 @@ const dinosaurMountain = {
 
 const weKoPaCholla = {
 
-  name:"We-Ko-Pa Cholla • Purple / White Tees",
+  name:"We-Ko-Pa Cholla • Purple Tees",
 
   pars:[
     4,4,5,4,3,4,4,3,5,
@@ -701,7 +700,7 @@ const weKoPaCholla = {
 
 const weKoPaSaguaro = {
 
-  name:"We-Ko-Pa Saguaro • Purple / White Tees",
+  name:"We-Ko-Pa Saguaro • Purple Tees",
 
   pars:[
     4,4,5,4,3,4,4,3,5,
@@ -752,17 +751,23 @@ function getCourse(round) {
 /*
 =====================================================
 TEE ASSIGNMENT
+
+ROUND 1:
+Ryan D + Brad = BLUE
+Everyone else = BLACK
+
+ROUNDS 2-5:
+EVERYONE = PURPLE
 =====================================================
 */
 
 function getPlayerTee(playerName, course) {
 
   /*
-    DINOSAUR MOUNTAIN
-
-    Everyone = BLACK
+    DINOSAUR MOUNTAIN — ROUND 1
 
     Ryan D + Brad = BLUE
+    Everyone else = BLACK
   */
 
   if(course === dinosaurMountain) {
@@ -777,11 +782,12 @@ function getPlayerTee(playerName, course) {
 
 
   /*
-    WE-KO-PA
+    WE-KO-PA CHOLLA / SAGUARO
+    ROUNDS 2-5
 
-    Everyone = PURPLE
+    EVERYONE PLAYS PURPLE
 
-    Ryan D + Brad = WHITE
+    Ryan D and Brad are PURPLE too.
   */
 
   if(
@@ -789,12 +795,7 @@ function getPlayerTee(playerName, course) {
     course === weKoPaSaguaro
   ) {
 
-    return (
-      playerName === "Ryan D" ||
-      playerName === "Brad"
-    )
-      ? "white"
-      : "purple";
+    return "purple";
   }
 
 
@@ -1102,7 +1103,7 @@ async function loadScores() {
     scores = {};
 
 
-    data.forEach(row => {
+    (data || []).forEach(row => {
 
       const key =
         getScoreKey(
@@ -1136,6 +1137,16 @@ async function loadScores() {
 /*
 =====================================================
 HANDICAPS
+
+ROUND 1:
+Black = 70.1 / 137
+Blue = 67.5 / 125
+
+ROUNDS 2-5:
+Everyone Purple
+
+Cholla Purple = 71.7 / 135
+Saguaro Purple = 70.2 / 132
 =====================================================
 */
 
@@ -1190,6 +1201,8 @@ function getPlayerCourseHandicap(
 
   /*
     WE-KO-PA CHOLLA
+
+    EVERYONE = PURPLE
   */
 
   else if(
@@ -1198,24 +1211,16 @@ function getPlayerCourseHandicap(
 
     par = 72;
 
-
-    if(tee === "white") {
-
-      courseRating = 68.6;
-      slopeRating = 122;
-
-    } else {
-
-      courseRating = 71.7;
-      slopeRating = 135;
-
-    }
+    courseRating = 71.7;
+    slopeRating = 135;
 
   }
 
 
   /*
     WE-KO-PA SAGUARO
+
+    EVERYONE = PURPLE
   */
 
   else if(
@@ -1224,18 +1229,8 @@ function getPlayerCourseHandicap(
 
     par = 71;
 
-
-    if(tee === "white") {
-
-      courseRating = 68.8;
-      slopeRating = 125;
-
-    } else {
-
-      courseRating = 70.2;
-      slopeRating = 132;
-
-    }
+    courseRating = 70.2;
+    slopeRating = 132;
 
   }
 
