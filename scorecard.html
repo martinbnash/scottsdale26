@@ -1,1046 +1,514 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
-<title>Scottsdale 26 Live Scorecard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-
-const TEE_YARDAGES = {
-
-  "Dinosaur Mountain": {
-
-    "black": [
-      305, 188, 495, 452, 229, 435, 419, 191, 535,
-      152, 517, 427, 420, 201, 365, 510, 148, 339
-    ],
-
-    "blue": [
-      300, 174, 465, 408, 199, 409, 355, 148, 514,
-      142, 463, 381, 384, 179, 354, 464, 138, 319
-    ]
-
-  },
-
-  "We-Ko-Pa Cholla": {
-
-    "purple": [
-      332, 574, 164, 419, 190, 371, 323, 587, 429,
-      538, 208, 361, 395, 159, 299, 433, 551, 407
-    ],
-
-    "white": [
-      312, 530, 150, 389, 155, 322, 265, 558, 384,
-      471, 187, 334, 347, 151, 272, 374, 528, 385
-    ]
-
-  },
-
-  "We-Ko-Pa Saguaro": {
-
-    "purple": [
-      443, 299, 383, 609, 159, 406, 305, 498, 130,
-      322, 194, 461, 457, 527, 233, 315, 372, 490
-    ],
-
-    "white": [
-      426, 288, 362, 595, 146, 380, 290, 482, 121,
-      306, 176, 423, 417, 513, 209, 290, 358, 470
-    ]
-
-  }
-
-};
-
-
-const SUPABASE_URL =
-  "https://ljgedmrpyuseamwmndwu.supabase.co";
-
-const SUPABASE_KEY =
-  "sb_publishable_09A0o2ImL-FLS8AiunnNTw_iWP1tG8L";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-</script>
-
-
-<style>
-
-.live-scoreboard-btn {
-
-  display: inline-block;
-
-  margin-top: 8px;
-
-  padding: 12px 24px;
-
-  background: #fbbf24;
-
-  color: #172033;
-
-  text-decoration: none;
-
-  font-size: 18px;
-
-  font-weight: 800;
-
-  letter-spacing: .5px;
-
-  border: 2px solid #fbbf24;
-
-  border-radius: 8px;
-
-  transition: all .2s ease;
-
-  box-shadow:
-    0 4px 12px
-    rgba(251,191,36,.25);
-
-}
-
-.live-scoreboard-btn:hover {
-
-  background: #fff;
-
-  color: #172033;
-
-  transform: translateY(-2px);
-
-}
-
-
-:root {
-
-  --bg: #0b1220;
-
-  --panel: #172033;
-
-  --card: #243247;
-
-  --line: #40516a;
-
-  --text: #f8fafc;
-
-  --muted: #a9b6c8;
-
-  --blue: #3b82f6;
-
-  --red: #ef4444;
-
-  --gold: #fbbf24;
-
-  --green: #22c55e;
-
-}
-
-
-* {
-
-  box-sizing: border-box;
-
-}
-
-
-body {
-
-  margin: 0;
-
-  background: var(--bg);
-
-  color: var(--text);
-
-  font-family: Arial, sans-serif;
-
-}
-
-
-header {
-
-  text-align: center;
-
-  padding: 22px 15px;
-
-  background: #111827;
-
-  border-bottom: 1px solid var(--line);
-
-}
-
-
-h1 {
-
-  margin: 0;
-
-  font-size: 28px;
-
-}
-
-
-.subtitle {
-
-  color: var(--gold);
-
-  margin-top: 8px;
-
-  font-weight: bold;
-
-}
-
-
-.nav {
-
-  display: flex;
-
-  justify-content: center;
-
-  gap: 10px;
-
-  padding: 15px;
-
-  flex-wrap: wrap;
-
-}
-
-
-.nav a,
-.round-btn {
-
-  text-decoration: none;
-
-  border: 0;
-
-  cursor: pointer;
-
-  padding: 10px 16px;
-
-  border-radius: 8px;
-
-  font-weight: bold;
-
-  background: var(--panel);
-
-  color: var(--text);
-
-}
-
-
-.nav a:hover,
-.round-btn:hover {
-
-  opacity: .85;
-
-}
-
-
-.round-btn.active {
-
-  background: var(--gold);
-
-  color: #111827;
-
-}
-
-
-.match-heading-row {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 10px;
-
-}
-
-
-.match-clear-btn {
-
-  border: 1px solid #ef4444;
-
-  background: #7f1d1d;
-
-  color: #fff;
-
-  border-radius: 6px;
-
-  padding: 5px 9px;
-
-  font-size: 11px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-  white-space: nowrap;
-
-}
-
-
-.match-clear-btn:hover {
-
-  background: #991b1b;
-
-}
-
-
-.container {
-
-  width: min(1800px, 98%);
-
-  margin: auto;
-
-  padding-bottom: 40px;
-
-}
-
-
-.status {
-
-  text-align: center;
-
-  padding: 10px;
-
-  margin: 10px auto;
-
-  border-radius: 8px;
-
-  max-width: 900px;
-
-  display: none;
-
-}
-
-
-.status.error {
-
-  display: block;
-
-  background: #7f1d1d;
-
-  border: 1px solid #ef4444;
-
-  color: white;
-
-}
-
-
-.status.success {
-
-  display: block;
-
-  background: #14532d;
-
-  border: 1px solid #22c55e;
-
-}
-
-
-.status.loading {
-
-  display: block;
-
-  background: #1e3a8a;
-
-  border: 1px solid #3b82f6;
-
-}
-
-
-.course-info {
-
-  text-align: center;
-
-  margin: 15px 0;
-
-  color: var(--muted);
-
-}
-
-
-.match {
-
-  background: var(--panel);
-
-  border: 1px solid var(--line);
-
-  border-radius: 12px;
-
-  padding: 15px;
-
-  margin-bottom: 22px;
-
-  overflow-x: auto;
-
-}
-
-
-.match-header {
-
-  text-align: center;
-
-  margin-bottom: 15px;
-
-}
-
-
-.match-header h2 {
-
-  margin: 0;
-
-  color: var(--gold);
-
-}
-
-
-.vs {
-
-  color: var(--muted);
-
-  margin-top: 5px;
-
-}
-
-
-.scorecard-wrap {
-
-  overflow-x: auto;
-
-}
-
-
-table {
-
-  width: 100%;
-
-  min-width: 1200px;
-
-  border-collapse: collapse;
-
-  background: white;
-
-  color: #111827;
-
-}
-
-
-th,
-td {
-
-  border: 1px solid #777;
-
-  text-align: center;
-
-  padding: 6px;
-
-  min-width: 48px;
-
-}
-
-
-th {
-
-  background: #6b4f0d;
-
-  color: white;
-
-  font-weight: bold;
-
-}
-
-
-.name-cell {
-
-  text-align: left;
-
-  font-weight: bold;
-
-  min-width: 160px;
-
-  padding-left: 10px;
-
-}
-
-
-.team-ryan {
-
-  background: #fee2e2;
-
-}
-
-
-.team-clayton {
-
-  background: #dbeafe;
-
-}
-
-
-.par-row td,
-.par-row .name-cell {
-
-  background: #d6c4a4;
-
-  font-weight: bold;
-
-}
-
-
-.hdcp-row td,
-.hdcp-row .name-cell {
-
-  background: #f1f1f1;
-
-  font-weight: bold;
-
-}
-
-
-input.score-input {
-
-  width: 44px;
-
-  text-align: center;
-
-  border: 0;
-
-  background: transparent;
-
-  font-size: 16px;
-
-  font-weight: bold;
-
-}
-
-
-input.score-input:focus {
-
-  outline: 2px solid var(--gold);
-
-  background: #fffbea;
-
-}
-
-
-.total-cell {
-
-  font-weight: bold;
-
-  background: #f3f4f6;
-
-}
-
-
-.net-cell {
-
-  font-weight: bold;
-
-}
-
-
-.score-cell {
-
-  position: relative;
-
-}
-
-
-.stroke-dot {
-
-  position: absolute;
-
-  top: 4px;
-
-  right: 5px;
-
-  width: 8px;
-
-  height: 8px;
-
-  border-radius: 50%;
-
-  background: var(--gold);
-
-  border: 1px solid #8a5b00;
-
-  box-shadow:
-    0 0 4px rgba(251,191,36,.85);
-
-  pointer-events: none;
-
-}
-
-
-.match-results {
-
-  margin-top: 15px;
-
-  background: var(--card);
-
-  border-radius: 10px;
-
-  padding: 15px;
-
-  display: grid;
-
-  grid-template-columns: repeat(5, 1fr);
-
-  gap: 10px;
-
-  text-align: center;
-
-}
-
-
-.result-box {
-
-  background: #111827;
-
-  padding: 12px;
-
-  border-radius: 8px;
-
-}
-
-
-.result-label {
-
-  color: var(--muted);
-
-  font-size: 12px;
-
-  margin-bottom: 5px;
-
-}
-
-
-.result-value {
-
-  color: var(--gold);
-
-  font-size: 20px;
-
-  font-weight: bold;
-
-}
-
-
-.controls {
-
-  text-align: center;
-
-  margin: 15px;
-
-}
-
-
-.save-btn {
-
-  background: var(--green);
-
-  color: #052e16;
-
-  border: 0;
-
-  border-radius: 8px;
-
-  padding: 13px 24px;
-
-  font-weight: bold;
-
-  cursor: pointer;
-
-  font-size: 16px;
-
-}
-
-
-.save-btn:hover {
-
-  opacity: .9;
-
-}
-
-
-.autosave-status {
-
-  text-align: center;
-
-  margin: 12px auto;
-
-  min-height: 20px;
-
-  color: var(--muted);
-
-  font-size: 13px;
-
-  font-weight: bold;
-
-}
-
-
-.autosave-status.saving {
-
-  color: var(--gold);
-
-}
-
-
-.autosave-status.saved {
-
-  color: var(--green);
-
-}
-
-
-.autosave-status.error {
-
-  color: var(--red);
-
-}
-
-
-.debug {
-
-  margin-top: 15px;
-
-  background: #111827;
-
-  border: 1px solid var(--line);
-
-  padding: 12px;
-
-  border-radius: 8px;
-
-  color: var(--muted);
-
-  white-space: pre-wrap;
-
-  display: none;
-
-}
-
-
-.certification-panel {
-
-  margin-top: 15px;
-
-  background: #111827;
-
-  border: 1px solid var(--line);
-
-  border-radius: 10px;
-
-  padding: 14px 16px;
-
-  display: flex;
-
-  justify-content: center;
-
-  gap: 28px;
-
-  flex-wrap: wrap;
-
-  align-items: center;
-
-}
-
-
-.certification-label {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 9px;
-
-  color: var(--text);
-
-  font-weight: bold;
-
-  cursor: pointer;
-
-  user-select: none;
-
-}
-
-
-.certification-label input {
-
-  width: 20px;
-
-  height: 20px;
-
-  accent-color: var(--green);
-
-  cursor: pointer;
-
-}
-
-
-.certification-label input:disabled {
-
-  cursor: not-allowed;
-
-  opacity: .75;
-
-}
-
-
-.certification-status {
-
-  width: 100%;
-
-  text-align: center;
-
-  font-size: 13px;
-
-  font-weight: bold;
-
-  color: var(--muted);
-
-}
-
-
-.certification-status.locked {
-
-  color: var(--green);
-
-}
-
-
-.match.scorecard-locked .scorecard-wrap {
-
-  position: relative;
-
-}
-
-
-.match.scorecard-locked .scorecard-wrap::after {
-
-  content:
-    "SCORECARD CERTIFIED — LOCKED";
-
-  position: absolute;
-
-  inset: 0;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  background: rgba(11,18,32,.18);
-
-  color: #166534;
-
-  font-size: 18px;
-
-  font-weight: 900;
-
-  pointer-events: none;
-
-}
-
-
-.match.scorecard-locked input.score-input {
-
-  background: #f3f4f6;
-
-  color: #4b5563;
-
-  cursor: not-allowed;
-
-}
-
-
-.tee-yardage-row td {
-
-  background: #f3f4f6;
-
-  color: #374151;
-
-  font-size: 11px;
-
-  font-weight: 700;
-
-}
-
-
-.tee-yardage-label {
-
-  text-align: left;
-
-  white-space: nowrap;
-
-}
-
-
-.hole-handicap-row td {
-
-  background: #e5e7eb;
-
-  color: #111827;
-
-  font-size: 11px;
-
-  font-weight: 800;
-
-}
-
-
-.points-breakdown {
-
-  margin-top: 8px;
-
-  color: var(--muted);
-
-  font-size: 11px;
-
-  line-height: 1.4;
-
-}
-
-
-@media (max-width: 900px) {
-
-  .match-results {
-
-    grid-template-columns: repeat(2, 1fr);
-
-  }
-
-  h1 {
-
-    font-size: 22px;
-
-  }
-
-}
-
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Scottsdale 26 Live Scorecard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const TEE_YARDAGES = {
+      "Dinosaur Mountain": {
+        "black": [305,188,495,452,223,435,419,191,535,152,517,427,420,201,365,510,148,339],
+        "blue":  [309,175,477,417,199,409,365,155,512,160,463,385,383,182,357,463,138,322]
+      },
+
+      "We-Ko-Pa Cholla": {
+        "purple": [332,574,164,419,190,371,323,587,429,538,208,361,395,159,299,433,551,407],
+        "white":  [312,530,150,389,155,322,265,558,384,471,187,334,347,151,272,374,528,385]
+      },
+
+      "We-Ko-Pa Saguaro": {
+        "purple": [443,299,383,609,159,406,305,498,130,322,194,461,457,527,233,315,372,490],
+        "white":  [426,288,362,595,146,380,290,482,121,306,176,423,209,513,209,290,358,470]
+      }
+    };
+
+    const SUPABASE_URL =
+      "https://ljgedmrpyuseamwmndwu.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_09A0o2ImL-FLS8AiunnNTw_iWP1tG8L";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+  </script>
+
+  <style>
+
+    .live-scoreboard-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 12px 24px;
+      background: #fbbf24;
+      color: #172033;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      border: 2px solid #fbbf24;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+    }
+
+    .live-scoreboard-btn:hover {
+      background: #fff;
+      color: #172033;
+      transform: translateY(-2px);
+    }
+
+    :root {
+      --bg: #0b1220;
+      --panel: #172033;
+      --card: #243247;
+      --line: #40516a;
+      --text: #f8fafc;
+      --muted: #a9b6c8;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --gold: #fbbf24;
+      --green: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      text-align: center;
+      padding: 22px 15px;
+      background: #111827;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: var(--gold);
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px;
+      flex-wrap: wrap;
+    }
+
+    .nav a,
+    .round-btn {
+      text-decoration: none;
+      border: 0;
+      cursor: pointer;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .round-btn.active {
+      background: var(--gold);
+      color: #111827;
+    }
+
+    .match-heading-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .match-clear-btn {
+      border: 1px solid #ef4444;
+      background: #7f1d1d;
+      color: #fff;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .container {
+      width: min(1800px, 98%);
+      margin: auto;
+      padding-bottom: 40px;
+    }
+
+    .status {
+      text-align: center;
+      padding: 10px;
+      margin: 10px auto;
+      border-radius: 8px;
+      max-width: 900px;
+      display: none;
+    }
+
+    .status.error {
+      display: block;
+      background: #7f1d1d;
+      border: 1px solid #ef4444;
+    }
+
+    .status.success {
+      display: block;
+      background: #14532d;
+      border: 1px solid #22c55e;
+    }
+
+    .status.loading {
+      display: block;
+      background: #1e3a8a;
+      border: 1px solid #3b82f6;
+    }
+
+    .course-info {
+      text-align: center;
+      margin: 15px 0;
+      color: var(--muted);
+    }
+
+    .match {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 22px;
+      overflow-x: auto;
+    }
+
+    .match-header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .match-header h2 {
+      margin: 0;
+      color: var(--gold);
+    }
+
+    .vs {
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .scorecard-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: collapse;
+      background: white;
+      color: #111827;
+    }
+
+    th,
+    td {
+      border: 1px solid #777;
+      text-align: center;
+      padding: 6px;
+      min-width: 48px;
+    }
+
+    th {
+      background: #6b4f0d;
+      color: white;
+      font-weight: bold;
+    }
+
+    .name-cell {
+      text-align: left;
+      font-weight: bold;
+      min-width: 160px;
+      padding-left: 10px;
+    }
+
+    .team-ryan {
+      background: #fee2e2;
+    }
+
+    .team-clayton {
+      background: #dbeafe;
+    }
+
+    .par-row td,
+    .par-row .name-cell {
+      background: #d6c4a4;
+      font-weight: bold;
+    }
+
+    .tee-yardage-row td {
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tee-yardage-label {
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .hole-handicap-row td {
+      background: #e5e7eb;
+      color: #111827;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    input.score-input {
+      width: 44px;
+      text-align: center;
+      border: 0;
+      background: transparent;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    input.score-input:focus {
+      outline: 2px solid var(--gold);
+      background: #fffbea;
+    }
+
+    .total-cell {
+      font-weight: bold;
+      background: #f3f4f6;
+    }
+
+    .score-cell {
+      position: relative;
+    }
+
+    .stroke-dot {
+      position: absolute;
+      top: 4px;
+      right: 5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 1px solid #8a5b00;
+      box-shadow: 0 0 4px rgba(251,191,36,.85);
+      pointer-events: none;
+    }
+
+    .match-results {
+      margin-top: 15px;
+      background: var(--card);
+      border-radius: 10px;
+      padding: 15px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    .result-box {
+      background: #111827;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .result-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .result-value {
+      color: var(--gold);
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .autosave-status {
+      text-align: center;
+      margin: 12px auto;
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .autosave-status.saving {
+      color: var(--gold);
+    }
+
+    .autosave-status.saved {
+      color: var(--green);
+    }
+
+    .autosave-status.error {
+      color: var(--red);
+    }
+
+    .certification-panel {
+      margin-top: 15px;
+      background: #111827;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .certification-label {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--text);
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .certification-label input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    .certification-status {
+      width: 100%;
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--muted);
+    }
+
+    .certification-status.locked {
+      color: var(--green);
+    }
+
+    .match.scorecard-locked .scorecard-wrap {
+      position: relative;
+    }
+
+    .match.scorecard-locked .scorecard-wrap::after {
+      content: "SCORECARD CERTIFIED — LOCKED";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(11, 18, 32, .18);
+      color: #166534;
+      font-size: 18px;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .match.scorecard-locked input.score-input {
+      background: #f3f4f6;
+      color: #4b5563;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 900px) {
+      .match-results {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+
+  </style>
 </head>
-
 
 <body>
 
-
 <header>
-
   <h1>SCOTTSDALE 26 CHAMPIONSHIP</h1>
 
   <div class="subtitle">
     LIVE SCORECARD
   </div>
 
-  <a
-    href="scoreboard.html"
-    class="live-scoreboard-btn"
-  >
+  <a href="scoreboard.html" class="live-scoreboard-btn">
     🏆 OPEN LIVE SCOREBOARD
   </a>
-
 </header>
-
 
 <div class="nav">
 
-  <a href="index.html">
-    Home
-  </a>
+  <a href="index.html">Home</a>
 
-  <button
-    class="round-btn active"
-    onclick="setRound(1)"
-  >
+  <button class="round-btn active"
+          onclick="setRound(1)">
     Round 1
   </button>
 
-  <button
-    class="round-btn"
-    onclick="setRound(2)"
-  >
+  <button class="round-btn"
+          onclick="setRound(2)">
     Round 2
   </button>
 
-  <button
-    class="round-btn"
-    onclick="setRound(3)"
-  >
+  <button class="round-btn"
+          onclick="setRound(3)">
     Round 3
   </button>
 
-  <button
-    class="round-btn"
-    onclick="setRound(4)"
-  >
+  <button class="round-btn"
+          onclick="setRound(4)">
     Round 4
   </button>
 
-  <button
-    class="round-btn"
-    onclick="setRound(5)"
-  >
+  <button class="round-btn"
+          onclick="setRound(5)">
     Round 5
   </button>
 
 </div>
 
-
-<div
-  id="status"
-  class="status"
-></div>
-
+<div id="status" class="status"></div>
 
 <div class="container">
 
-  <div
-    id="courseInfo"
-    class="course-info"
-  ></div>
+  <div id="courseInfo"
+       class="course-info">
+  </div>
 
-  <div
-    id="scorecards"
-  ></div>
+  <div id="scorecards"></div>
 
-  <div
-    id="autosave-status"
-    class="autosave-status"
-  ></div>
-
-  <div
-    id="debug"
-    class="debug"
-  ></div>
+  <div id="autosave-status"
+       class="autosave-status">
+  </div>
 
 </div>
 
-
 <script>
 
-
-/*
-=====================================================
-SCOTTSDALE 26 PLAYERS
-=====================================================
-*/
+/* =====================================================
+   PLAYERS
+   ===================================================== */
 
 const players = {
 
@@ -1103,15 +571,12 @@ const players = {
     handicap: 15.9,
     team: "Ryan"
   }
-
 };
 
 
-/*
-=====================================================
-ROUND PAIRINGS
-=====================================================
-*/
+/* =====================================================
+   LIVE PAIRINGS
+   ===================================================== */
 
 let pairings = {
   1: [],
@@ -1122,72 +587,61 @@ let pairings = {
 };
 
 
-/*
-=====================================================
-COURSE DATA
-=====================================================
-*/
-
+/* =====================================================
+   COURSE DATA
+   ===================================================== */
 
 const dinosaurMountain = {
 
-  name:
-    "Dinosaur Mountain • Black / Blue Tees",
+  name: "Dinosaur Mountain • Black Tees",
 
   pars: [
-    4, 3, 5, 4, 3, 4, 4, 3, 5,
-    3, 5, 4, 4, 3, 4, 5, 3, 4
+    4, 3, 5, 4, 3, 5, 4, 3, 5,
+    3, 5, 4, 5, 3, 4, 5, 3, 4
   ],
 
   handicap: [
-    15, 11, 1, 3, 13, 9, 7, 17, 5,
-    18, 10, 4, 2, 6, 14, 8, 16, 12
+    5, 15, 3, 1, 9, 11, 7, 13, 17,
+    16, 18, 12, 2, 6, 4, 14, 8, 10
   ]
-
 };
 
 
 const weKoPaCholla = {
 
-  name:
-    "We-Ko-Pa Cholla • Purple / White Tees",
+  name: "We-Ko-Pa Cholla • Purple Tees",
 
   pars: [
-    4, 5, 3, 4, 3, 4, 4, 5, 4,
-    5, 3, 4, 4, 3, 4, 4, 5, 4
+    4, 5, 3, 4, 3, 4, 4, 3, 5,
+    4, 5, 3, 4, 4, 3, 5, 4, 4
   ],
 
   handicap: [
     13, 3, 17, 9, 15, 7, 11, 1, 5,
     4, 16, 10, 12, 18, 14, 6, 2, 8
   ]
-
 };
 
 
 const weKoPaSaguaro = {
 
-  name:
-    "We-Ko-Pa Saguaro • Purple / White Tees",
+  name: "We-Ko-Pa Saguaro • Purple Tees",
 
   pars: [
-    4, 4, 4, 5, 3, 4, 4, 5, 3,
-    4, 3, 4, 4, 5, 3, 4, 4, 4
+    4, 4, 5, 4, 3, 4, 4, 3, 5,
+    4, 5, 3, 4, 4, 3, 5, 4, 4
   ],
 
   handicap: [
     5, 11, 9, 1, 15, 7, 13, 3, 17,
     14, 18, 6, 8, 2, 16, 12, 10, 4
   ]
-
 };
 
 
-/*
-=====================================================
-APP STATE
-=====================================================
-*/
+/* =====================================================
+   APP STATE
+   ===================================================== */
 
 let currentRound = 1;
 
@@ -1196,93 +650,27 @@ let scores = {};
 let certifications = {};
 
 
-/*
-=====================================================
-GET COURSE
-=====================================================
-*/
+/* =====================================================
+   COURSE SELECTION
+   ===================================================== */
 
 function getCourse(round) {
 
   if (round === 1) {
-
     return dinosaurMountain;
-
   }
 
   if (round === 2 || round === 5) {
-
     return weKoPaCholla;
-
   }
 
   return weKoPaSaguaro;
-
 }
 
 
-/*
-=====================================================
-TEE ASSIGNMENT
-=====================================================
-*/
-
-function getPlayerTee(playerName, course) {
-
-  const specialPlayers =
-    playerName === "Ryan D" ||
-    playerName === "Brad";
-
-
-  if (course === dinosaurMountain) {
-
-    return specialPlayers
-      ? "blue"
-      : "black";
-
-  }
-
-
-  if (
-    course === weKoPaCholla ||
-    course === weKoPaSaguaro
-  ) {
-
-    return specialPlayers
-      ? "white"
-      : "purple";
-
-  }
-
-
-  return null;
-
-}
-
-
-function getPlayerTeeDisplay(
-  playerName,
-  course
-) {
-
-  const tee =
-    getPlayerTee(
-      playerName,
-      course
-    );
-
-  if (!tee) return "";
-
-  return tee.toUpperCase() + " TEES";
-
-}
-
-
-/*
-=====================================================
-SCORE KEY
-=====================================================
-*/
+/* =====================================================
+   SCORE KEY
+   ===================================================== */
 
 function getScoreKey(
   round,
@@ -1292,15 +680,12 @@ function getScoreKey(
 ) {
 
   return `${round}_${match}_${player}_${hole}`;
-
 }
 
 
-/*
-=====================================================
-STATUS
-=====================================================
-*/
+/* =====================================================
+   STATUS
+   ===================================================== */
 
 function showStatus(
   message,
@@ -1315,7 +700,6 @@ function showStatus(
 
   status.textContent =
     message;
-
 }
 
 
@@ -1324,20 +708,17 @@ function clearStatus() {
   const status =
     document.getElementById("status");
 
-  status.style.display =
-    "none";
+  status.className =
+    "status";
 
   status.textContent =
     "";
-
 }
 
 
-/*
-=====================================================
-DATABASE TEST
-=====================================================
-*/
+/* =====================================================
+   DATABASE TEST
+   ===================================================== */
 
 async function testDatabase() {
 
@@ -1348,22 +729,13 @@ async function testDatabase() {
 
   try {
 
-    const {
-      data,
-      error
-    } =
+    const { data, error } =
       await supabaseClient
         .from("scores")
         .select("*")
         .limit(1);
 
-
     if (error) {
-
-      console.error(
-        "SUPABASE ERROR:",
-        error
-      );
 
       showStatus(
         "SUPABASE ERROR: " +
@@ -1374,9 +746,7 @@ async function testDatabase() {
       );
 
       return false;
-
     }
-
 
     showStatus(
       "Connected to Supabase successfully.",
@@ -1385,17 +755,12 @@ async function testDatabase() {
 
     setTimeout(
       clearStatus,
-      2500
+      2000
     );
 
     return true;
 
   } catch (error) {
-
-    console.error(
-      "DATABASE CONNECTION EXCEPTION:",
-      error
-    );
 
     showStatus(
       "DATABASE CONNECTION ERROR: " +
@@ -1404,17 +769,13 @@ async function testDatabase() {
     );
 
     return false;
-
   }
-
 }
 
 
-/*
-=====================================================
-LOAD PAIRINGS
-=====================================================
-*/
+/* =====================================================
+   LOAD PAIRINGS
+   ===================================================== */
 
 async function loadPairings() {
 
@@ -1438,7 +799,6 @@ async function loadPairings() {
           }
         );
 
-
     if (pairingError)
       throw pairingError;
 
@@ -1450,7 +810,6 @@ async function loadPairings() {
       await supabaseClient
         .from("pairing_players")
         .select("*");
-
 
     if (playerError)
       throw playerError;
@@ -1475,8 +834,8 @@ async function loadPairings() {
           rows
             .filter(
               row =>
-                String(row.side).toUpperCase()
-                === "B"
+                String(row.side)
+                  .toUpperCase() === "B"
             )
             .map(
               row => row.player_name
@@ -1488,8 +847,8 @@ async function loadPairings() {
           rows
             .filter(
               row =>
-                String(row.side).toUpperCase()
-                === "A"
+                String(row.side)
+                  .toUpperCase() === "A"
             )
             .map(
               row => row.player_name
@@ -1505,29 +864,24 @@ async function loadPairings() {
           loaded.push({
 
             pairingNumber:
-              Number(
-                pairing.pairing_number
-              ),
+              Number(pairing.pairing_number),
 
             ryan,
 
             clayton
 
           });
-
         }
-
       }
     );
 
 
     pairings[currentRound] =
       loaded.sort(
-        (a,b) =>
+        (a, b) =>
           a.pairingNumber -
           b.pairingNumber
       );
-
 
   } catch (error) {
 
@@ -1543,17 +897,13 @@ async function loadPairings() {
       error.message,
       "error"
     );
-
   }
-
 }
 
 
-/*
-=====================================================
-LOAD SCORES
-=====================================================
-*/
+/* =====================================================
+   LOAD SCORES
+   ===================================================== */
 
 async function loadScores() {
 
@@ -1571,22 +921,8 @@ async function loadScores() {
           currentRound
         );
 
-
-    if (error) {
-
-      console.error(error);
-
-      showStatus(
-        "LOAD ERROR: " +
-        error.message +
-        " | Code: " +
-        (error.code || "none"),
-        "error"
-      );
-
-      return;
-
-    }
+    if (error)
+      throw error;
 
 
     scores = {};
@@ -1603,385 +939,30 @@ async function loadScores() {
             row.hole_number
           );
 
-
         scores[key] =
           row.gross_score;
-
       }
     );
 
-
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "LOAD SCORES ERROR:",
+      error
+    );
 
     showStatus(
-      "LOAD EXCEPTION: " +
+      "LOAD ERROR: " +
       error.message,
       "error"
     );
-
   }
-
 }
 
 
-/*
-=====================================================
-HANDICAP / TEE RATINGS
-=====================================================
-*/
-
-function getTeeRating(
-  playerName,
-  course
-) {
-
-  const tee =
-    getPlayerTee(
-      playerName,
-      course
-    );
-
-
-  if (
-    course === dinosaurMountain
-  ) {
-
-    if (tee === "blue") {
-
-      return {
-        courseRating: 67.5,
-        slopeRating: 125,
-        par: 70
-      };
-
-    }
-
-
-    return {
-
-      courseRating: 70.1,
-      slopeRating: 137,
-      par: 70
-
-    };
-
-  }
-
-
-  if (
-    course === weKoPaCholla
-  ) {
-
-    if (tee === "white") {
-
-      return {
-
-        courseRating: 68.6,
-        slopeRating: 122,
-        par: 72
-
-      };
-
-    }
-
-
-    return {
-
-      courseRating: 71.7,
-      slopeRating: 135,
-      par: 72
-
-    };
-
-  }
-
-
-  if (
-    course === weKoPaSaguaro
-  ) {
-
-    if (tee === "white") {
-
-      return {
-
-        courseRating: 68.8,
-        slopeRating: 125,
-        par: 71
-
-      };
-
-    }
-
-
-    return {
-
-      courseRating: 70.2,
-      slopeRating: 132,
-      par: 71
-
-    };
-
-  }
-
-
-  return null;
-
-}
-
-
-function getPlayerCourseHandicap(
-  playerName,
-  course
-) {
-
-  const handicapIndex =
-    Number(
-      players[playerName]?.handicap || 0
-    );
-
-
-  const rating =
-    getTeeRating(
-      playerName,
-      course
-    );
-
-
-  if (!rating)
-    return 0;
-
-
-  const courseHandicap =
-
-    handicapIndex *
-    (
-      rating.slopeRating / 113
-    )
-
-    +
-
-    (
-      rating.courseRating -
-      rating.par
-    );
-
-
-  /*
-  Scottsdale 26 allowance:
-  85% of Course Handicap,
-  rounded to nearest whole number.
-  */
-
-  return Math.round(
-    courseHandicap * 0.85
-  );
-
-}
-
-
-/*
-=====================================================
-MATCH PLAYING HANDICAPS
-=====================================================
-*/
-
-function getMatchPlayingHandicaps(
-  match,
-  course
-) {
-
-  const allPlayers = [
-
-    ...match.ryan,
-
-    ...match.clayton
-
-  ];
-
-
-  const courseHandicaps =
-    allPlayers.map(
-      playerName => ({
-
-        playerName,
-
-        playingHandicap:
-          getPlayerCourseHandicap(
-            playerName,
-            course
-          )
-
-      })
-    );
-
-
-  const lowest =
-    Math.min(
-      ...courseHandicaps.map(
-        p => p.playingHandicap
-      )
-    );
-
-
-  return Object.fromEntries(
-
-    courseHandicaps.map(
-      p => [
-
-        p.playerName,
-
-        Math.max(
-          0,
-          p.playingHandicap -
-          lowest
-        )
-
-      ]
-    )
-
-  );
-
-}
-
-
-/*
-=====================================================
-STROKES ON HOLE
-=====================================================
-*/
-
-function getsStrokesOnHole(
-  playerName,
-  holeIndex,
-  course,
-  matchPlayingHandicaps = null
-) {
-
-  const playingHandicap =
-    matchPlayingHandicaps
-
-      ? Number(
-          matchPlayingHandicaps[
-            playerName
-          ] || 0
-        )
-
-      : getPlayerCourseHandicap(
-          playerName,
-          course
-        );
-
-
-  const holeRank =
-    Number(
-      course.handicap[
-        holeIndex
-      ]
-    );
-
-
-  let strokes = 0;
-
-
-  if (
-    playingHandicap >=
-    holeRank
-  ) {
-
-    strokes++;
-
-  }
-
-
-  if (
-    playingHandicap > 18 &&
-    playingHandicap - 18 >=
-    holeRank
-  ) {
-
-    strokes++;
-
-  }
-
-
-  return strokes;
-
-}
-
-
-function getsStrokeDot(
-  playerName,
-  holeIndex,
-  course,
-  matchPlayingHandicaps = null
-) {
-
-  return getsStrokesOnHole(
-
-    playerName,
-
-    holeIndex,
-
-    course,
-
-    matchPlayingHandicaps
-
-  ) > 0;
-
-}
-
-
-/*
-=====================================================
-NET SCORE
-=====================================================
-*/
-
-function calculateNetScore(
-  playerName,
-  grossScore,
-  holeIndex,
-  course,
-  matchPlayingHandicaps = null
-) {
-
-  if (
-    grossScore === "" ||
-    grossScore === null ||
-    grossScore === undefined
-  ) {
-
-    return "";
-
-  }
-
-
-  return Number(grossScore)
-
-    -
-
-    getsStrokesOnHole(
-
-      playerName,
-
-      holeIndex,
-
-      course,
-
-      matchPlayingHandicaps
-
-    );
-
-}
-
-
-/*
-=====================================================
-CERTIFICATION
-=====================================================
-*/
+/* =====================================================
+   CERTIFICATION
+   ===================================================== */
 
 function getCertificationKey(
   round,
@@ -1989,7 +970,6 @@ function getCertificationKey(
 ) {
 
   return `${round}_${matchNumber}`;
-
 }
 
 
@@ -2005,22 +985,17 @@ function isScorecardLocked(
       )
     ];
 
-
   return Boolean(
-
-    certification?.marker_certified &&
-
-    certification?.opponent_certified
-
+    certification &&
+    certification.marker_certified &&
+    certification.opponent_certified
   );
-
 }
 
 
 async function loadCertifications() {
 
   certifications = {};
-
 
   try {
 
@@ -2035,7 +1010,6 @@ async function loadCertifications() {
           "round_number",
           currentRound
         );
-
 
     if (error)
       throw error;
@@ -2062,10 +1036,8 @@ async function loadCertifications() {
             )
 
         };
-
       }
     );
-
 
   } catch (error) {
 
@@ -2079,9 +1051,7 @@ async function loadCertifications() {
       error.message,
       "error"
     );
-
   }
-
 }
 
 
@@ -2101,12 +1071,9 @@ async function updateCertification(
   const current =
     certifications[key] || {
 
-      marker_certified:
-        false,
+      marker_certified: false,
 
-      opponent_certified:
-        false
-
+      opponent_certified: false
     };
 
 
@@ -2120,9 +1087,7 @@ async function updateCertification(
 
   const matchElement =
     [
-      ...document.querySelectorAll(
-        ".match"
-      )
+      ...document.querySelectorAll(".match")
     ].find(
       el =>
         el.dataset.matchNumber ===
@@ -2136,48 +1101,39 @@ async function updateCertification(
       matchElement,
       matchNumber
     );
-
   }
 
 
   try {
 
-    const {
-      error
-    } =
+    const { error } =
       await supabaseClient
         .from(
           "scorecard_certifications"
         )
-        .upsert(
+        .upsert({
 
-          {
+          round_number:
+            Number(currentRound),
 
-            round_number:
-              Number(currentRound),
+          match_number:
+            Number(matchNumber),
 
-            match_number:
-              Number(matchNumber),
+          marker_certified:
+            current.marker_certified,
 
-            marker_certified:
-              current.marker_certified,
+          opponent_certified:
+            current.opponent_certified,
 
-            opponent_certified:
-              current.opponent_certified,
+          updated_at:
+            new Date().toISOString()
 
-            updated_at:
-              new Date().toISOString()
+        }, {
 
-          },
+          onConflict:
+            "round_number,match_number"
 
-          {
-
-            onConflict:
-              "round_number,match_number"
-
-          }
-
-        );
+        });
 
 
     if (error)
@@ -2198,9 +1154,7 @@ async function updateCertification(
       isScorecardLocked(
         matchNumber
       )
-
         ? "Scorecard certified and locked ✓"
-
         : "Certification updated ✓";
 
 
@@ -2217,7 +1171,6 @@ async function updateCertification(
       1800
     );
 
-
   } catch (error) {
 
     console.error(
@@ -2230,9 +1183,7 @@ async function updateCertification(
       error.message,
       "error"
     );
-
   }
-
 }
 
 
@@ -2259,10 +1210,7 @@ function applyCertificationState(
     )
     .forEach(
       input => {
-
-        input.disabled =
-          locked;
-
+        input.disabled = locked;
       }
     );
 
@@ -2285,16 +1233,15 @@ function applyCertificationState(
         currentRound,
         matchNumber
       )
-    ];
+    ] || {};
 
 
   if (markerBox) {
 
     markerBox.checked =
       Boolean(
-        certification?.marker_certified
+        certification.marker_certified
       );
-
   }
 
 
@@ -2302,9 +1249,8 @@ function applyCertificationState(
 
     opponentBox.checked =
       Boolean(
-        certification?.opponent_certified
+        certification.opponent_certified
       );
-
   }
 
 
@@ -2318,26 +1264,327 @@ function applyCertificationState(
 
     status.textContent =
       locked
-
         ? "✓ Both certifications complete — scorecard is LOCKED"
-
         : "Both certifications are required to lock this scorecard.";
 
     status.classList.toggle(
       "locked",
       locked
     );
-
   }
-
 }
 
 
-/*
-=====================================================
-RENDER SCORECARDS
-=====================================================
-*/
+/* =====================================================
+   HANDICAPS
+   ===================================================== */
+
+function getPlayerCourseHandicap(
+  playerName,
+  course
+) {
+
+  const handicapIndex =
+    Number(
+      players[playerName]?.handicap || 0
+    );
+
+
+  const isSpecialTee =
+    playerName === "Ryan D" ||
+    playerName === "Brad";
+
+
+  let courseRating;
+  let slopeRating;
+  let par;
+
+
+  if (
+    course === dinosaurMountain
+  ) {
+
+    par = 70;
+
+
+    if (isSpecialTee) {
+
+      // Ryan D and Brad = BLUE
+
+      courseRating = 67.5;
+      slopeRating = 125;
+
+    } else {
+
+      // Everyone else = BLACK
+
+      courseRating = 70.0;
+      slopeRating = 130;
+    }
+
+
+  } else if (
+    course === weKoPaCholla
+  ) {
+
+    par = 72;
+
+
+    if (isSpecialTee) {
+
+      // Ryan D and Brad = WHITE
+
+      courseRating = 68.6;
+      slopeRating = 122;
+
+    } else {
+
+      // Everyone else = PURPLE
+
+      courseRating = 71.7;
+      slopeRating = 135;
+    }
+
+
+  } else if (
+    course === weKoPaSaguaro
+  ) {
+
+    par = 71;
+
+
+    if (isSpecialTee) {
+
+      // Ryan D and Brad = WHITE
+
+      courseRating = 68.8;
+      slopeRating = 125;
+
+    } else {
+
+      // Everyone else = PURPLE
+
+      courseRating = 70.2;
+      slopeRating = 132;
+    }
+
+  } else {
+
+    return 0;
+  }
+
+
+  const courseHandicap =
+    handicapIndex *
+      (slopeRating / 113) +
+    (courseRating - par);
+
+
+  return Math.round(
+    courseHandicap * 0.85
+  );
+}
+
+
+function getMatchPlayingHandicaps(
+  match,
+  course
+) {
+
+  const allPlayers = [
+    ...match.ryan,
+    ...match.clayton
+  ];
+
+
+  const courseHandicaps =
+    allPlayers.map(
+      playerName => ({
+
+        playerName,
+
+        playingHandicap:
+          getPlayerCourseHandicap(
+            playerName,
+            course
+          )
+
+      })
+    );
+
+
+  const lowest =
+    Math.min(
+      ...courseHandicaps.map(
+        p =>
+          p.playingHandicap
+      )
+    );
+
+
+  return Object.fromEntries(
+    courseHandicaps.map(
+      p => [
+
+        p.playerName,
+
+        Math.max(
+          0,
+          p.playingHandicap -
+            lowest
+        )
+
+      ]
+    )
+  );
+}
+
+
+function getsStrokesOnHole(
+  playerName,
+  holeIndex,
+  course,
+  matchPlayingHandicaps = null
+) {
+
+  const playingHandicap =
+    matchPlayingHandicaps
+      ? Number(
+          matchPlayingHandicaps[
+            playerName
+          ] || 0
+        )
+      : getPlayerCourseHandicap(
+          playerName,
+          course
+        );
+
+
+  const holeRank =
+    Number(
+      course.handicap[
+        holeIndex
+      ]
+    );
+
+
+  let strokes = 0;
+
+
+  if (
+    playingHandicap >=
+    holeRank
+  ) {
+
+    strokes++;
+  }
+
+
+  if (
+    playingHandicap > 18 &&
+    playingHandicap - 18 >=
+      holeRank
+  ) {
+
+    strokes++;
+  }
+
+
+  return strokes;
+}
+
+
+function getsStrokeDot(
+  playerName,
+  holeIndex,
+  course,
+  matchPlayingHandicaps = null
+) {
+
+  return (
+    getsStrokesOnHole(
+      playerName,
+      holeIndex,
+      course,
+      matchPlayingHandicaps
+    ) > 0
+  );
+}
+
+
+function calculateNetScore(
+  playerName,
+  grossScore,
+  holeIndex,
+  course,
+  matchPlayingHandicaps = null
+) {
+
+  if (
+    grossScore === "" ||
+    grossScore === null ||
+    grossScore === undefined
+  ) {
+
+    return "";
+  }
+
+
+  return Number(grossScore) -
+    getsStrokesOnHole(
+      playerName,
+      holeIndex,
+      course,
+      matchPlayingHandicaps
+    );
+}
+
+
+/* =====================================================
+   TEE DISPLAY
+   ===================================================== */
+
+function getPlayerTee(
+  playerName,
+  course
+) {
+
+  const special =
+    playerName === "Ryan D" ||
+    playerName === "Brad";
+
+
+  if (
+    course === dinosaurMountain
+  ) {
+
+    return special
+      ? "blue"
+      : "black";
+  }
+
+
+  return special
+    ? "white"
+    : "purple";
+}
+
+
+function getTeeLabel(
+  playerName,
+  course
+) {
+
+  return getPlayerTee(
+    playerName,
+    course
+  ).toUpperCase();
+}
+
+
+/* =====================================================
+   SCORECARD RENDER
+   ===================================================== */
 
 function renderScorecards() {
 
@@ -2350,10 +1597,7 @@ function renderScorecards() {
   document.getElementById(
     "courseInfo"
   ).innerHTML =
-
-    `<strong>ROUND ${currentRound}</strong>
-     <br>
-     ${course.name}`;
+    `<strong>ROUND ${currentRound}</strong><br>${course.name}`;
 
 
   const container =
@@ -2376,27 +1620,19 @@ function renderScorecards() {
     roundPairings.length === 0
   ) {
 
-    container.innerHTML =
-
-      `<div class="match">
-
+    container.innerHTML = `
+      <div class="match">
         <div class="match-header">
-
-          <h2>
-            WAITING FOR PAIRINGS
-          </h2>
-
+          <h2>WAITING FOR PAIRINGS</h2>
           <div class="vs">
-            No completed pairings have
-            been selected for this round yet.
+            No completed pairings have been selected
+            for this round yet.
           </div>
-
         </div>
-
-      </div>`;
+      </div>
+    `;
 
     return;
-
   }
 
 
@@ -2408,11 +1644,8 @@ function renderScorecards() {
 
 
       const allPlayers = [
-
         ...match.ryan,
-
         ...match.clayton
-
       ];
 
 
@@ -2450,11 +1683,7 @@ function renderScorecards() {
             <button
               type="button"
               class="match-clear-btn"
-              onclick="
-                clearMatchScores(
-                  ${matchNumber}
-                )
-              "
+              onclick="clearMatchScores(${matchNumber})"
             >
               Clear Scores
             </button>
@@ -2462,17 +1691,12 @@ function renderScorecards() {
           </div>
 
           <div class="vs">
-
             ${match.ryan.join(" & ")}
-
             VS
-
             ${match.clayton.join(" & ")}
-
           </div>
 
         </div>
-
 
         <div class="scorecard-wrap">
 
@@ -2482,10 +1706,7 @@ function renderScorecards() {
 
               <tr>
 
-                <th>
-                  PLAYER
-                </th>
-
+                <th>PLAYER</th>
       `;
 
 
@@ -2495,14 +1716,13 @@ function renderScorecards() {
         hole++
       ) {
 
-        html +=
-          `<th>${hole}</th>`;
-
+        html += `
+          <th>${hole}</th>
+        `;
       }
 
 
       html += `
-
                 <th>OUT</th>
                 <th>IN</th>
                 <th>TOTAL</th>
@@ -2512,24 +1732,18 @@ function renderScorecards() {
             </thead>
 
             <tbody>
-
       `;
 
 
-      /*
-      TEE YARDAGES
-      */
+      /* =================================================
+         YARDAGES
+         ================================================= */
 
       const teeCourseKey =
-
         course === dinosaurMountain
-
           ? "Dinosaur Mountain"
-
           : course === weKoPaCholla
-
             ? "We-Ko-Pa Cholla"
-
             : "We-Ko-Pa Saguaro";
 
 
@@ -2548,29 +1762,22 @@ function renderScorecards() {
 
             <tr class="tee-yardage-row">
 
-              <td
-                class="name-cell
-                       tee-yardage-label"
-              >
+              <td class="name-cell tee-yardage-label">
                 ${tee.toUpperCase()}
               </td>
 
-              ${distances
-                .map(
-                  d =>
-                    `<td>${d}</td>`
-                )
-                .join("")
-              }
+              ${distances.map(
+                d =>
+                  `<td>${d}</td>`
+              ).join("")}
 
               <td>
                 ${distances
-                  .slice(0,9)
+                  .slice(0, 9)
                   .reduce(
                     (a,b) => a+b,
                     0
-                  )
-                }
+                  )}
               </td>
 
               <td>
@@ -2579,8 +1786,7 @@ function renderScorecards() {
                   .reduce(
                     (a,b) => a+b,
                     0
-                  )
-                }
+                  )}
               </td>
 
               <td>
@@ -2591,48 +1797,39 @@ function renderScorecards() {
               </td>
 
             </tr>
-
           `;
-
         }
       );
 
 
-      /*
-      HOLE HANDICAP ROW
-      */
+      /* =================================================
+         HOLE HANDICAPS
+         ================================================= */
 
       html += `
 
         <tr class="hole-handicap-row">
 
-          <td
-            class="name-cell
-                   tee-yardage-label"
-          >
+          <td class="name-cell tee-yardage-label">
             HCP
           </td>
 
-          ${course.handicap
-            .map(
-              h =>
-                `<td>${h}</td>`
-            )
-            .join("")
-          }
+          ${course.handicap.map(
+            h =>
+              `<td>${h}</td>`
+          ).join("")}
 
           <td></td>
           <td></td>
           <td></td>
 
         </tr>
-
       `;
 
 
-      /*
-      PAR ROW
-      */
+      /* =================================================
+         PAR
+         ================================================= */
 
       html += `
 
@@ -2641,7 +1838,6 @@ function renderScorecards() {
           <td class="name-cell">
             PAR
           </td>
-
       `;
 
 
@@ -2652,13 +1848,10 @@ function renderScorecards() {
       ) {
 
         html += `
-
           <td>
             ${course.pars[holeIndex]}
           </td>
-
         `;
-
       }
 
 
@@ -2682,35 +1875,25 @@ function renderScorecards() {
 
       html += `
 
-          <td>
-            ${frontPar}
-          </td>
-
-          <td>
-            ${backPar}
-          </td>
-
-          <td>
-            ${frontPar + backPar}
-          </td>
+          <td>${frontPar}</td>
+          <td>${backPar}</td>
+          <td>${frontPar + backPar}</td>
 
         </tr>
-
       `;
 
 
-      /*
-      PLAYER ROWS
-      */
+      /* =================================================
+         PLAYERS
+         ================================================= */
 
       allPlayers.forEach(
         playerName => {
 
           const teamClass =
-            players[playerName].team === "Ryan"
-
+            players[playerName].team ===
+            "Ryan"
               ? "team-ryan"
-
               : "team-clayton";
 
 
@@ -2721,42 +1904,26 @@ function renderScorecards() {
             );
 
 
-          const teeLabel =
-            getPlayerTeeDisplay(
-              playerName,
-              course
-            );
-
-
           html += `
 
-            <tr
-              class="${teamClass}"
-            >
+            <tr class="${teamClass}">
 
-              <td
-                class="name-cell"
-              >
+              <td class="name-cell">
 
                 ${playerName}
 
                 <br>
 
                 <small>
-
                   PLAYING HCP
                   ${getPlayerCourseHandicap(
                     playerName,
                     course
                   )}
-
-                  •
-                  ${teeLabel}
-
+                  • ${tee.toUpperCase()} TEES
                 </small>
 
               </td>
-
           `;
 
 
@@ -2780,10 +1947,11 @@ function renderScorecards() {
 
 
             const value =
-              scores[key] ?? "";
+              scores[key] ??
+              "";
 
 
-            const hasStroke =
+            const stroke =
               getsStrokeDot(
                 playerName,
                 holeIndex,
@@ -2794,30 +1962,23 @@ function renderScorecards() {
 
             html += `
 
-              <td
-                class="score-cell"
-              >
+              <td class="score-cell">
 
                 ${
-                  hasStroke
-
-                    ? '<span class="stroke-dot" title="Stroke on this hole"></span>'
-
-                    : ''
+                  stroke
+                    ? `<span
+                         class="stroke-dot"
+                         title="Stroke on this hole">
+                       </span>`
+                    : ""
                 }
 
                 <input
-
                   class="score-input"
-
                   type="number"
-
                   min="1"
-
                   max="15"
-
                   value="${value}"
-
                   onchange="
                     updateScore(
                       '${playerName}',
@@ -2826,55 +1987,38 @@ function renderScorecards() {
                       this.value
                     )
                   "
-
                 >
 
               </td>
-
             `;
-
           }
 
 
           html += `
 
               <td
-                id="
-                  front-${currentRound}-
-                  ${matchNumber}-
-                  ${playerName}
-                "
+                id="front-${currentRound}-${matchNumber}-${playerName}"
                 class="total-cell"
               >
                 -
               </td>
 
               <td
-                id="
-                  back-${currentRound}-
-                  ${matchNumber}-
-                  ${playerName}
-                "
+                id="back-${currentRound}-${matchNumber}-${playerName}"
                 class="total-cell"
               >
                 -
               </td>
 
               <td
-                id="
-                  total-${currentRound}-
-                  ${matchNumber}-
-                  ${playerName}
-                "
+                id="total-${currentRound}-${matchNumber}-${playerName}"
                 class="total-cell"
               >
                 -
               </td>
 
             </tr>
-
           `;
-
         }
       );
 
@@ -2890,7 +2034,6 @@ function renderScorecards() {
 
         <div class="match-results">
 
-
           <div class="result-box">
 
             <div class="result-label">
@@ -2899,11 +2042,9 @@ function renderScorecards() {
 
             <div
               class="result-value"
-              id="
-                front-result-${matchNumber}
-              "
+              id="front-result-${matchNumber}"
             >
-              IN PROGRESS
+              -
             </div>
 
           </div>
@@ -2917,11 +2058,9 @@ function renderScorecards() {
 
             <div
               class="result-value"
-              id="
-                back-result-${matchNumber}
-              "
+              id="back-result-${matchNumber}"
             >
-              IN PROGRESS
+              -
             </div>
 
           </div>
@@ -2935,11 +2074,9 @@ function renderScorecards() {
 
             <div
               class="result-value"
-              id="
-                stroke-result-${matchNumber}
-              "
+              id="stroke-result-${matchNumber}"
             >
-              IN PROGRESS
+              -
             </div>
 
           </div>
@@ -2953,9 +2090,7 @@ function renderScorecards() {
 
             <div
               class="result-value"
-              id="
-                bonus-result-${matchNumber}
-              "
+              id="bonus-result-${matchNumber}"
             >
               RYAN +0 • CLAYTON +0
             </div>
@@ -2971,33 +2106,19 @@ function renderScorecards() {
 
             <div
               class="result-value"
-              id="
-                points-result-${matchNumber}
-              "
+              id="points-result-${matchNumber}"
             >
-              RYAN 0 • CLAYTON 0
-            </div>
-
-            <div
-              class="points-breakdown"
-              id="
-                points-breakdown-${matchNumber}
-              "
-            >
-              Hole points + section bonuses
+              -
             </div>
 
           </div>
-
 
         </div>
 
 
         <div class="certification-panel">
 
-          <label
-            class="certification-label"
-          >
+          <label class="certification-label">
 
             <input
               type="checkbox"
@@ -3016,9 +2137,7 @@ function renderScorecards() {
           </label>
 
 
-          <label
-            class="certification-label"
-          >
+          <label class="certification-label">
 
             <input
               type="checkbox"
@@ -3037,15 +2156,12 @@ function renderScorecards() {
           </label>
 
 
-          <div
-            class="certification-status"
-          >
+          <div class="certification-status">
             Both certifications are required
             to lock this scorecard.
           </div>
 
         </div>
-
       `;
 
 
@@ -3072,18 +2188,14 @@ function renderScorecards() {
         div,
         matchNumber
       );
-
     }
   );
-
 }
 
 
-/*
-=====================================================
-UPDATE SCORE
-=====================================================
-*/
+/* =====================================================
+   UPDATE SCORE
+   ===================================================== */
 
 async function updateScore(
   playerName,
@@ -3106,7 +2218,6 @@ async function updateScore(
     renderScorecards();
 
     return;
-
   }
 
 
@@ -3125,15 +2236,10 @@ async function updateScore(
 
 
     await deleteScoreAutomatically(
-
       currentRound,
-
       matchNumber,
-
       playerName,
-
       hole
-
     );
 
 
@@ -3148,7 +2254,6 @@ async function updateScore(
 
 
     return;
-
   }
 
 
@@ -3167,27 +2272,18 @@ async function updateScore(
 
 
   await saveScoreAutomatically(
-
     currentRound,
-
     matchNumber,
-
     playerName,
-
     hole,
-
     Number(value)
-
   );
-
 }
 
 
-/*
-=====================================================
-PLAYER TOTALS
-=====================================================
-*/
+/* =====================================================
+   PLAYER TOTALS
+   ===================================================== */
 
 function updatePlayerTotals(
   matchNumber
@@ -3195,9 +2291,7 @@ function updatePlayerTotals(
 
   const match =
     (
-      pairings[
-        currentRound
-      ] || []
+      pairings[currentRound] || []
     ).find(
       m =>
         Number(
@@ -3212,11 +2306,8 @@ function updatePlayerTotals(
 
 
   const allPlayers = [
-
     ...match.ryan,
-
     ...match.clayton
-
   ];
 
 
@@ -3224,11 +2315,9 @@ function updatePlayerTotals(
     playerName => {
 
       let front = 0;
-
       let back = 0;
 
       let frontComplete = true;
-
       let backComplete = true;
 
 
@@ -3260,18 +2349,14 @@ function updatePlayerTotals(
             hole <= 9
           ) {
 
-            frontComplete =
-              false;
+            frontComplete = false;
 
           } else {
 
-            backComplete =
-              false;
-
+            backComplete = false;
           }
 
           continue;
-
         }
 
 
@@ -3286,9 +2371,7 @@ function updatePlayerTotals(
 
           back +=
             Number(value);
-
         }
-
       }
 
 
@@ -3310,81 +2393,61 @@ function updatePlayerTotals(
         );
 
 
-      if (frontElement) {
-
+      if (frontElement)
         frontElement.textContent =
           frontComplete
             ? front
             : "-";
 
-      }
 
-
-      if (backElement) {
-
+      if (backElement)
         backElement.textContent =
           backComplete
             ? back
             : "-";
 
-      }
 
-
-      if (totalElement) {
-
+      if (totalElement)
         totalElement.textContent =
-
           frontComplete &&
           backComplete
-
             ? front + back
-
             : "-";
-
-      }
-
     }
   );
-
 }
 
 
-/*
-=====================================================
-MATCH CALCULATION
-=====================================================
+/* =====================================================
+   MATCH CALCULATIONS
+   =====================================================
 
-SCORING:
+   EACH HOLE:
+   - Winner gets 1 point
+   - Winning team may receive:
+       Birdie = +1
+       Eagle  = +2
+   - Only ONE birdie/eagle bonus per team per hole
+   - Bonus only applies if that team wins the hole
+   - Two teammates with birdies do NOT receive +2
+   - Birdie/eagle bonuses are gross-score based
 
-1 point = every hole won
+   FRONT:
+   Winner = 3
 
-+3 = win Front 9
+   BACK:
+   Winner = 3
 
-+3 = win Back 9
+   18:
+   Winner = 5
 
-+5 = win overall 18-hole net stroke play
+   ROUND 5:
+   Entire finalized total x 1.5
 
-+1 = gross birdie if team wins hole
-
-+2 = gross eagle if team wins hole
-
-No birdie/eagle bonus on tied or lost holes.
-
-Round 5 = 1.5x all points.
-
-IMPORTANT:
-
-Front bonus is NOT awarded until all 9
-front holes are complete.
-
-Back bonus is NOT awarded until all 18
-holes are complete.
-
-18-hole bonus is NOT awarded until all
-18 holes are complete.
-
-=====================================================
-*/
+   IMPORTANT:
+   Points are not finalized until
+   all 4 players have scores for all 18 holes.
+   ===================================================== */
 
 function calculateMatch(
   matchNumber
@@ -3392,9 +2455,7 @@ function calculateMatch(
 
   const match =
     (
-      pairings[
-        currentRound
-      ] || []
+      pairings[currentRound] || []
     ).find(
       m =>
         Number(
@@ -3421,61 +2482,32 @@ function calculateMatch(
     );
 
 
-  /*
-  HOLE POINTS
-  */
+  let completedHoles = 0;
+
 
   let ryanHolePoints = 0;
-
   let claytonHolePoints = 0;
 
 
-  /*
-  BIRDIE / EAGLE
-  */
-
   let ryanBirdieBonus = 0;
-
   let claytonBirdieBonus = 0;
 
 
-  /*
-  SECTION HOLE WINS
-  */
+  let frontRyan = 0;
+  let frontClayton = 0;
+
+
+  let backRyan = 0;
+  let backClayton = 0;
+
 
   let frontRyanHoles = 0;
-
   let frontClaytonHoles = 0;
 
-  let backRyanHoles = 0;
 
+  let backRyanHoles = 0;
   let backClaytonHoles = 0;
 
-
-  /*
-  NET TOTALS
-
-  These are sums of each team's
-  best-ball net score by hole.
-  */
-
-  let ryan18 = 0;
-
-  let clayton18 = 0;
-
-
-  /*
-  COMPLETION FLAGS
-  */
-
-  let frontComplete = true;
-
-  let backComplete = true;
-
-
-  /*
-  PROCESS ALL 18 HOLES
-  */
 
   for (
     let holeIndex = 0;
@@ -3486,10 +2518,6 @@ function calculateMatch(
     const hole =
       holeIndex + 1;
 
-
-    /*
-    RYAN SCORES
-    */
 
     const ryanScores =
       match.ryan.map(
@@ -3514,42 +2542,28 @@ function calculateMatch(
           ) {
 
             return null;
-
           }
 
 
           return {
 
-            player:
-              playerName,
+            player: playerName,
 
             gross:
               Number(gross),
 
             net:
               calculateNetScore(
-
                 playerName,
-
                 gross,
-
                 holeIndex,
-
                 course,
-
                 matchPlayingHandicaps
-
               )
-
           };
-
         }
       );
 
-
-    /*
-    CLAYTON SCORES
-    */
 
     const claytonScores =
       match.clayton.map(
@@ -3574,81 +2588,51 @@ function calculateMatch(
           ) {
 
             return null;
-
           }
 
 
           return {
 
-            player:
-              playerName,
+            player: playerName,
 
             gross:
               Number(gross),
 
             net:
               calculateNetScore(
-
                 playerName,
-
                 gross,
-
                 holeIndex,
-
                 course,
-
                 matchPlayingHandicaps
-
               )
-
           };
-
         }
       );
 
 
-    const holeComplete =
-
-      !ryanScores.includes(null) &&
-
-      !claytonScores.includes(null);
-
-
     /*
-    IF HOLE IS INCOMPLETE:
-
-    Do NOT award hole points.
-
-    Do NOT award birdie/eagle.
-
-    Mark the appropriate section incomplete.
+       A hole counts as completed ONLY when
+       all four golfers have entered a score.
     */
 
-    if (!holeComplete) {
-
-      if (hole <= 9) {
-
-        frontComplete = false;
-
-      } else {
-
-        backComplete = false;
-
-      }
+    if (
+      ryanScores.includes(null) ||
+      claytonScores.includes(null)
+    ) {
 
       continue;
-
     }
 
 
-    /*
-    BEST BALL NET
-    */
+    completedHoles++;
+
 
     const ryanBest =
       Math.min(
         ...ryanScores.map(
-          score => score.net
+          score =>
+            score.net
         )
       );
 
@@ -3656,26 +2640,35 @@ function calculateMatch(
     const claytonBest =
       Math.min(
         ...claytonScores.map(
-          score => score.net
+          score =>
+            score.net
         )
       );
 
 
-    /*
-    ADD BEST BALL TO 18-HOLE TOTAL
-    */
+    if (
+      hole <= 9
+    ) {
 
-    ryan18 +=
-      ryanBest;
+      frontRyan +=
+        ryanBest;
+
+      frontClayton +=
+        claytonBest;
+
+    } else {
+
+      backRyan +=
+        ryanBest;
+
+      backClayton +=
+        claytonBest;
+    }
 
 
-    clayton18 +=
-      claytonBest;
-
-
-    /*
-    DETERMINE HOLE WINNER
-    */
+    /* ===============================================
+       RYAN WINS HOLE
+       =============================================== */
 
     if (
       ryanBest <
@@ -3694,18 +2687,21 @@ function calculateMatch(
       } else {
 
         backRyanHoles++;
-
       }
 
 
       /*
-      GROSS BIRDIE / EAGLE
+         TEAM bonus.
 
-      Only the highest bonus from the
-      team counts on a hole.
+         Math.max() is critical:
+         If both Ryan players birdie,
+         bonus is still ONLY +1.
 
-      Eagle = +2
-      Birdie = +1
+         If both eagle,
+         bonus is still ONLY +2.
+
+         If one eagle and one birdie,
+         team receives +2.
       */
 
       const ryanHoleBonus =
@@ -3719,9 +2715,7 @@ function calculateMatch(
               ) {
 
                 return 2;
-
               }
-
 
               if (
                 score.gross ===
@@ -3729,12 +2723,9 @@ function calculateMatch(
               ) {
 
                 return 1;
-
               }
 
-
               return 0;
-
             }
           )
         );
@@ -3743,6 +2734,10 @@ function calculateMatch(
       ryanBirdieBonus +=
         ryanHoleBonus;
 
+
+    /*
+       CLAYTON WINS HOLE
+       =============================================== */
 
     } else if (
       claytonBest <
@@ -3761,7 +2756,6 @@ function calculateMatch(
       } else {
 
         backClaytonHoles++;
-
       }
 
 
@@ -3776,9 +2770,7 @@ function calculateMatch(
               ) {
 
                 return 2;
-
               }
-
 
               if (
                 score.gross ===
@@ -3786,12 +2778,9 @@ function calculateMatch(
               ) {
 
                 return 1;
-
               }
 
-
               return 0;
-
             }
           )
         );
@@ -3799,68 +2788,24 @@ function calculateMatch(
 
       claytonBirdieBonus +=
         claytonHoleBonus;
-
     }
-
   }
 
 
-  /*
-  =====================================================
-  SECTION COMPLETION
-  =====================================================
-  */
-
-  const frontRyanComplete =
-    frontComplete;
-
-
-  const backRyanComplete =
-    backComplete;
-
-
-  const eighteenComplete =
-    frontComplete &&
-    backComplete;
-
-
-  /*
-  =====================================================
-  BASE POINTS
-  =====================================================
-  */
-
-  let ryanPoints =
-    ryanHolePoints;
-
-
-  let claytonPoints =
-    claytonHolePoints;
-
-
-  /*
-  =====================================================
-  FRONT 9 BONUS
-
-  ONLY after all nine holes are complete.
-  =====================================================
-  */
+  /* =================================================
+     FRONT 9
+     ================================================= */
 
   let frontResult =
-    frontRyanComplete
-
-      ? "TIED"
-
-      : "IN PROGRESS";
+    "IN PROGRESS";
 
 
-  let ryanFrontBonus = 0;
-
-  let claytonFrontBonus = 0;
+  let ryanPoints = 0;
+  let claytonPoints = 0;
 
 
   if (
-    frontRyanComplete
+    completedHoles >= 9
   ) {
 
     if (
@@ -3871,11 +2816,10 @@ function calculateMatch(
       frontResult =
         "RYAN WINS FRONT";
 
-      ryanFrontBonus = 3;
+      ryanPoints += 3;
 
-    }
 
-    else if (
+    } else if (
       frontClaytonHoles >
       frontRyanHoles
     ) {
@@ -3883,43 +2827,30 @@ function calculateMatch(
       frontResult =
         "CLAYTON WINS FRONT";
 
-      claytonFrontBonus = 3;
+      claytonPoints += 3;
 
-    }
 
-    else {
+    } else {
 
       frontResult =
         "FRONT TIED";
-
     }
 
   }
 
 
-  /*
-  =====================================================
-  BACK 9 BONUS
-
-  ONLY after all 18 holes are complete.
-  =====================================================
-  */
+  /* =================================================
+     BACK 9
+     ================================================= */
 
   let backResult =
-    backRyanComplete
-
-      ? "TIED"
-
-      : "IN PROGRESS";
-
-
-  let ryanBackBonus = 0;
-
-  let claytonBackBonus = 0;
+    completedHoles < 18
+      ? "IN PROGRESS"
+      : "BACK TIED";
 
 
   if (
-    backRyanComplete
+    completedHoles >= 18
   ) {
 
     if (
@@ -3930,11 +2861,10 @@ function calculateMatch(
       backResult =
         "RYAN WINS BACK";
 
-      ryanBackBonus = 3;
+      ryanPoints += 3;
 
-    }
 
-    else if (
+    } else if (
       backClaytonHoles >
       backRyanHoles
     ) {
@@ -3942,39 +2872,31 @@ function calculateMatch(
       backResult =
         "CLAYTON WINS BACK";
 
-      claytonBackBonus = 3;
-
+      claytonPoints += 3;
     }
-
-    else {
-
-      backResult =
-        "BACK TIED";
-
-    }
-
   }
 
 
-  /*
-  =====================================================
-  18-HOLE STROKE BONUS
+  /* =================================================
+     18-HOLE STROKE
+     ================================================= */
 
-  ONLY after all 18 holes are complete.
-  =====================================================
-  */
+  const ryan18 =
+    frontRyan +
+    backRyan;
+
+
+  const clayton18 =
+    frontClayton +
+    backClayton;
+
 
   let strokeResult =
     "IN PROGRESS";
 
 
-  let ryanStrokeBonus = 0;
-
-  let claytonStrokeBonus = 0;
-
-
   if (
-    eighteenComplete
+    completedHoles === 18
   ) {
 
     if (
@@ -3985,11 +2907,10 @@ function calculateMatch(
       strokeResult =
         "RYAN WINS 18";
 
-      ryanStrokeBonus = 5;
+      ryanPoints += 5;
 
-    }
 
-    else if (
+    } else if (
       clayton18 <
       ryan18
     ) {
@@ -3997,74 +2918,66 @@ function calculateMatch(
       strokeResult =
         "CLAYTON WINS 18";
 
-      claytonStrokeBonus = 5;
+      claytonPoints += 5;
 
-    }
 
-    else {
+    } else {
 
       strokeResult =
         "18 TIED";
-
     }
-
   }
 
 
-  /*
-  =====================================================
-  ADD SECTION BONUSES
-  =====================================================
-  */
+  /* =================================================
+     ADD HOLE + BONUS POINTS
+     ================================================= */
 
   ryanPoints +=
-    ryanFrontBonus +
-    ryanBackBonus +
-    ryanStrokeBonus;
-
-
-  claytonPoints +=
-    claytonFrontBonus +
-    claytonBackBonus +
-    claytonStrokeBonus;
-
-
-  /*
-  =====================================================
-  ADD BIRDIE / EAGLE BONUSES
-  =====================================================
-  */
-
-  ryanPoints +=
+    ryanHolePoints +
     ryanBirdieBonus;
 
 
   claytonPoints +=
+    claytonHolePoints +
     claytonBirdieBonus;
 
 
   /*
-  =====================================================
-  ROUND 5 = 1.5X
-  =====================================================
+     DO NOT SHOW FINAL POINTS UNTIL
+     ALL 18 HOLES ARE COMPLETE.
   */
 
   if (
+    completedHoles < 18
+  ) {
+
+    ryanPoints = null;
+    claytonPoints = null;
+
+  } else if (
     currentRound === 5
   ) {
+
+    /*
+       FINAL ROUND 1.5x.
+
+       This multiplies the entire
+       finalized match point total ONCE.
+
+       Birdie/eagle bonuses are not
+       separately multiplied.
+    */
 
     ryanPoints *= 1.5;
 
     claytonPoints *= 1.5;
-
   }
 
 
-  /*
-  =====================================================
-  DISPLAY FRONT
-  =====================================================
-  */
+  /* =================================================
+     DISPLAY
+     ================================================= */
 
   const frontResultElement =
     document.getElementById(
@@ -4072,49 +2985,11 @@ function calculateMatch(
     );
 
 
-  if (frontResultElement) {
-
-    frontResultElement.textContent =
-
-      frontRyanComplete
-
-        ? `${frontResult} • ${frontRyanHoles}-${frontClaytonHoles}`
-
-        : `IN PROGRESS • ${frontRyanHoles}-${frontClaytonHoles}`;
-
-  }
-
-
-  /*
-  =====================================================
-  DISPLAY BACK
-  =====================================================
-  */
-
   const backResultElement =
     document.getElementById(
       `back-result-${matchNumber}`
     );
 
-
-  if (backResultElement) {
-
-    backResultElement.textContent =
-
-      backRyanComplete
-
-        ? `${backResult} • ${backRyanHoles}-${backClaytonHoles}`
-
-        : `IN PROGRESS • ${backRyanHoles}-${backClaytonHoles}`;
-
-  }
-
-
-  /*
-  =====================================================
-  DISPLAY 18-HOLE
-  =====================================================
-  */
 
   const strokeResultElement =
     document.getElementById(
@@ -4122,46 +2997,11 @@ function calculateMatch(
     );
 
 
-  if (strokeResultElement) {
-
-    strokeResultElement.textContent =
-
-      eighteenComplete
-
-        ? `${strokeResult} • ${ryan18}-${clayton18}`
-
-        : `IN PROGRESS • ${ryan18 || "-"}-${clayton18 || "-"}`;
-
-  }
-
-
-  /*
-  =====================================================
-  DISPLAY BIRDIE / EAGLE
-  =====================================================
-  */
-
   const bonusResultElement =
     document.getElementById(
       `bonus-result-${matchNumber}`
     );
 
-
-  if (bonusResultElement) {
-
-    bonusResultElement.textContent =
-
-      `RYAN +${ryanBirdieBonus} • ` +
-      `CLAYTON +${claytonBirdieBonus}`;
-
-  }
-
-
-  /*
-  =====================================================
-  DISPLAY MATCH POINTS
-  =====================================================
-  */
 
   const pointsResultElement =
     document.getElementById(
@@ -4169,143 +3009,55 @@ function calculateMatch(
     );
 
 
+  if (frontResultElement) {
+
+    frontResultElement.textContent =
+      `${frontResult} • ${frontRyanHoles}-${frontClaytonHoles}`;
+  }
+
+
+  if (backResultElement) {
+
+    backResultElement.textContent =
+      `${backResult} • ${backRyanHoles}-${backClaytonHoles}`;
+  }
+
+
+  if (strokeResultElement) {
+
+    strokeResultElement.textContent =
+      completedHoles === 18
+        ? `${strokeResult} • ${ryan18}-${clayton18}`
+        : `${strokeResult} • ${completedHoles}/18`;
+  }
+
+
+  if (bonusResultElement) {
+
+    bonusResultElement.textContent =
+      `RYAN +${ryanBirdieBonus} • CLAYTON +${claytonBirdieBonus}`;
+  }
+
+
   if (pointsResultElement) {
 
     pointsResultElement.textContent =
-
-      `RYAN ${ryanPoints} • ` +
-      `CLAYTON ${claytonPoints}`;
-
+      completedHoles < 18
+        ? `IN PROGRESS • ${completedHoles}/18 HOLES`
+        : `RYAN ${ryanPoints} • CLAYTON ${claytonPoints}`;
   }
-
-
-  /*
-  =====================================================
-  POINT BREAKDOWN
-
-  This makes it obvious why the displayed
-  Match Points number is what it is.
-  =====================================================
-  */
-
-  const breakdownElement =
-    document.getElementById(
-      `points-breakdown-${matchNumber}`
-    );
-
-
-  if (breakdownElement) {
-
-    let ryanBreakdown =
-
-      `${ryanHolePoints} hole` +
-      `${ryanHolePoints === 1 ? "" : "s"}`;
-
-
-    let claytonBreakdown =
-
-      `${claytonHolePoints} hole` +
-      `${claytonHolePoints === 1 ? "" : "s"}`;
-
-
-    if (
-      frontRyanComplete
-    ) {
-
-      ryanBreakdown +=
-        ` + ${ryanFrontBonus} front`;
-
-      claytonBreakdown +=
-        ` + ${claytonFrontBonus} front`;
-
-    } else {
-
-      ryanBreakdown +=
-        ` + front pending`;
-
-      claytonBreakdown +=
-        ` + front pending`;
-
-    }
-
-
-    if (
-      backRyanComplete
-    ) {
-
-      ryanBreakdown +=
-        ` + ${ryanBackBonus} back`;
-
-      claytonBreakdown +=
-        ` + ${claytonBackBonus} back`;
-
-    } else {
-
-      ryanBreakdown +=
-        ` + back pending`;
-
-      claytonBreakdown +=
-        ` + back pending`;
-
-    }
-
-
-    if (
-      eighteenComplete
-    ) {
-
-      ryanBreakdown +=
-        ` + ${ryanStrokeBonus} 18`;
-
-      claytonBreakdown +=
-        ` + ${claytonStrokeBonus} 18`;
-
-    } else {
-
-      ryanBreakdown +=
-        ` + 18 pending`;
-
-      claytonBreakdown +=
-        ` + 18 pending`;
-
-    }
-
-
-    ryanBreakdown +=
-      ` + ${ryanBirdieBonus} bonus`;
-
-
-    claytonBreakdown +=
-      ` + ${claytonBirdieBonus} bonus`;
-
-
-    breakdownElement.innerHTML =
-
-      `RYAN: ${ryanBreakdown}<br>` +
-
-      `CLAYTON: ${claytonBreakdown}`;
-
-  }
-
 }
 
 
-/*
-=====================================================
-DELETE SINGLE SCORE
-=====================================================
-*/
+/* =====================================================
+   DELETE INDIVIDUAL SCORE
+   ===================================================== */
 
 async function deleteScoreAutomatically(
-
   roundNumber,
-
   matchNumber,
-
   playerName,
-
   holeNumber
-
 ) {
 
   const status =
@@ -4324,30 +3076,22 @@ async function deleteScoreAutomatically(
 
   try {
 
-    const {
-      error
-    } =
+    const { error } =
       await supabaseClient
-
         .from("scores")
-
         .delete()
-
         .eq(
           "round_number",
           Number(roundNumber)
         )
-
         .eq(
           "match_number",
           Number(matchNumber)
         )
-
         .eq(
           "player_name",
           playerName
         )
-
         .eq(
           "hole_number",
           Number(holeNumber)
@@ -4360,15 +3104,10 @@ async function deleteScoreAutomatically(
 
     const key =
       getScoreKey(
-
         roundNumber,
-
         matchNumber,
-
         playerName,
-
         holeNumber
-
       );
 
 
@@ -4412,17 +3151,13 @@ async function deleteScoreAutomatically(
     status.textContent =
       "CLEAR ERROR: " +
       error.message;
-
   }
-
 }
 
 
-/*
-=====================================================
-CLEAR ENTIRE MATCH
-=====================================================
-*/
+/* =====================================================
+   CLEAR ENTIRE MATCH
+   ===================================================== */
 
 async function clearMatchScores(
   matchNumber
@@ -4439,33 +3174,21 @@ async function clearMatchScores(
   ) {
 
     showStatus(
-
-      `Match ${numericMatch} is certified and locked. ` +
-      `Uncheck both certifications before clearing its scores.`,
-
+      `Match ${numericMatch} is certified and locked. Uncheck both certifications before clearing its scores.`,
       "error"
-
     );
 
     return;
-
   }
 
 
   if (
     !window.confirm(
-
-      `Clear ALL scores for Match ${numericMatch} ` +
-      `in Round ${currentRound}?\n\n` +
-
-      `This will permanently delete the saved scores ` +
-      `for this match from Supabase.`
-
+      `Clear ALL scores for Match ${numericMatch} in Round ${currentRound}?\n\nThis will permanently delete the saved scores for this match from Supabase.`
     )
   ) {
 
     return;
-
   }
 
 
@@ -4485,20 +3208,14 @@ async function clearMatchScores(
 
   try {
 
-    const {
-      error
-    } =
+    const { error } =
       await supabaseClient
-
         .from("scores")
-
         .delete()
-
         .eq(
           "round_number",
           Number(currentRound)
         )
-
         .eq(
           "match_number",
           numericMatch
@@ -4513,23 +3230,20 @@ async function clearMatchScores(
       `${currentRound}_${numericMatch}_`;
 
 
-    Object.keys(
-      scores
-    ).forEach(
-      key => {
+    Object.keys(scores)
+      .forEach(
+        key => {
 
-        if (
-          key.startsWith(
-            prefix
-          )
-        ) {
+          if (
+            key.startsWith(
+              prefix
+            )
+          ) {
 
-          delete scores[key];
-
+            delete scores[key];
+          }
         }
-
-      }
-    );
+      );
 
 
     renderScorecards();
@@ -4558,30 +3272,20 @@ async function clearMatchScores(
     status.textContent =
       "CLEAR ERROR: " +
       error.message;
-
   }
-
 }
 
 
-/*
-=====================================================
-SAVE SINGLE SCORE
-=====================================================
-*/
+/* =====================================================
+   AUTOSAVE SCORE
+   ===================================================== */
 
 async function saveScoreAutomatically(
-
   roundNumber,
-
   matchNumber,
-
   playerName,
-
   holeNumber,
-
   grossScore
-
 ) {
 
   const status =
@@ -4600,42 +3304,32 @@ async function saveScoreAutomatically(
 
   try {
 
-    const {
-      error
-    } =
+    const { error } =
       await supabaseClient
-
         .from("scores")
+        .upsert({
 
-        .upsert(
+          round_number:
+            Number(roundNumber),
 
-          {
+          match_number:
+            Number(matchNumber),
 
-            round_number:
-              Number(roundNumber),
+          player_name:
+            playerName,
 
-            match_number:
-              Number(matchNumber),
+          hole_number:
+            Number(holeNumber),
 
-            player_name:
-              playerName,
+          gross_score:
+            Number(grossScore)
 
-            hole_number:
-              Number(holeNumber),
+        }, {
 
-            gross_score:
-              Number(grossScore)
+          onConflict:
+            "round_number,match_number,player_name,hole_number"
 
-          },
-
-          {
-
-            onConflict:
-              "round_number,match_number,player_name,hole_number"
-
-          }
-
-        );
+        });
 
 
     if (error)
@@ -4663,7 +3357,6 @@ async function saveScoreAutomatically(
 
           status.className =
             "autosave-status";
-
         }
 
       },
@@ -4686,181 +3379,13 @@ async function saveScoreAutomatically(
     status.textContent =
       "SAVE ERROR: " +
       error.message;
-
   }
-
 }
 
 
-/*
-=====================================================
-SAVE ALL SCORES
-=====================================================
-*/
-
-async function saveAllScores() {
-
-  showStatus(
-    "Saving scores...",
-    "loading"
-  );
-
-
-  const rows = [];
-
-
-  Object.keys(
-    scores
-  ).forEach(
-    key => {
-
-      const parts =
-        key.split("_");
-
-
-      const roundNumber =
-        parts[0];
-
-
-      const matchNumber =
-        parts[1];
-
-
-      const holeNumber =
-        parts[parts.length - 1];
-
-
-      const playerName =
-        parts
-          .slice(
-            2,
-            parts.length - 1
-          )
-          .join("_");
-
-
-      rows.push({
-
-        round_number:
-          Number(roundNumber),
-
-        match_number:
-          Number(matchNumber),
-
-        player_name:
-          playerName,
-
-        hole_number:
-          Number(holeNumber),
-
-        gross_score:
-          Number(
-            scores[key]
-          )
-
-      });
-
-    }
-  );
-
-
-  if (
-    rows.length === 0
-  ) {
-
-    showStatus(
-      "No scores to save.",
-      "error"
-    );
-
-    return;
-
-  }
-
-
-  try {
-
-    const {
-      error
-    } =
-      await supabaseClient
-
-        .from("scores")
-
-        .upsert(
-
-          rows,
-
-          {
-
-            onConflict:
-              "round_number,match_number,player_name,hole_number"
-
-          }
-
-        );
-
-
-    if (error) {
-
-      console.error(
-        "SAVE ERROR:",
-        error
-      );
-
-
-      showStatus(
-
-        "SAVE ERROR: " +
-        error.message +
-        " | Code: " +
-        (error.code || "none"),
-
-        "error"
-
-      );
-
-      return;
-
-    }
-
-
-    showStatus(
-      "Scores saved successfully!",
-      "success"
-    );
-
-
-    setTimeout(
-      clearStatus,
-      2500
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "SAVE EXCEPTION:",
-      error
-    );
-
-
-    showStatus(
-      "SAVE EXCEPTION: " +
-      error.message,
-      "error"
-    );
-
-  }
-
-}
-
-
-/*
-=====================================================
-ROUND CHANGE
-=====================================================
-*/
+/* =====================================================
+   ROUND CHANGE
+   ===================================================== */
 
 async function setRound(
   roundNumber
@@ -4890,9 +3415,7 @@ async function setRound(
           button.classList.add(
             "active"
           );
-
         }
-
       }
     );
 
@@ -4914,82 +3437,120 @@ async function setRound(
   renderScorecards();
 
   clearStatus();
-
 }
 
 
-/*
-=====================================================
-REALTIME
-=====================================================
-*/
+/* =====================================================
+   REALTIME
+   ===================================================== */
 
 function startRealtime() {
 
   supabaseClient
-
     .channel(
-      "scottsdale26-scorecard-pairings"
+      "scottsdale26-live"
     )
 
     .on(
-
       "postgres_changes",
-
       {
-
         event: "*",
-
         schema: "public",
-
         table: "pairings"
-
       },
-
       async () => {
 
         await loadPairings();
 
         renderScorecards();
-
       }
-
     )
 
     .on(
-
       "postgres_changes",
-
       {
-
         event: "*",
-
         schema: "public",
-
         table: "pairing_players"
-
       },
-
       async () => {
 
         await loadPairings();
 
         renderScorecards();
-
       }
+    )
 
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "scores"
+      },
+      async payload => {
+
+        const round =
+          Number(
+            payload.new?.round_number ??
+            payload.old?.round_number
+          );
+
+
+        if (
+          round !==
+          Number(currentRound)
+        ) {
+
+          return;
+        }
+
+
+        await loadScores();
+
+        renderScorecards();
+      }
+    )
+
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table:
+          "scorecard_certifications"
+      },
+      async payload => {
+
+        const round =
+          Number(
+            payload.new?.round_number ??
+            payload.old?.round_number
+          );
+
+
+        if (
+          round !==
+          Number(currentRound)
+        ) {
+
+          return;
+        }
+
+
+        await loadCertifications();
+
+        renderScorecards();
+      }
     )
 
     .subscribe();
-
 }
 
 
-/*
-=====================================================
-START APP
-=====================================================
-*/
+/* =====================================================
+   START APP
+   ===================================================== */
 
 async function startApp() {
 
@@ -5000,7 +3561,6 @@ async function startApp() {
   if (!connected) {
 
     return;
-
   }
 
 
@@ -5013,7 +3573,6 @@ async function startApp() {
   renderScorecards();
 
   startRealtime();
-
 }
 
 
@@ -5022,5 +3581,4 @@ startApp();
 </script>
 
 </body>
-
 </html>
