@@ -20,7 +20,9 @@
   --red:#ef4444;
 }
 
-*{box-sizing:border-box;}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -384,6 +386,7 @@ input.score-input:focus{
 }
 
 @media(max-width:900px){
+
   .match-results{
     grid-template-columns:repeat(2,1fr);
   }
@@ -417,7 +420,7 @@ input.score-input:focus{
     Home
   </a>
 
-  <button class="round-btn" onclick="setRound(1)">
+  <button class="round-btn active" onclick="setRound(1)">
     Round 1
   </button>
 
@@ -429,7 +432,7 @@ input.score-input:focus{
     Round 3
   </button>
 
-  <button class="round-btn active" onclick="setRound(4)">
+  <button class="round-btn" onclick="setRound(4)">
     Round 4
   </button>
 
@@ -594,6 +597,17 @@ const players = {
    COURSE DATA
    ========================================================= */
 
+/*
+   DINOSAUR MOUNTAIN
+
+   Everyone = BLACK
+
+   Ryan D = BLUE
+   Brad   = BLUE
+
+   Par = 70
+*/
+
 const dinosaurMountain = {
 
   name:
@@ -614,6 +628,17 @@ const dinosaurMountain = {
 };
 
 
+/*
+   WE-KO-PA CHOLLA
+
+   Everyone = PURPLE
+
+   Par = 71
+
+   Corrected from supplied scorecard.
+   Hole 2 = PAR 5.
+*/
+
 const weKoPaCholla = {
 
   name:
@@ -633,6 +658,16 @@ const weKoPaCholla = {
 
 };
 
+
+/*
+   WE-KO-PA SAGUARO
+
+   Everyone = PURPLE
+
+   Par = 71
+
+   Corrected from supplied scorecard.
+*/
 
 const weKoPaSaguaro = {
 
@@ -658,11 +693,7 @@ const weKoPaSaguaro = {
    APP STATE
    ========================================================= */
 
-/*
-   DEFAULT ROUND = 4
-*/
-
-let currentRound = 4;
+let currentRound = 1;
 
 let pairings = {
   1:[],
@@ -770,6 +801,16 @@ function clearStatus(){
    TEE ASSIGNMENTS
    ========================================================= */
 
+/*
+   THIS IS THE IMPORTANT DINOSAUR RULE:
+
+   Everyone plays BLACK.
+
+   ONLY Ryan D and Brad play BLUE.
+
+   Everyone at We-Ko-Pa plays PURPLE.
+*/
+
 function teeForPlayer(
   player,
   course
@@ -834,7 +875,15 @@ function getPlayerCourseHandicap(
   let slopeRating;
 
 
+  /*
+     DINOSAUR
+  */
+
   if(course === dinosaurMountain){
+
+    /*
+       Ryan D + Brad = BLUE
+    */
 
     if(
       teeForPlayer(
@@ -848,6 +897,10 @@ function getPlayerCourseHandicap(
 
     }
 
+    /*
+       Everyone else = BLACK
+    */
+
     else{
 
       courseRating = 70.1;
@@ -856,6 +909,11 @@ function getPlayerCourseHandicap(
     }
 
   }
+
+
+  /*
+     CHOLLA
+  */
 
   else if(
     course === weKoPaCholla
@@ -866,6 +924,11 @@ function getPlayerCourseHandicap(
 
   }
 
+
+  /*
+     SAGUARO
+  */
+
   else{
 
     courseRating = 70.2;
@@ -874,11 +937,20 @@ function getPlayerCourseHandicap(
   }
 
 
+  /*
+     WHS COURSE HANDICAP
+  */
+
   const courseHandicap =
     handicapIndex *
       (slopeRating / 113) +
     (courseRating - course.par);
 
+
+  /*
+     SCOTTSDALE 26
+     85% ALLOWANCE
+  */
 
   return Math.round(
     courseHandicap * 0.85
@@ -921,6 +993,13 @@ function getMatchPlayingHandicaps(
       )
     );
 
+
+  /*
+     Lowest handicap = ZERO.
+
+     Everyone else receives the
+     difference from the lowest.
+  */
 
   return Object.fromEntries(
     raw.map(
@@ -973,6 +1052,11 @@ function strokesOnHole(
 
   }
 
+
+  /*
+     Second stroke for handicaps
+     over 18.
+  */
 
   if(
     playingHandicap > 18 &&
@@ -1480,6 +1564,36 @@ function updatePlayerTotals(
    MATCH CALCULATION
    ========================================================= */
 
+/*
+   SCOTTSDALE 26 SCORING
+
+   Each hole won:
+      +1 point
+
+   Front 9:
+      +3 points
+
+   Back 9:
+      +3 points
+
+   Overall 18:
+      +5 points
+
+   Birdie:
+      +1
+
+   Eagle:
+      +2
+
+   Birdie/eagle bonus is ONLY awarded
+   when that team wins the hole.
+
+   Only one bonus per team per hole.
+
+   Round 5:
+      total points × 1.5
+*/
+
 function calculateMatch(
   matchNumber
 ){
@@ -1636,6 +1750,13 @@ function calculateMatch(
       );
 
 
+    /*
+       IMPORTANT:
+
+       If ANY golfer is missing the hole,
+       that hole is not counted yet.
+    */
+
     if(
       ryanScores.includes(null) ||
       claytonScores.includes(null)
@@ -1676,6 +1797,10 @@ function calculateMatch(
     ryan18 += ryanBest;
     clayton18 += claytonBest;
 
+
+    /*
+       RYAN WINS HOLE
+    */
 
     if(
       ryanBest <
@@ -1730,6 +1855,10 @@ function calculateMatch(
 
     }
 
+
+    /*
+       CLAYTON WINS HOLE
+    */
 
     else if(
       claytonBest <
@@ -1787,6 +1916,10 @@ function calculateMatch(
   }
 
 
+  /*
+     BASE POINTS
+  */
+
   let ryanPoints =
     ryanHolePoints +
     ryanBonus;
@@ -1795,6 +1928,10 @@ function calculateMatch(
     claytonHolePoints +
     claytonBonus;
 
+
+  /*
+     FRONT 9
+  */
 
   let frontText;
 
@@ -1842,6 +1979,10 @@ function calculateMatch(
   }
 
 
+  /*
+     BACK 9
+  */
+
   let backText;
 
 
@@ -1887,6 +2028,18 @@ function calculateMatch(
 
   }
 
+
+  /*
+     18-HOLE STROKE
+
+     IMPORTANT FIX:
+
+     This only says IN PROGRESS
+     when at least one hole is missing.
+
+     Once all 18 holes are complete,
+     it MUST show the result.
+  */
 
   let strokeText;
 
@@ -1934,6 +2087,10 @@ function calculateMatch(
   }
 
 
+  /*
+     ROUND 5 = 1.5X
+  */
+
   if(currentRound === 5){
 
     ryanPoints *= 1.5;
@@ -1942,6 +2099,10 @@ function calculateMatch(
 
   }
 
+
+  /*
+     UPDATE DISPLAY
+  */
 
   const setResult =
     (id,value) => {
@@ -1961,20 +2122,24 @@ function calculateMatch(
     frontText
   );
 
+
   setResult(
     `back-result-${matchNumber}`,
     backText
   );
+
 
   setResult(
     `stroke-result-${matchNumber}`,
     strokeText
   );
 
+
   setResult(
     `bonus-result-${matchNumber}`,
     `RYAN +${ryanBonus} • CLAYTON +${claytonBonus}`
   );
+
 
   setResult(
     `points-result-${matchNumber}`,
@@ -2065,7 +2230,9 @@ function applyCertificationState(
 
     status.textContent =
       locked
+
         ? "✓ Both certifications complete — scorecard is LOCKED"
+
         : "Both certifications are required to lock this scorecard.";
 
 
@@ -2190,12 +2357,17 @@ function renderScorecards(){
           </div>
 
           <div class="vs">
+
             ${match.ryan.join(" & ")}
+
             VS
+
             ${match.clayton.join(" & ")}
+
           </div>
 
         </div>
+
 
         <div class="scorecard-wrap">
 
@@ -2218,7 +2390,9 @@ function renderScorecards(){
       ){
 
         html += `
-          <th>${hole}</th>
+          <th>
+            ${hole}
+          </th>
         `;
 
       }
@@ -2226,9 +2400,17 @@ function renderScorecards(){
 
       html += `
 
-                <th>OUT</th>
-                <th>IN</th>
-                <th>TOTAL</th>
+                <th>
+                  OUT
+                </th>
+
+                <th>
+                  IN
+                </th>
+
+                <th>
+                  TOTAL
+                </th>
 
               </tr>
 
@@ -2239,16 +2421,26 @@ function renderScorecards(){
       `;
 
 
+      /*
+         TEE YARDAGE ROWS
+      */
+
       const courseKey =
         course === dinosaurMountain
+
           ? "Dinosaur Mountain"
+
           : course === weKoPaCholla
+
             ? "We-Ko-Pa Cholla"
+
             : "We-Ko-Pa Saguaro";
 
 
       const teeRows =
-        TEE_YARDAGES[courseKey];
+        TEE_YARDAGES[
+          courseKey
+        ];
 
 
       Object.entries(
@@ -2286,7 +2478,9 @@ function renderScorecards(){
             <tr class="tee-yardage-row">
 
               <td class="name-cell tee-yardage-label">
+
                 ${tee.toUpperCase()}
+
               </td>
 
               ${distances
@@ -2296,9 +2490,17 @@ function renderScorecards(){
                 )
                 .join("")}
 
-              <td>${front}</td>
-              <td>${back}</td>
-              <td>${total}</td>
+              <td>
+                ${front}
+              </td>
+
+              <td>
+                ${back}
+              </td>
+
+              <td>
+                ${total}
+              </td>
 
             </tr>
 
@@ -2307,6 +2509,10 @@ function renderScorecards(){
         }
       );
 
+
+      /*
+         HANDICAP ROW
+      */
 
       html += `
 
@@ -2331,6 +2537,10 @@ function renderScorecards(){
 
       `;
 
+
+      /*
+         PAR ROW
+      */
 
       const frontPar =
         course.pars
@@ -2365,14 +2575,26 @@ function renderScorecards(){
             )
             .join("")}
 
-          <td>${frontPar}</td>
-          <td>${backPar}</td>
-          <td>${course.par}</td>
+          <td>
+            ${frontPar}
+          </td>
+
+          <td>
+            ${backPar}
+          </td>
+
+          <td>
+            ${course.par}
+          </td>
 
         </tr>
 
       `;
 
+
+      /*
+         PLAYER ROWS
+      */
 
       allPlayers.forEach(
         player => {
@@ -2386,7 +2608,9 @@ function renderScorecards(){
 
           const teamClass =
             players[player].team === "Ryan"
+
               ? "team-ryan"
+
               : "team-clayton";
 
 
@@ -2459,16 +2683,24 @@ function renderScorecards(){
 
                 ${
                   hasStroke
+
                     ? '<span class="stroke-dot" title="Stroke on this hole"></span>'
+
                     : ""
                 }
 
                 <input
+
                   class="score-input"
+
                   type="number"
+
                   min="1"
+
                   max="15"
+
                   value="${value}"
+
                   onchange="
                     updateScore(
                       ${JSON.stringify(player)},
@@ -2477,6 +2709,7 @@ function renderScorecards(){
                       this.value
                     )
                   "
+
                 >
 
               </td>
@@ -2527,6 +2760,7 @@ function renderScorecards(){
 
 
         <div class="match-results">
+
 
           <div class="result-box">
 
@@ -2607,6 +2841,7 @@ function renderScorecards(){
 
           </div>
 
+
         </div>
 
 
@@ -2651,7 +2886,9 @@ function renderScorecards(){
 
 
           <div class="certification-status">
+
             Both certifications are required to lock this scorecard.
+
           </div>
 
         </div>
@@ -2866,7 +3103,10 @@ async function saveScore(
 
   catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     status.className =
       "autosave-status error";
@@ -2966,7 +3206,10 @@ async function deleteScore(
 
   catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     status.className =
       "autosave-status error";
@@ -3253,6 +3496,7 @@ async function setRound(
 
   renderScorecards();
 
+
   clearStatus();
 
 }
@@ -3281,13 +3525,28 @@ function startRealtime(){
         "scottsdale26-live-scorecard"
       )
 
+
+      /*
+         SCORES
+
+         This is what makes score changes
+         appear for everyone.
+      */
+
       .on(
+
         "postgres_changes",
+
         {
+
           event:"*",
+
           schema:"public",
+
           table:"scores"
+
         },
+
         async () => {
 
           await loadScores();
@@ -3295,15 +3554,28 @@ function startRealtime(){
           renderScorecards();
 
         }
+
       )
 
+
+      /*
+         PAIRINGS
+      */
+
       .on(
+
         "postgres_changes",
+
         {
+
           event:"*",
+
           schema:"public",
+
           table:"pairings"
+
         },
+
         async () => {
 
           await loadPairings();
@@ -3311,15 +3583,28 @@ function startRealtime(){
           renderScorecards();
 
         }
+
       )
 
+
+      /*
+         PAIRING PLAYERS
+      */
+
       .on(
+
         "postgres_changes",
+
         {
+
           event:"*",
+
           schema:"public",
+
           table:"pairing_players"
+
         },
+
         async () => {
 
           await loadPairings();
@@ -3327,15 +3612,28 @@ function startRealtime(){
           renderScorecards();
 
         }
+
       )
 
+
+      /*
+         CERTIFICATIONS
+      */
+
       .on(
+
         "postgres_changes",
+
         {
+
           event:"*",
+
           schema:"public",
+
           table:"scorecard_certifications"
+
         },
+
         async () => {
 
           await loadCertifications();
@@ -3343,7 +3641,9 @@ function startRealtime(){
           renderScorecards();
 
         }
+
       )
+
 
       .subscribe(
         status => {
@@ -3389,7 +3689,10 @@ async function startApp(){
 
   catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     showStatus(
       "STARTUP ERROR: " +
