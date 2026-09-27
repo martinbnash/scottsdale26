@@ -447,6 +447,7 @@ th{
   h1{
     font-size:22px;
   }
+
 }
 </style>
 </head>
@@ -472,25 +473,42 @@ th{
 
 <div class="nav">
 
-  <a href="index.html">Home</a>
+  <a href="index.html">
+    Home
+  </a>
 
-  <button class="round-btn" onclick="setRound(1)">
+  <button
+    class="round-btn"
+    onclick="setRound(1)"
+  >
     Round 1
   </button>
 
-  <button class="round-btn" onclick="setRound(2)">
+  <button
+    class="round-btn"
+    onclick="setRound(2)"
+  >
     Round 2
   </button>
 
-  <button class="round-btn" onclick="setRound(3)">
+  <button
+    class="round-btn"
+    onclick="setRound(3)"
+  >
     Round 3
   </button>
 
-  <button class="round-btn active" onclick="setRound(4)">
+  <button
+    class="round-btn active"
+    onclick="setRound(4)"
+  >
     Round 4
   </button>
 
-  <button class="round-btn" onclick="setRound(5)">
+  <button
+    class="round-btn"
+    onclick="setRound(5)"
+  >
     Round 5
   </button>
 
@@ -504,7 +522,10 @@ th{
 
   <div id="scorecards"></div>
 
-  <div id="autosave-status" class="autosave-status"></div>
+  <div
+    id="autosave-status"
+    class="autosave-status"
+  ></div>
 
 </div>
 
@@ -741,28 +762,17 @@ let certificationTableAvailable = false;
 
 let realtimeChannel = null;
 
-let backupSyncTimer = null;
-
-let syncing = false;
-
-let pendingSaves = 0;
+let loadingRound = false;
 
 
 /*
-   Tracks score cells that are currently being edited.
-   The sync process will NEVER rebuild the page while
-   a user is editing a score.
+   These track scores that WE are currently saving.
+
+   A realtime event caused by our own save should NOT
+   cause the entire scorecard to redraw.
 */
 
-const editingKeys = new Set();
-
-
-/*
-   Prevents remote sync from overwriting a local score
-   that has not finished saving yet.
-*/
-
-const pendingScoreKeys = new Set();
+const pendingSaves = new Set();
 
 
 /* =========================================================
@@ -801,15 +811,15 @@ function getScoreKey(
 
 
 /* =========================================================
-   SAFE PLAYER ID
+   CERT KEY
    ========================================================= */
 
-function safePlayerId(player){
+function certKey(
+  round,
+  match
+){
 
-  return player.replace(
-    /[^a-zA-Z0-9_-]/g,
-    "_"
-  );
+  return `${round}_${match}`;
 
 }
 
@@ -853,7 +863,9 @@ function clearStatus(){
    SYNC INDICATOR
    ========================================================= */
 
-function setSyncIndicator(online){
+function setSyncIndicator(
+  online
+){
 
   const element =
     document.getElementById(
@@ -873,32 +885,6 @@ function setSyncIndicator(online){
     online
       ? "var(--green)"
       : "var(--red)";
-
-}
-
-
-/* =========================================================
-   CHECK IF USER IS ACTIVELY EDITING
-   ========================================================= */
-
-function userIsEditing(){
-
-  const active =
-    document.activeElement;
-
-  if(
-    active &&
-    active.classList &&
-    active.classList.contains(
-      "score-input"
-    )
-  ){
-
-    return true;
-
-  }
-
-  return editingKeys.size > 0;
 
 }
 
@@ -1011,11 +997,6 @@ function getPlayerCourseHandicap(
     (courseRating - course.par);
 
 
-  /*
-     Scottsdale rule:
-     Apply 85% and round to nearest whole number.
-  */
-
   return Math.round(
     courseHandicap * 0.85
   );
@@ -1040,6 +1021,7 @@ function getMatchPlayingHandicaps(
   const raw =
     names.map(
       player => ({
+
         player,
 
         handicap:
@@ -1103,12 +1085,10 @@ function strokesOnHole(
       )
     );
 
-
   const holeRank =
     Number(
       course.handicap[holeIndex]
     );
-
 
   let strokes = 0;
 
@@ -1122,28 +1102,9 @@ function strokesOnHole(
   }
 
 
-  /*
-     Second stroke on handicaps above 18.
-  */
-
   if(
     playingHandicap > 18 &&
     playingHandicap - 18 >= holeRank
-  ){
-
-    strokes++;
-
-  }
-
-
-  /*
-     Handles a third stroke for a handicap
-     above 36 as well.
-  */
-
-  if(
-    playingHandicap > 36 &&
-    playingHandicap - 36 >= holeRank
   ){
 
     strokes++;
@@ -1183,7 +1144,9 @@ function netScore(
    LOCK
    ========================================================= */
 
-function isLocked(matchNumber){
+function isLocked(
+  matchNumber
+){
 
   const certification =
     certifications[
@@ -1264,8 +1227,8 @@ async function loadPairings(){
         rows
           .filter(
             row =>
-              String(row.side)
-                .toUpperCase() === "B"
+              String(row.side).toUpperCase()
+              === "B"
           )
           .map(
             row => row.player_name
@@ -1277,8 +1240,8 @@ async function loadPairings(){
         rows
           .filter(
             row =>
-              String(row.side)
-                .toUpperCase() === "A"
+              String(row.side).toUpperCase()
+              === "A"
           )
           .map(
             row => row.player_name
@@ -1350,16 +1313,14 @@ async function loadScores(){
   (data || []).forEach(
     row => {
 
-      const key =
+      newScores[
         getScoreKey(
-          row.round_number,
-          row.match_number,
+          Number(row.round_number),
+          Number(row.match_number),
           row.player_name,
-          row.hole_number
-        );
-
-
-      newScores[key] =
+          Number(row.hole_number)
+        )
+      ] =
         row.gross_score;
 
     }
@@ -1399,8 +1360,14 @@ async function loadCertifications(){
 
   if(error){
 
+    /*
+       Certification is optional.
+       Do NOT break the scorecard if this
+       table isn't available.
+    */
+
     console.warn(
-      "Certification table:",
+      "Certification table unavailable:",
       error.message
     );
 
@@ -1417,8 +1384,8 @@ async function loadCertifications(){
 
       certifications[
         certKey(
-          row.round_number,
-          row.match_number
+          Number(row.round_number),
+          Number(row.match_number)
         )
       ] = {
 
@@ -1452,16 +1419,7 @@ async function saveScore(
   gross
 ){
 
-  const status =
-    document.getElementById(
-      "autosave-status"
-    );
-
-
-  pendingSaves++;
-
-
-  const key =
+  const saveKey =
     getScoreKey(
       round,
       match,
@@ -1470,26 +1428,50 @@ async function saveScore(
     );
 
 
-  pendingScoreKeys.add(key);
+  pendingSaves.add(saveKey);
 
 
-  status.className =
-    "autosave-status saving";
+  const status =
+    document.getElementById(
+      "autosave-status"
+    );
 
-  status.textContent =
-    "Saving to Scottsdale 26...";
+
+  if(status){
+
+    status.className =
+      "autosave-status saving";
+
+    status.textContent =
+      "Saving score...";
+
+  }
 
 
   try{
 
-    const numericGross =
-      Number(gross);
+    const payload = {
+
+      round_number:
+        Number(round),
+
+      match_number:
+        Number(match),
+
+      player_name:
+        player,
+
+      hole_number:
+        Number(hole),
+
+      gross_score:
+        Number(gross)
+
+    };
 
 
     /*
-       Update any existing matching rows.
-       This is intentionally done without
-       relying on a composite unique key.
+       First UPDATE the existing row.
     */
 
     const {
@@ -1499,7 +1481,8 @@ async function saveScore(
       await supabaseClient
         .from("scores")
         .update({
-          gross_score:numericGross
+          gross_score:
+            Number(gross)
         })
         .eq(
           "round_number",
@@ -1526,7 +1509,7 @@ async function saveScore(
 
 
     /*
-       No existing row -> insert.
+       If it didn't exist, INSERT it.
     */
 
     if(
@@ -1539,24 +1522,9 @@ async function saveScore(
       } =
         await supabaseClient
           .from("scores")
-          .insert({
-
-            round_number:
-              Number(round),
-
-            match_number:
-              Number(match),
-
-            player_name:
-              player,
-
-            hole_number:
-              Number(hole),
-
-            gross_score:
-              numericGross
-
-          });
+          .insert(
+            payload
+          );
 
 
       if(insertError){
@@ -1569,11 +1537,35 @@ async function saveScore(
     setSyncIndicator(true);
 
 
-    status.className =
-      "autosave-status saved";
+    if(status){
 
-    status.textContent =
-      "Saved to everyone ✓";
+      status.className =
+        "autosave-status saved";
+
+      status.textContent =
+        "Saved ✓";
+
+      setTimeout(
+        () => {
+
+          if(
+            status.textContent ===
+            "Saved ✓"
+          ){
+
+            status.textContent =
+              "";
+
+            status.className =
+              "autosave-status";
+
+          }
+
+        },
+        1200
+      );
+
+    }
 
 
   }catch(error){
@@ -1587,12 +1579,16 @@ async function saveScore(
     setSyncIndicator(false);
 
 
-    status.className =
-      "autosave-status error";
+    if(status){
 
-    status.textContent =
-      "SAVE ERROR: " +
-      error.message;
+      status.className =
+        "autosave-status error";
+
+      status.textContent =
+        "SAVE ERROR: " +
+        error.message;
+
+    }
 
 
     showStatus(
@@ -1604,9 +1600,9 @@ async function saveScore(
 
   }finally{
 
-    pendingSaves--;
-
-    pendingScoreKeys.delete(key);
+    pendingSaves.delete(
+      saveKey
+    );
 
   }
 
@@ -1624,16 +1620,7 @@ async function deleteScore(
   hole
 ){
 
-  const status =
-    document.getElementById(
-      "autosave-status"
-    );
-
-
-  pendingSaves++;
-
-
-  const key =
+  const saveKey =
     getScoreKey(
       round,
       match,
@@ -1642,14 +1629,24 @@ async function deleteScore(
     );
 
 
-  pendingScoreKeys.add(key);
+  pendingSaves.add(saveKey);
 
 
-  status.className =
-    "autosave-status saving";
+  const status =
+    document.getElementById(
+      "autosave-status"
+    );
 
-  status.textContent =
-    "Clearing score...";
+
+  if(status){
+
+    status.className =
+      "autosave-status saving";
+
+    status.textContent =
+      "Clearing score...";
+
+  }
 
 
   try{
@@ -1686,11 +1683,35 @@ async function deleteScore(
     setSyncIndicator(true);
 
 
-    status.className =
-      "autosave-status saved";
+    if(status){
 
-    status.textContent =
-      "Score cleared ✓";
+      status.className =
+        "autosave-status saved";
+
+      status.textContent =
+        "Score cleared ✓";
+
+      setTimeout(
+        () => {
+
+          if(
+            status.textContent ===
+            "Score cleared ✓"
+          ){
+
+            status.textContent =
+              "";
+
+            status.className =
+              "autosave-status";
+
+          }
+
+        },
+        1000
+      );
+
+    }
 
 
   }catch(error){
@@ -1701,18 +1722,22 @@ async function deleteScore(
     );
 
 
-    status.className =
-      "autosave-status error";
+    if(status){
 
-    status.textContent =
-      "CLEAR ERROR: " +
-      error.message;
+      status.className =
+        "autosave-status error";
+
+      status.textContent =
+        "CLEAR ERROR: " +
+        error.message;
+
+    }
 
   }finally{
 
-    pendingSaves--;
-
-    pendingScoreKeys.delete(key);
+    pendingSaves.delete(
+      saveKey
+    );
 
   }
 
@@ -1739,6 +1764,30 @@ async function updateScore(
       "error"
     );
 
+    /*
+       Do NOT reload the whole page.
+    */
+
+    const input =
+      document.querySelector(
+        `input.score-input[data-player="${CSS.escape(player)}"][data-hole="${hole}"][data-match="${matchNumber}"]`
+      );
+
+    if(input){
+
+      const key =
+        getScoreKey(
+          currentRound,
+          matchNumber,
+          player,
+          hole
+        );
+
+      input.value =
+        scores[key] ?? "";
+
+    }
+
     return;
 
   }
@@ -1753,11 +1802,8 @@ async function updateScore(
     );
 
 
-  editingKeys.delete(key);
-
-
   /*
-     Empty score.
+     EMPTY SCORE
   */
 
   if(
@@ -1769,9 +1815,16 @@ async function updateScore(
     delete scores[key];
 
 
-    /*
-       Recalculate immediately.
-    */
+    updateSingleScoreDisplay(
+      player,
+      matchNumber,
+      hole
+    );
+
+
+    updatePlayerTotals(
+      matchNumber
+    );
 
     calculateMatch(
       matchNumber
@@ -1806,17 +1859,13 @@ async function updateScore(
   }
 
 
-  /*
-     Prevent ridiculous entries.
-  */
-
   if(
     numericValue < 1 ||
     numericValue > 15
   ){
 
     showStatus(
-      "Enter a gross score between 1 and 15.",
+      "Score must be between 1 and 15.",
       "error"
     );
 
@@ -1826,22 +1875,27 @@ async function updateScore(
 
 
   /*
-     LOCAL STATE FIRST.
+     IMPORTANT:
 
-     This is critical.
+     Update the LOCAL STATE FIRST.
 
-     The scorecard calculates immediately
-     and does NOT wait for Supabase.
+     This means the calculation never waits
+     for Supabase.
   */
 
   scores[key] =
     numericValue;
 
 
-  updateScoreCellDisplay(
+  updateSingleScoreDisplay(
     player,
     matchNumber,
     hole
+  );
+
+
+  updatePlayerTotals(
+    matchNumber
   );
 
 
@@ -1852,6 +1906,8 @@ async function updateScore(
 
   /*
      Save in background.
+
+     We DO NOT refresh the page afterward.
   */
 
   await saveScore(
@@ -1866,10 +1922,10 @@ async function updateScore(
 
 
 /* =========================================================
-   UPDATE ONE SCORE CELL
+   UPDATE ONE SCORE DISPLAY
    ========================================================= */
 
-function updateScoreCellDisplay(
+function updateSingleScoreDisplay(
   player,
   matchNumber,
   hole
@@ -1914,47 +1970,10 @@ function updateScoreCellDisplay(
     scores[key] ?? "";
 
 
-  const selector =
-    `input.score-input[data-player="${CSS.escape(player)}"][data-hole="${hole}"][data-match="${matchNumber}"]`;
-
-
   const input =
     document.querySelector(
-      selector
+      `input.score-input[data-player="${CSS.escape(player)}"][data-hole="${hole}"][data-match="${matchNumber}"]`
     );
-
-
-  if(input){
-
-    /*
-       Only set the value if it is
-       different. This prevents cursor
-       jumping.
-    */
-
-    if(
-      String(input.value) !==
-      String(value)
-    ){
-
-      input.value =
-        value;
-
-    }
-
-
-    const isBirdie =
-      value !== "" &&
-      Number(value) ===
-      course.pars[hole-1]-1;
-
-
-    input.classList.toggle(
-      "gross-birdie",
-      isBirdie
-    );
-
-  }
 
 
   const display =
@@ -1963,38 +1982,66 @@ function updateScoreCellDisplay(
     );
 
 
-  if(display){
-
-    if(
-      value === "" ||
-      value === null ||
-      value === undefined
-    ){
-
-      display.dataset.baseNet="";
-      display.innerHTML="";
-
-    }else{
-
-      const net =
-        netScore(
-          player,
-          Number(value),
-          hole-1,
-          course,
-          matchHandicaps
-        );
+  if(!input || !display){
+    return;
+  }
 
 
-      display.dataset.baseNet =
-        `Net ${net}`;
+  input.value =
+    value;
 
-      display.innerHTML =
-        `Net ${net}`;
 
-    }
+  const holeIndex =
+    Number(hole)-1;
+
+
+  if(
+    value === "" ||
+    value === null ||
+    value === undefined
+  ){
+
+    display.dataset.baseNet =
+      "";
+
+    display.textContent =
+      "";
+
+    input.classList.remove(
+      "gross-birdie"
+    );
+
+    return;
 
   }
+
+
+  const net =
+    netScore(
+      player,
+      Number(value),
+      holeIndex,
+      course,
+      matchHandicaps
+    );
+
+
+  display.dataset.baseNet =
+    `Net ${net}`;
+
+  display.textContent =
+    `Net ${net}`;
+
+
+  const birdie =
+    Number(value) ===
+    course.pars[holeIndex]-1;
+
+
+  input.classList.toggle(
+    "gross-birdie",
+    birdie
+  );
 
 }
 
@@ -2028,11 +2075,11 @@ function updatePlayerTotals(
   ].forEach(
     player => {
 
-      let front=0;
-      let back=0;
+      let front = 0;
+      let back = 0;
 
-      let frontComplete=true;
-      let backComplete=true;
+      let frontComplete = true;
+      let backComplete = true;
 
 
       for(
@@ -2059,9 +2106,13 @@ function updatePlayerTotals(
         ){
 
           if(hole<=9){
+
             frontComplete=false;
+
           }else{
+
             backComplete=false;
+
           }
 
           continue;
@@ -2070,16 +2121,25 @@ function updatePlayerTotals(
 
 
         if(hole<=9){
-          front += Number(value);
+
+          front +=
+            Number(value);
+
         }else{
-          back += Number(value);
+
+          back +=
+            Number(value);
+
         }
 
       }
 
 
       const safePlayer =
-        safePlayerId(player);
+        player.replace(
+          /[^a-zA-Z0-9_-]/g,
+          "_"
+        );
 
 
       const frontElement =
@@ -2087,12 +2147,10 @@ function updatePlayerTotals(
           `front-${currentRound}-${matchNumber}-${safePlayer}`
         );
 
-
       const backElement =
         document.getElementById(
           `back-${currentRound}-${matchNumber}-${safePlayer}`
         );
-
 
       const totalElement =
         document.getElementById(
@@ -2224,52 +2282,18 @@ function updateHoleIndicators(
 
 
     const ryanScores =
-      makeScores(match.ryan);
-
+      makeScores(
+        match.ryan
+      );
 
     const claytonScores =
-      makeScores(match.clayton);
+      makeScores(
+        match.clayton
+      );
 
 
     /*
-       Birdie circles.
-    */
-
-    [
-      ...ryanScores,
-      ...claytonScores
-    ].forEach(
-      score => {
-
-        if(!score){
-          return;
-        }
-
-
-        const input =
-          document.querySelector(
-            `input.score-input[data-player="${CSS.escape(score.player)}"][data-hole="${hole}"][data-match="${matchNumber}"]`
-          );
-
-
-        if(input){
-
-          input.classList.toggle(
-            "gross-birdie",
-
-            score.gross ===
-            course.pars[holeIndex]-1
-
-          );
-
-        }
-
-      }
-    );
-
-
-    /*
-       Reset trophies.
+       Reset every net display first.
     */
 
     document
@@ -2291,13 +2315,10 @@ function updateHoleIndicators(
 
 
     /*
-       Need all four gross scores
-       before determining a hole winner.
+       Trophy only when all four scores exist.
     */
 
     if(
-      ryanScores.length !== 2 ||
-      claytonScores.length !== 2 ||
       ryanScores.includes(null) ||
       claytonScores.includes(null)
     ){
@@ -2323,12 +2344,11 @@ function updateHoleIndicators(
       );
 
 
-    let winningScores=[];
+    let winningScores = [];
 
 
     if(
-      ryanBest <
-      claytonBest
+      ryanBest < claytonBest
     ){
 
       winningScores =
@@ -2338,8 +2358,7 @@ function updateHoleIndicators(
         );
 
     }else if(
-      claytonBest <
-      ryanBest
+      claytonBest < ryanBest
     ){
 
       winningScores =
@@ -2366,7 +2385,6 @@ function updateHoleIndicators(
             "hole-winner"
           );
 
-
           display.innerHTML =
             `${display.dataset.baseNet} <span class="net-trophy">🏆</span>`;
 
@@ -2389,6 +2407,62 @@ function formatPoints(value){
   return Number.isInteger(value)
     ? String(value)
     : Number(value).toFixed(1);
+
+}
+
+
+/* =========================================================
+   BONUS CALCULATION
+   ========================================================= */
+
+function getGrossBonus(
+  teamScores,
+  course,
+  holeIndex
+){
+
+  let bestBonus = 0;
+
+
+  teamScores.forEach(
+    score => {
+
+      if(!score){
+        return;
+      }
+
+
+      const par =
+        course.pars[holeIndex];
+
+
+      if(
+        score.gross <= par-2
+      ){
+
+        bestBonus =
+          Math.max(
+            bestBonus,
+            2
+          );
+
+      }else if(
+        score.gross === par-1
+      ){
+
+        bestBonus =
+          Math.max(
+            bestBonus,
+            1
+          );
+
+      }
+
+    }
+  );
+
+
+  return bestBonus;
 
 }
 
@@ -2507,21 +2581,17 @@ function calculateMatch(
 
 
     const ryanScores =
-      makeScores(match.ryan);
-
+      makeScores(
+        match.ryan
+      );
 
     const claytonScores =
-      makeScores(match.clayton);
+      makeScores(
+        match.clayton
+      );
 
-
-    /*
-       If either side is missing a score,
-       this hole cannot count yet.
-    */
 
     if(
-      ryanScores.length !== 2 ||
-      claytonScores.length !== 2 ||
       ryanScores.includes(null) ||
       claytonScores.includes(null)
     ){
@@ -2539,7 +2609,6 @@ function calculateMatch(
 
       }
 
-
       continue;
 
     }
@@ -2548,7 +2617,7 @@ function calculateMatch(
     const ryanBest =
       Math.min(
         ...ryanScores.map(
-          x => x.net
+          x=>x.net
         )
       );
 
@@ -2556,13 +2625,16 @@ function calculateMatch(
     const claytonBest =
       Math.min(
         ...claytonScores.map(
-          x => x.net
+          x=>x.net
         )
       );
 
 
-    ryan18 += ryanBest;
-    clayton18 += claytonBest;
+    ryan18 +=
+      ryanBest;
+
+    clayton18 +=
+      claytonBest;
 
 
     /*
@@ -2570,8 +2642,7 @@ function calculateMatch(
     */
 
     if(
-      ryanBest <
-      claytonBest
+      ryanBest < claytonBest
     ){
 
       ryanHolePoints++;
@@ -2589,54 +2660,41 @@ function calculateMatch(
 
 
       /*
-         Birdie/eagle bonus.
+         BONUS RULE:
 
-         Only the winning side receives
-         the bonus.
+         The winning team gets the bonus only
+         if the losing team does NOT also have
+         a gross birdie/eagle.
 
-         Maximum one bonus per side
-         per hole.
-
-         Eagle = 2
-         Birdie = 1
+         If both teams birdie/eagle the hole:
+         NO bonus.
       */
 
       const ryanBonusThisHole =
-        Math.max(
-          ...ryanScores.map(
-            score => {
-
-              const par =
-                course.pars[holeIndex];
-
-
-              if(
-                score.gross <= par-2
-              ){
-
-                return 2;
-
-              }
-
-
-              if(
-                score.gross === par-1
-              ){
-
-                return 1;
-
-              }
-
-
-              return 0;
-
-            }
-          )
+        getGrossBonus(
+          ryanScores,
+          course,
+          holeIndex
         );
 
 
-      ryanBonus +=
-        ryanBonusThisHole;
+      const claytonBonusThisHole =
+        getGrossBonus(
+          claytonScores,
+          course,
+          holeIndex
+        );
+
+
+      if(
+        ryanBonusThisHole > 0 &&
+        claytonBonusThisHole === 0
+      ){
+
+        ryanBonus +=
+          ryanBonusThisHole;
+
+      }
 
     }
 
@@ -2646,8 +2704,7 @@ function calculateMatch(
     */
 
     else if(
-      claytonBest <
-      ryanBest
+      claytonBest < ryanBest
     ){
 
       claytonHolePoints++;
@@ -2664,58 +2721,36 @@ function calculateMatch(
       }
 
 
-      const claytonBonusThisHole =
-        Math.max(
-          ...claytonScores.map(
-            score => {
-
-              const par =
-                course.pars[holeIndex];
-
-
-              if(
-                score.gross <= par-2
-              ){
-
-                return 2;
-
-              }
-
-
-              if(
-                score.gross === par-1
-              ){
-
-                return 1;
-
-              }
-
-
-              return 0;
-
-            }
-          )
+      const ryanBonusThisHole =
+        getGrossBonus(
+          ryanScores,
+          course,
+          holeIndex
         );
 
 
-      claytonBonus +=
-        claytonBonusThisHole;
+      const claytonBonusThisHole =
+        getGrossBonus(
+          claytonScores,
+          course,
+          holeIndex
+        );
+
+
+      if(
+        claytonBonusThisHole > 0 &&
+        ryanBonusThisHole === 0
+      ){
+
+        claytonBonus +=
+          claytonBonusThisHole;
+
+      }
 
     }
 
-    /*
-       Tied hole = zero hole points.
-    */
-
   }
 
-
-  /*
-     BASE POINTS
-
-     Each hole won = 1 point.
-     Birdie/eagle bonus added separately.
-  */
 
   let ryanPoints =
     ryanHolePoints +
@@ -2746,7 +2781,6 @@ function calculateMatch(
 
     ryanPoints += 3;
 
-
     frontText =
       `RYAN WINS FRONT • ${frontRyanHoles}-${frontClaytonHoles} • +3`;
 
@@ -2757,7 +2791,6 @@ function calculateMatch(
 
     claytonPoints += 3;
 
-
     frontText =
       `CLAYTON WINS FRONT • ${frontRyanHoles}-${frontClaytonHoles} • +3`;
 
@@ -2765,7 +2798,6 @@ function calculateMatch(
 
     ryanPoints += 1.5;
     claytonPoints += 1.5;
-
 
     frontText =
       `FRONT TIED • ${frontRyanHoles}-${frontClaytonHoles} • +1.5 EACH`;
@@ -2792,7 +2824,6 @@ function calculateMatch(
 
     ryanPoints += 3;
 
-
     backText =
       `RYAN WINS BACK • ${backRyanHoles}-${backClaytonHoles} • +3`;
 
@@ -2803,7 +2834,6 @@ function calculateMatch(
 
     claytonPoints += 3;
 
-
     backText =
       `CLAYTON WINS BACK • ${backRyanHoles}-${backClaytonHoles} • +3`;
 
@@ -2812,7 +2842,6 @@ function calculateMatch(
     ryanPoints += 1.5;
     claytonPoints += 1.5;
 
-
     backText =
       `BACK TIED • ${backRyanHoles}-${backClaytonHoles} • +1.5 EACH`;
 
@@ -2820,7 +2849,7 @@ function calculateMatch(
 
 
   /* =======================================================
-     18-HOLE BEST BALL
+     18 HOLE
      ======================================================= */
 
   let strokeText;
@@ -2832,23 +2861,19 @@ function calculateMatch(
       `IN PROGRESS • ${ryan18 || "-"}-${clayton18 || "-"}`;
 
   }else if(
-    ryan18 <
-    clayton18
+    ryan18 < clayton18
   ){
 
     ryanPoints += 5;
-
 
     strokeText =
       `RYAN WINS 18 • ${ryan18}-${clayton18} • +5`;
 
   }else if(
-    clayton18 <
-    ryan18
+    clayton18 < ryan18
   ){
 
     claytonPoints += 5;
-
 
     strokeText =
       `CLAYTON WINS 18 • ${ryan18}-${clayton18} • +5`;
@@ -2858,7 +2883,6 @@ function calculateMatch(
     ryanPoints += 2.5;
     claytonPoints += 2.5;
 
-
     strokeText =
       `18 TIED • ${ryan18}-${clayton18} • +2.5 EACH`;
 
@@ -2866,10 +2890,12 @@ function calculateMatch(
 
 
   /* =======================================================
-     ROUND 5 FINAL ROUND MULTIPLIER
+     ROUND 5 MULTIPLIER
      ======================================================= */
 
-  if(currentRound === 5){
+  if(
+    currentRound === 5
+  ){
 
     ryanPoints *= 1.5;
     claytonPoints *= 1.5;
@@ -2884,7 +2910,6 @@ function calculateMatch(
 
     const element =
       document.getElementById(id);
-
 
     if(element){
 
@@ -2916,22 +2941,13 @@ function calculateMatch(
 
   setResult(
     `bonus-result-${matchNumber}`,
-
     `RYAN +${ryanBonus} • CLAYTON +${claytonBonus}`
-
   );
 
 
   setResult(
     `points-result-${matchNumber}`,
-
     `RYAN ${formatPoints(ryanPoints)} • CLAYTON ${formatPoints(claytonPoints)}`
-
-  );
-
-
-  updatePlayerTotals(
-    matchNumber
   );
 
 
@@ -2944,15 +2960,21 @@ function calculateMatch(
 
 
 /* =========================================================
-   CALCULATE ALL MATCHES
+   RECALCULATE EVERYTHING
    ========================================================= */
 
-function calculateAllMatches(){
+function recalculateAll(){
 
-  (
-    pairings[currentRound] || []
-  ).forEach(
+  const roundPairings =
+    pairings[currentRound] || [];
+
+
+  roundPairings.forEach(
     match => {
+
+      updatePlayerTotals(
+        match.pairingNumber
+      );
 
       calculateMatch(
         match.pairingNumber
@@ -3048,9 +3070,7 @@ function applyCertificationState(
 
     status.textContent =
       locked
-
         ? "✓ Both certifications complete — scorecard is LOCKED"
-
         : "Both certifications are required to lock this scorecard.";
 
 
@@ -3065,7 +3085,7 @@ function applyCertificationState(
 
 
 /* =========================================================
-   RENDER SCORECARDS
+   RENDER
    ========================================================= */
 
 function renderScorecards(){
@@ -3086,7 +3106,8 @@ function renderScorecards(){
     );
 
 
-  container.innerHTML = "";
+  container.innerHTML =
+    "";
 
 
   const roundPairings =
@@ -3101,7 +3122,9 @@ function renderScorecards(){
 
         <div class="match-header">
 
-          <h2>WAITING FOR PAIRINGS</h2>
+          <h2>
+            WAITING FOR PAIRINGS
+          </h2>
 
           <div class="vs">
             No completed pairings have been selected for this round yet.
@@ -3226,7 +3249,9 @@ function renderScorecards(){
 
 
       const teeRows =
-        TEE_YARDAGES[courseKey];
+        TEE_YARDAGES[
+          courseKey
+        ];
 
 
       Object.entries(
@@ -3238,7 +3263,7 @@ function renderScorecards(){
             distances
               .slice(0,9)
               .reduce(
-                (a,b) => a+b,
+                (a,b)=>a+b,
                 0
               );
 
@@ -3247,14 +3272,14 @@ function renderScorecards(){
             distances
               .slice(9)
               .reduce(
-                (a,b) => a+b,
+                (a,b)=>a+b,
                 0
               );
 
 
           const total =
             distances.reduce(
-              (a,b) => a+b,
+              (a,b)=>a+b,
               0
             );
 
@@ -3268,8 +3293,7 @@ function renderScorecards(){
               </td>
 
               ${distances.map(
-                x =>
-                  `<td>${x}</td>`
+                x=>`<td>${x}</td>`
               ).join("")}
 
               <td>${front}</td>
@@ -3297,8 +3321,7 @@ function renderScorecards(){
           </td>
 
           ${course.handicap.map(
-            x =>
-              `<td>${x}</td>`
+            x=>`<td>${x}</td>`
           ).join("")}
 
           <td></td>
@@ -3318,7 +3341,7 @@ function renderScorecards(){
         course.pars
           .slice(0,9)
           .reduce(
-            (a,b) => a+b,
+            (a,b)=>a+b,
             0
           );
 
@@ -3327,7 +3350,7 @@ function renderScorecards(){
         course.pars
           .slice(9)
           .reduce(
-            (a,b) => a+b,
+            (a,b)=>a+b,
             0
           );
 
@@ -3341,8 +3364,7 @@ function renderScorecards(){
           </td>
 
           ${course.pars.map(
-            x =>
-              `<td>${x}</td>`
+            x=>`<td>${x}</td>`
           ).join("")}
 
           <td>${frontPar}</td>
@@ -3355,14 +3377,17 @@ function renderScorecards(){
 
 
       /* =====================================================
-         PLAYER ROWS
+         PLAYERS
          ===================================================== */
 
       allPlayers.forEach(
         player => {
 
           const safePlayer =
-            safePlayerId(player);
+            player.replace(
+              /[^a-zA-Z0-9_-]/g,
+              "_"
+            );
 
 
           const teamClass =
@@ -3390,6 +3415,7 @@ function renderScorecards(){
                   )}
 
                   •
+
                   ${getTeeLabel(
                     player,
                     course
@@ -3434,7 +3460,8 @@ function renderScorecards(){
               ) > 0;
 
 
-            let initialNet="";
+            let initialNet =
+              "";
 
 
             if(
@@ -3467,18 +3494,16 @@ function renderScorecards(){
 
                 ${
                   hasStroke
-
                     ? '<span class="stroke-dot" title="Stroke"></span>'
-
                     : ""
                 }
 
                 <input
                   class="score-input ${isBirdie ? "gross-birdie" : ""}"
                   type="number"
-                  inputmode="numeric"
                   min="1"
                   max="15"
+                  inputmode="numeric"
                   value="${value}"
                   data-player="${player.replace(/"/g,"&quot;")}"
                   data-hole="${hole}"
@@ -3507,17 +3532,23 @@ function renderScorecards(){
               <td
                 id="front-${currentRound}-${matchNumber}-${safePlayer}"
                 class="total-cell"
-              >-</td>
+              >
+                -
+              </td>
 
               <td
                 id="back-${currentRound}-${matchNumber}-${safePlayer}"
                 class="total-cell"
-              >-</td>
+              >
+                -
+              </td>
 
               <td
                 id="total-${currentRound}-${matchNumber}-${safePlayer}"
                 class="total-cell"
-              >-</td>
+              >
+                -
+              </td>
 
             </tr>
 
@@ -3547,7 +3578,9 @@ function renderScorecards(){
             <div
               class="result-value"
               id="front-result-${matchNumber}"
-            >-</div>
+            >
+              -
+            </div>
 
           </div>
 
@@ -3561,7 +3594,9 @@ function renderScorecards(){
             <div
               class="result-value"
               id="back-result-${matchNumber}"
-            >-</div>
+            >
+              -
+            </div>
 
           </div>
 
@@ -3575,7 +3610,9 @@ function renderScorecards(){
             <div
               class="result-value"
               id="stroke-result-${matchNumber}"
-            >-</div>
+            >
+              -
+            </div>
 
           </div>
 
@@ -3605,7 +3642,9 @@ function renderScorecards(){
             <div
               class="result-value"
               id="points-result-${matchNumber}"
-            >-</div>
+            >
+              -
+            </div>
 
           </div>
 
@@ -3639,7 +3678,9 @@ function renderScorecards(){
 
 
           <div class="certification-status">
+
             Both certifications are required to lock this scorecard.
+
           </div>
 
         </div>
@@ -3656,12 +3697,9 @@ function renderScorecards(){
       );
 
 
-      /* ===================================================
+      /* =====================================================
          SCORE INPUT EVENTS
-
-         IMPORTANT:
-         We do NOT rebuild the page here.
-         =================================================== */
+         ===================================================== */
 
       div
         .querySelectorAll(
@@ -3671,81 +3709,17 @@ function renderScorecards(){
           input => {
 
             input.addEventListener(
-              "focus",
-              function(){
-
-                const key =
-                  getScoreKey(
-                    currentRound,
-                    Number(
-                      this.dataset.match
-                    ),
-                    this.dataset.player,
-                    Number(
-                      this.dataset.hole
-                    )
-                  );
-
-
-                editingKeys.add(key);
-
-              }
-            );
-
-
-            input.addEventListener(
-              "input",
-              function(){
-
-                /*
-                   Update the visible birdie
-                   circle while typing.
-                */
-
-                const course =
-                  getCourse(
-                    currentRound
-                  );
-
-
-                const hole =
-                  Number(
-                    this.dataset.hole
-                  );
-
-
-                const value =
-                  this.value;
-
-
-                this.classList.toggle(
-                  "gross-birdie",
-
-                  value !== "" &&
-                  Number(value) ===
-                    course.pars[hole-1]-1
-
-                );
-
-              }
-            );
-
-
-            input.addEventListener(
               "change",
               async function(){
 
                 await updateScore(
                   this.dataset.player,
-
                   Number(
                     this.dataset.match
                   ),
-
                   Number(
                     this.dataset.hole
                   ),
-
                   this.value
                 );
 
@@ -3753,24 +3727,24 @@ function renderScorecards(){
             );
 
 
+            /*
+               On Enter, move to the next
+               score field instead of submitting.
+            */
+
             input.addEventListener(
-              "blur",
-              function(){
+              "keydown",
+              function(event){
 
-                const key =
-                  getScoreKey(
-                    currentRound,
-                    Number(
-                      this.dataset.match
-                    ),
-                    this.dataset.player,
-                    Number(
-                      this.dataset.hole
-                    )
-                  );
+                if(
+                  event.key === "Enter"
+                ){
 
+                  event.preventDefault();
 
-                editingKeys.delete(key);
+                  this.blur();
+
+                }
 
               }
             );
@@ -3779,9 +3753,9 @@ function renderScorecards(){
         );
 
 
-      /* ===================================================
+      /* =====================================================
          CERTIFICATION
-         =================================================== */
+         ===================================================== */
 
       const marker =
         div.querySelector(
@@ -3873,9 +3847,6 @@ async function clearMatchScores(
 
   try{
 
-    pendingSaves++;
-
-
     const {
       error
     } =
@@ -3943,10 +3914,6 @@ async function clearMatchScores(
       "error"
     );
 
-  }finally{
-
-    pendingSaves--;
-
   }
 
 }
@@ -4010,11 +3977,6 @@ async function updateCertification(
 
 
   if(!certificationTableAvailable){
-
-    showStatus(
-      "Certification table is not available.",
-      "error"
-    );
 
     return;
 
@@ -4100,6 +4062,12 @@ async function updateCertification(
 
   }catch(error){
 
+    console.error(
+      "CERTIFICATION ERROR:",
+      error
+    );
+
+
     showStatus(
       "CERTIFICATION SAVE ERROR: " +
       error.message,
@@ -4112,38 +4080,17 @@ async function updateCertification(
 
 
 /* =========================================================
-   SAFE FULL REFRESH
+   INITIAL LOAD
    ========================================================= */
 
-async function refreshCurrentRound(
-  force=false
-){
+async function loadCurrentRound(){
 
-  /*
-     NEVER destroy the scorecard while someone
-     is entering a score or while a score is saving.
-  */
-
-  if(
-    !force &&
-    (
-      userIsEditing() ||
-      pendingSaves > 0 ||
-      pendingScoreKeys.size > 0
-    )
-  ){
-
-    return;
-
-  }
-
-
-  if(syncing){
+  if(loadingRound){
     return;
   }
 
 
-  syncing=true;
+  loadingRound=true;
 
 
   try{
@@ -4156,20 +4103,28 @@ async function refreshCurrentRound(
 
     renderScorecards();
 
+    recalculateAll();
+
     setSyncIndicator(true);
+
 
   }catch(error){
 
     console.error(
-      "SYNC ERROR:",
+      "LOAD ERROR:",
       error
     );
 
+
     setSyncIndicator(false);
+
+
+    throw error;
+
 
   }finally{
 
-    syncing=false;
+    loadingRound=false;
 
   }
 
@@ -4185,13 +4140,9 @@ async function setRound(
 ){
 
   if(
-    pendingSaves > 0
+    Number(round) ===
+    currentRound
   ){
-
-    showStatus(
-      "Please wait for the current score to finish saving.",
-      "error"
-    );
 
     return;
 
@@ -4207,22 +4158,12 @@ async function setRound(
       ".round-btn"
     )
     .forEach(
-      button => {
-
-        const buttonRound =
-          Number(
-            button.textContent
-              .replace(
-                "Round ",
-                ""
-              )
-          );
-
+      (button,index) => {
 
         button.classList.toggle(
           "active",
-          buttonRound ===
-            currentRound
+          index ===
+          currentRound-1
         );
 
       }
@@ -4237,9 +4178,7 @@ async function setRound(
 
   try{
 
-    await refreshCurrentRound(
-      true
-    );
+    await loadCurrentRound();
 
     clearStatus();
 
@@ -4257,7 +4196,7 @@ async function setRound(
 
 
 /* =========================================================
-   REALTIME SCORE UPDATE
+   TARGETED REALTIME SCORE UPDATE
    ========================================================= */
 
 function handleRealtimeScore(
@@ -4265,9 +4204,7 @@ function handleRealtimeScore(
 ){
 
   const row =
-    payload.eventType === "DELETE"
-      ? payload.old
-      : payload.new;
+    payload.new || payload.old;
 
 
   if(!row){
@@ -4275,9 +4212,28 @@ function handleRealtimeScore(
   }
 
 
+  const round =
+    Number(row.round_number);
+
+
+  const match =
+    Number(row.match_number);
+
+
+  const player =
+    row.player_name;
+
+
+  const hole =
+    Number(row.hole_number);
+
+
+  /*
+     Ignore scores for another round.
+  */
+
   if(
-    Number(row.round_number) !==
-    Number(currentRound)
+    round !== currentRound
   ){
 
     return;
@@ -4287,21 +4243,22 @@ function handleRealtimeScore(
 
   const key =
     getScoreKey(
-      row.round_number,
-      row.match_number,
-      row.player_name,
-      row.hole_number
+      round,
+      match,
+      player,
+      hole
     );
 
 
   /*
-     If this is a local save that is still
-     completing, do not overwrite the local
-     value.
+     Ignore our own event.
+
+     We already updated the local screen
+     before saving.
   */
 
   if(
-    pendingScoreKeys.has(key)
+    pendingSaves.has(key)
   ){
 
     return;
@@ -4309,38 +4266,156 @@ function handleRealtimeScore(
   }
 
 
+  /*
+     INSERT / UPDATE
+  */
+
+  if(
+    payload.eventType === "INSERT" ||
+    payload.eventType === "UPDATE"
+  ){
+
+    if(
+      row.gross_score === null ||
+      row.gross_score === undefined
+    ){
+
+      delete scores[key];
+
+    }else{
+
+      scores[key] =
+        Number(row.gross_score);
+
+    }
+
+  }
+
+
+  /*
+     DELETE
+  */
+
   if(
     payload.eventType === "DELETE"
   ){
 
     delete scores[key];
 
-  }else{
-
-    scores[key] =
-      row.gross_score;
-
   }
 
 
   /*
-     Update ONLY the affected cell.
-     No page rebuild.
+     Update ONLY this score.
+
+     Do not reload the page.
   */
 
-  updateScoreCellDisplay(
-    row.player_name,
-    Number(row.match_number),
-    Number(row.hole_number)
+  updateSingleScoreDisplay(
+    player,
+    match,
+    hole
+  );
+
+
+  updatePlayerTotals(
+    match
   );
 
 
   calculateMatch(
-    Number(row.match_number)
+    match
   );
 
+}
 
-  setSyncIndicator(true);
+
+/* =========================================================
+   TARGETED REALTIME CERTIFICATION
+   ========================================================= */
+
+function handleRealtimeCertification(
+  payload
+){
+
+  const row =
+    payload.new || payload.old;
+
+
+  if(!row){
+    return;
+  }
+
+
+  const round =
+    Number(row.round_number);
+
+
+  const match =
+    Number(row.match_number);
+
+
+  if(
+    round !== currentRound
+  ){
+
+    return;
+
+  }
+
+
+  const key =
+    certKey(
+      round,
+      match
+    );
+
+
+  if(
+    payload.eventType === "DELETE"
+  ){
+
+    delete certifications[key];
+
+  }else{
+
+    certifications[key] = {
+
+      marker_certified:
+        Boolean(
+          row.marker_certified
+        ),
+
+      opponent_certified:
+        Boolean(
+          row.opponent_certified
+        )
+
+    };
+
+  }
+
+
+  const matchElement =
+    [
+      ...document.querySelectorAll(
+        ".match"
+      )
+    ].find(
+      element =>
+        element.dataset.matchNumber ===
+        String(match)
+    );
+
+
+  if(matchElement){
+
+    applyCertificationState(
+      matchElement,
+      match
+    );
+
+  }
 
 }
 
@@ -4357,6 +4432,9 @@ function startRealtime(){
       realtimeChannel
     );
 
+    realtimeChannel =
+      null;
+
   }
 
 
@@ -4367,26 +4445,25 @@ function startRealtime(){
       )
 
 
-      /* ===============================================
+      /*
          SCORES
 
-         DO NOT CALL renderScorecards HERE.
-         =============================================== */
+         IMPORTANT:
+         This does NOT reload the page.
+      */
 
       .on(
         "postgres_changes",
-
         {
           event:"*",
           schema:"public",
           table:"scores"
         },
-
         payload => {
 
           console.log(
-            "SCORE REALTIME:",
-            payload
+            "REALTIME SCORE:",
+            payload.eventType
           );
 
 
@@ -4398,39 +4475,40 @@ function startRealtime(){
       )
 
 
-      /* ===============================================
+      /*
          PAIRINGS
-         =============================================== */
+
+         Pairing changes legitimately require
+         rebuilding the scorecards.
+      */
 
       .on(
         "postgres_changes",
-
         {
           event:"*",
           schema:"public",
           table:"pairings"
         },
-
         async payload => {
 
           console.log(
-            "PAIRING REALTIME:",
-            payload
+            "REALTIME PAIRING CHANGE"
           );
 
 
-          /*
-             Pairing changes are rare.
-             Only rebuild if user isn't editing.
-          */
+          try{
 
-          if(
-            !userIsEditing() &&
-            pendingSaves === 0
-          ){
+            await loadPairings();
 
-            await refreshCurrentRound(
-              true
+            renderScorecards();
+
+            recalculateAll();
+
+          }catch(error){
+
+            console.error(
+              "PAIRING SYNC ERROR:",
+              error
             );
 
           }
@@ -4439,34 +4517,37 @@ function startRealtime(){
       )
 
 
-      /* ===============================================
+      /*
          PAIRING PLAYERS
-         =============================================== */
+      */
 
       .on(
         "postgres_changes",
-
         {
           event:"*",
           schema:"public",
           table:"pairing_players"
         },
-
         async payload => {
 
           console.log(
-            "PAIRING PLAYER REALTIME:",
-            payload
+            "REALTIME PAIRING PLAYER CHANGE"
           );
 
 
-          if(
-            !userIsEditing() &&
-            pendingSaves === 0
-          ){
+          try{
 
-            await refreshCurrentRound(
-              true
+            await loadPairings();
+
+            renderScorecards();
+
+            recalculateAll();
+
+          }catch(error){
+
+            console.error(
+              "PAIRING PLAYER SYNC ERROR:",
+              error
             );
 
           }
@@ -4475,95 +4556,22 @@ function startRealtime(){
       )
 
 
-      /* ===============================================
+      /*
          CERTIFICATIONS
-         =============================================== */
+      */
 
       .on(
         "postgres_changes",
-
         {
           event:"*",
           schema:"public",
           table:"scorecard_certifications"
         },
+        payload => {
 
-        async payload => {
-
-          console.log(
-            "CERT REALTIME:",
+          handleRealtimeCertification(
             payload
           );
-
-
-          /*
-             Don't rebuild the entire scorecard
-             just because somebody checked a box.
-          */
-
-          const row =
-            payload.eventType === "DELETE"
-              ? payload.old
-              : payload.new;
-
-
-          if(!row){
-            return;
-          }
-
-
-          if(
-            Number(row.round_number) !==
-            Number(currentRound)
-          ){
-
-            return;
-
-          }
-
-
-          const key =
-            certKey(
-              row.round_number,
-              row.match_number
-            );
-
-
-          certifications[key] = {
-
-            marker_certified:
-              Boolean(
-                row.marker_certified
-              ),
-
-            opponent_certified:
-              Boolean(
-                row.opponent_certified
-              )
-
-          };
-
-
-          const matchElement =
-            [
-              ...document.querySelectorAll(
-                ".match"
-              )
-            ].find(
-              element =>
-                element.dataset.matchNumber ===
-                String(row.match_number)
-            );
-
-
-          if(matchElement){
-
-            applyCertificationState(
-              matchElement,
-              Number(row.match_number)
-            );
-
-          }
 
         }
       )
@@ -4573,7 +4581,7 @@ function startRealtime(){
         status => {
 
           console.log(
-            "SUPABASE REALTIME STATUS:",
+            "SUPABASE REALTIME:",
             status
           );
 
@@ -4589,9 +4597,23 @@ function startRealtime(){
 
           if(
             status === "CHANNEL_ERROR" ||
-            status === "TIMED_OUT" ||
-            status === "CLOSED"
+            status === "TIMED_OUT"
           ){
+
+            /*
+               IMPORTANT:
+
+               A realtime failure does NOT
+               destroy the scorecard.
+
+               Scores can still be entered
+               and saved normally.
+            */
+
+            console.warn(
+              "Realtime unavailable:",
+              status
+            );
 
             setSyncIndicator(false);
 
@@ -4599,59 +4621,6 @@ function startRealtime(){
 
         }
       );
-
-}
-
-
-/* =========================================================
-   BACKUP SYNC
-   =========================================================
-
-   IMPORTANT:
-
-   This used to run every 3 seconds and completely
-   rebuild the page.
-
-   That was the primary cause of the refresh/
-   score-entry problem.
-
-   Now it checks every 20 seconds and ONLY refreshes
-   when nobody is typing and no save is pending.
-   ========================================================= */
-
-function startBackupSync(){
-
-  if(backupSyncTimer){
-
-    clearInterval(
-      backupSyncTimer
-    );
-
-  }
-
-
-  backupSyncTimer =
-    setInterval(
-      async () => {
-
-        if(
-          userIsEditing() ||
-          pendingSaves > 0 ||
-          pendingScoreKeys.size > 0
-        ){
-
-          return;
-
-        }
-
-
-        await refreshCurrentRound();
-
-      },
-
-      20000
-
-    );
 
 }
 
@@ -4670,21 +4639,11 @@ async function startApp(){
       ".round-btn"
     )
     .forEach(
-      button => {
-
-        const buttonRound =
-          Number(
-            button.textContent
-              .replace(
-                "Round ",
-                ""
-              )
-          );
-
+      (button,index) => {
 
         button.classList.toggle(
           "active",
-          buttonRound === 4
+          index === 3
         );
 
       }
@@ -4700,28 +4659,10 @@ async function startApp(){
   try{
 
     /*
-       Load everything ONCE.
+       ONLY ONE INITIAL LOAD.
     */
 
-    await loadPairings();
-
-    await loadScores();
-
-    await loadCertifications();
-
-
-    /*
-       Render ONCE.
-    */
-
-    renderScorecards();
-
-
-    /*
-       Then calculate everything.
-    */
-
-    calculateAllMatches();
+    await loadCurrentRound();
 
 
     clearStatus();
@@ -4729,21 +4670,11 @@ async function startApp(){
 
     /*
        Start realtime AFTER the initial
-       page is fully rendered.
+       database load is complete.
     */
 
     startRealtime();
 
-
-    /*
-       Backup sync is intentionally slow
-       and never runs while editing.
-    */
-
-    startBackupSync();
-
-
-    setSyncIndicator(true);
 
   }catch(error){
 
@@ -4766,10 +4697,6 @@ async function startApp(){
 
 }
 
-
-/* =========================================================
-   START
-   ========================================================= */
 
 startApp();
 
