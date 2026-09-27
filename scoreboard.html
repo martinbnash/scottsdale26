@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -299,6 +298,13 @@ h1{
   font-size:12px;
 }
 
+.handicap-audit{
+  color:#cbd5e1;
+  font-size:11px;
+  line-height:1.5;
+  margin-top:5px;
+}
+
 @media(max-width:900px){
 
   .scoreboard{
@@ -558,15 +564,17 @@ const players = {
 ===================================================== */
 
 /*
-   IMPORTANT:
+   DINOSAUR MOUNTAIN
 
-   Dinosaur Mountain has 18-hole pars totaling 72.
-   The old code incorrectly had par:70.
+   Par 70
 
-   This caused the course handicap formula to add
-   approximately 2 extra strokes to every player.
+   Hole pars confirmed:
+   4 3 5 4 3 4 4 3 5
+   3 5 4 4 3 4 5 3 4
 
-   Corrected to PAR 72.
+   Stroke indexes:
+   5 15 3 1 9 11 7 13 17
+   16 18 12 2 6 4 14 8 10
 */
 
 const dinosaurMountain = {
@@ -574,11 +582,11 @@ const dinosaurMountain = {
   name:
     "Dinosaur Mountain • Black / Blue Tees",
 
-  par:72,
+  par:70,
 
   pars:[
-    4,3,5,4,3,5,4,3,5,
-    3,5,4,5,3,4,5,3,4
+    4,3,5,4,3,4,4,3,5,
+    3,5,4,4,3,4,5,3,4
   ],
 
   handicap:[
@@ -589,10 +597,16 @@ const dinosaurMountain = {
 };
 
 
+/*
+   WE-KO-PA CHOLLA
+
+   Par 72
+*/
+
 const weKoPaCholla = {
 
   name:
-    "We-Ko-Pa Cholla • Purple / White Tees",
+    "We-Ko-Pa Cholla • Purple Tees",
 
   par:72,
 
@@ -609,16 +623,26 @@ const weKoPaCholla = {
 };
 
 
+/*
+   WE-KO-PA SAGUARO
+
+   IMPORTANT:
+   Saguaro is PAR 71.
+
+   Front 9 = 36
+   Back 9  = 35
+*/
+
 const weKoPaSaguaro = {
 
   name:
-    "We-Ko-Pa Saguaro • Purple / White Tees",
+    "We-Ko-Pa Saguaro • Purple Tees",
 
-  par:72,
+  par:71,
 
   pars:[
-    4,4,5,4,3,4,4,3,5,
-    4,5,3,4,4,3,5,4,4
+    4,4,4,5,3,4,4,5,3,
+    4,3,4,4,5,3,4,4,4
   ],
 
   handicap:[
@@ -655,27 +679,20 @@ function getCourse(round){
 ===================================================== */
 
 /*
-   FINAL TEE RULES:
+   FINAL TEE RULE:
 
-   DINOSAUR:
-   Ryan D = Blue
-   Brad   = Blue
-   Everyone else = Black
+   Dinosaur:
+   Ryan D + Brad = BLUE
+   Everyone else = BLACK
 
-   WE-KO-PA:
-   Ryan D = Purple
-   Brad   = Purple
-   Everyone else = Purple
+   We-Ko-Pa:
+   Ryan D + Brad = PURPLE
+   Everyone else = PURPLE
 
-   The important correction is that Ryan D and Brad
-   DO NOT use White at We-Ko-Pa.
+   Therefore EVERYONE is Purple at We-Ko-Pa.
 */
 
 function getPlayerTee(playerName,course){
-
-  /* ===============================
-     DINOSAUR MOUNTAIN
-  =============================== */
 
   if(course === dinosaurMountain){
 
@@ -683,29 +700,16 @@ function getPlayerTee(playerName,course){
       playerName === "Ryan D" ||
       playerName === "Brad"
     ){
-
       return "blue";
-
     }
 
     return "black";
-
   }
 
 
-  /* ===============================
-     WE-KO-PA CHOLLA / SAGUARO
-  =============================== */
-
-  if(
-    course === weKoPaCholla ||
-    course === weKoPaSaguaro
-  ){
-
-    return "purple";
-
-  }
-
+  /*
+     ALL WEE-KO-PA PLAYERS ARE PURPLE
+  */
 
   return "purple";
 
@@ -713,8 +717,78 @@ function getPlayerTee(playerName,course){
 
 
 /* =====================================================
+   COURSE RATING / SLOPE
+===================================================== */
+
+function getCourseRatingSlope(
+  course,
+  tee
+){
+
+  /*
+     DINOSAUR
+  */
+
+  if(course === dinosaurMountain){
+
+    if(tee === "blue"){
+
+      return {
+        rating:67.5,
+        slope:125
+      };
+
+    }
+
+    return {
+      rating:70.1,
+      slope:137
+    };
+
+  }
+
+
+  /*
+     CHOLLA
+  */
+
+  if(course === weKoPaCholla){
+
+    return {
+      rating:71.7,
+      slope:135
+    };
+
+  }
+
+
+  /*
+     SAGUARO
+  */
+
+  return {
+    rating:70.2,
+    slope:132
+  };
+
+}
+
+
+/* =====================================================
    COURSE HANDICAP
 ===================================================== */
+
+/*
+   IMPORTANT HANDICAP RULE
+
+   1. Calculate Course Handicap.
+   2. ROUND Course Handicap to whole number.
+   3. Apply 85%.
+   4. ROUND resulting playing handicap.
+
+   This is different from multiplying the raw
+   decimal Course Handicap by .85 first.
+*/
 
 function getPlayerCourseHandicap(
   playerName,
@@ -734,111 +808,45 @@ function getPlayerCourseHandicap(
     );
 
 
-  let courseRating;
-  let slopeRating;
+  const ratingSlope =
+    getCourseRatingSlope(
+      course,
+      tee
+    );
 
-
-  /* =================================================
-     DINOSAUR MOUNTAIN
-  ================================================= */
-
-  if(course === dinosaurMountain){
-
-    if(tee === "blue"){
-
-      courseRating = 67.5;
-      slopeRating = 125;
-
-    }
-
-    else{
-
-      courseRating = 70.1;
-      slopeRating = 137;
-
-    }
-
-  }
-
-
-  /* =================================================
-     WE-KO-PA CHOLLA
-  ================================================= */
-
-  else if(course === weKoPaCholla){
-
-    /*
-       Ryan D and Brad now use PURPLE.
-
-       Therefore they use the Purple rating/slope,
-       not the White rating/slope.
-    */
-
-    if(tee === "purple"){
-
-      courseRating = 71.7;
-      slopeRating = 135;
-
-    }
-
-    else{
-
-      courseRating = 68.6;
-      slopeRating = 122;
-
-    }
-
-  }
-
-
-  /* =================================================
-     WE-KO-PA SAGUARO
-  ================================================= */
-
-  else{
-
-    /*
-       Everyone uses Purple at Saguaro under the
-       current tee assignment.
-    */
-
-    if(tee === "purple"){
-
-      courseRating = 70.2;
-      slopeRating = 132;
-
-    }
-
-    else{
-
-      courseRating = 68.8;
-      slopeRating = 125;
-
-    }
-
-  }
-
-
-  /*
-     USGA COURSE HANDICAP FORMULA
-  */
 
   const rawCourseHandicap =
     handicapIndex *
-      (slopeRating / 113) +
-    (courseRating - course.par);
+      (
+        ratingSlope.slope / 113
+      ) +
+    (
+      ratingSlope.rating -
+      course.par
+    );
 
 
   /*
-     Scottsdale rule:
-
-     85% of Course Handicap
-     rounded to nearest whole number.
+     FIRST ROUND COURSE HANDICAP
   */
 
-  return Math.round(
-    rawCourseHandicap * 0.85
-  );
+  const courseHandicap =
+    Math.round(
+      rawCourseHandicap
+    );
+
+
+  /*
+     THEN APPLY 85%
+  */
+
+  const playingHandicap =
+    Math.round(
+      courseHandicap * 0.85
+    );
+
+
+  return playingHandicap;
 
 }
 
@@ -853,8 +861,10 @@ function getMatchPlayingHandicaps(
 ){
 
   const names = [
+
     ...match.clayton,
     ...match.ryan
+
   ];
 
 
@@ -869,7 +879,9 @@ function getMatchPlayingHandicaps(
 
 
   const lowest =
-    Math.min(...handicaps);
+    Math.min(
+      ...handicaps
+    );
 
 
   return Object.fromEntries(
@@ -920,10 +932,12 @@ function getStrokesOnHole(
 
 
   /*
-     First 18 strokes
+     FIRST 18 STROKES
   */
 
-  if(handicap >= holeRank){
+  if(
+    handicap >= holeRank
+  ){
 
     strokes++;
 
@@ -931,13 +945,28 @@ function getStrokesOnHole(
 
 
   /*
-     Second stroke on holes where handicap
-     exceeds 18 + hole handicap.
+     SECOND 18 STROKES
   */
 
   if(
     handicap > 18 &&
     handicap - 18 >= holeRank
+  ){
+
+    strokes++;
+
+  }
+
+
+  /*
+     THIRD 18 STROKES
+     Included for safety if a handicap
+     ever exceeds 36.
+  */
+
+  if(
+    handicap > 36 &&
+    handicap - 36 >= holeRank
   ){
 
     strokes++;
@@ -955,15 +984,13 @@ function getStrokesOnHole(
 ===================================================== */
 
 let allScores = [];
-
 let allPairings = [];
-
 let allPairingPlayers = [];
+
 
 let parlayBonuses = {
 
   Clayton:0,
-
   Ryan:0
 
 };
@@ -1064,7 +1091,9 @@ function getPairingSides(pairing){
     rows
       .filter(
         player =>
-          String(player.side).toUpperCase() === "A"
+          String(
+            player.side
+          ).toUpperCase() === "A"
       )
       .map(
         player =>
@@ -1077,7 +1106,9 @@ function getPairingSides(pairing){
     rows
       .filter(
         player =>
-          String(player.side).toUpperCase() === "B"
+          String(
+            player.side
+          ).toUpperCase() === "B"
       )
       .map(
         player =>
@@ -1089,7 +1120,6 @@ function getPairingSides(pairing){
   return {
 
     clayton,
-
     ryan
 
   };
@@ -1112,8 +1142,12 @@ function getGrossScore(
     allScores.filter(
       score =>
 
-        Number(score.round_number) ===
-        Number(roundNumber)
+        Number(
+          score.round_number
+        ) ===
+        Number(
+          roundNumber
+        )
 
         &&
 
@@ -1122,12 +1156,18 @@ function getGrossScore(
 
         &&
 
-        Number(score.hole_number) ===
-        Number(holeNumber)
+        Number(
+          score.hole_number
+        ) ===
+        Number(
+          holeNumber
+        )
     );
 
 
-  if(candidates.length === 0){
+  if(
+    candidates.length === 0
+  ){
 
     return null;
 
@@ -1145,12 +1185,18 @@ function getGrossScore(
         score.pairing_number !== null &&
         score.pairing_number !== undefined &&
 
-        Number(score.pairing_number) ===
-        Number(pairingNumber)
+        Number(
+          score.pairing_number
+        ) ===
+        Number(
+          pairingNumber
+        )
     );
 
 
-  if(exactPairing){
+  if(
+    exactPairing
+  ){
 
     const value =
       Number(
@@ -1176,12 +1222,18 @@ function getGrossScore(
         score.match_number !== null &&
         score.match_number !== undefined &&
 
-        Number(score.match_number) ===
-        Number(pairingNumber)
+        Number(
+          score.match_number
+        ) ===
+        Number(
+          pairingNumber
+        )
     );
 
 
-  if(exactMatch){
+  if(
+    exactMatch
+  ){
 
     const value =
       Number(
@@ -1220,16 +1272,23 @@ function getTeamGrossBonus(
 
 
   const par =
-    Number(holePar);
+    Number(
+      holePar
+    );
 
 
   const grossScores =
     teamScores
+
       .filter(Boolean)
+
       .map(
         score =>
-          Number(score.gross)
+          Number(
+            score.gross
+          )
       )
+
       .filter(
         score =>
           Number.isFinite(score)
@@ -1293,11 +1352,15 @@ function calculateMatch(
 ){
 
   const course =
-    getCourse(roundNumber);
+    getCourse(
+      roundNumber
+    );
 
 
   const sides =
-    getPairingSides(pairing);
+    getPairingSides(
+      pairing
+    );
 
 
   if(
@@ -1312,36 +1375,31 @@ function calculateMatch(
       completedHoles:0,
 
       clayton:0,
-
       ryan:0,
 
       front:"PAIRING INCOMPLETE",
-
       back:"PAIRING INCOMPLETE",
-
       stroke:"PAIRING INCOMPLETE",
 
       details:{
 
         claytonHolePoints:0,
-
         ryanHolePoints:0,
 
         claytonBonus:0,
-
         ryanBonus:0,
 
         claytonBirdies:0,
-
         claytonEagles:0,
 
         ryanBirdies:0,
-
         ryanEagles:0,
 
         cancelledBonuses:0,
 
-        multiplier:1
+        multiplier:1,
+
+        handicaps:{}
 
       }
 
@@ -1353,7 +1411,6 @@ function calculateMatch(
   const match = {
 
     clayton:sides.clayton,
-
     ryan:sides.ryan
 
   };
@@ -1367,22 +1424,17 @@ function calculateMatch(
 
 
   let claytonHolePoints = 0;
-
   let ryanHolePoints = 0;
 
 
   let claytonBonus = 0;
-
   let ryanBonus = 0;
 
 
   let claytonBirdies = 0;
-
   let claytonEagles = 0;
 
-
   let ryanBirdies = 0;
-
   let ryanEagles = 0;
 
 
@@ -1390,29 +1442,23 @@ function calculateMatch(
 
 
   let claytonFrontWins = 0;
-
   let ryanFrontWins = 0;
 
 
   let claytonBackWins = 0;
-
   let ryanBackWins = 0;
 
 
   let claytonFrontNet = 0;
-
   let ryanFrontNet = 0;
 
 
   let claytonBackNet = 0;
-
   let ryanBackNet = 0;
 
 
   let completedHoles = 0;
-
   let frontCompleted = 0;
-
   let backCompleted = 0;
 
 
@@ -1447,7 +1493,9 @@ function calculateMatch(
             );
 
 
-          if(gross === null){
+          if(
+            gross === null
+          ){
 
             return null;
 
@@ -1468,6 +1516,8 @@ function calculateMatch(
             player:playerName,
 
             gross:gross,
+
+            strokes:strokes,
 
             net:
               gross -
@@ -1496,7 +1546,9 @@ function calculateMatch(
             );
 
 
-          if(gross === null){
+          if(
+            gross === null
+          ){
 
             return null;
 
@@ -1518,6 +1570,8 @@ function calculateMatch(
 
             gross:gross,
 
+            strokes:strokes,
+
             net:
               gross -
               strokes
@@ -1529,7 +1583,7 @@ function calculateMatch(
 
 
     /*
-       INCOMPLETE HOLE
+       DO NOT SCORE INCOMPLETE HOLES
     */
 
     if(
@@ -1545,12 +1599,13 @@ function calculateMatch(
     completedHoles++;
 
 
-    if(hole <= 9){
+    if(
+      hole <= 9
+    ){
 
       frontCompleted++;
 
     }
-
     else{
 
       backCompleted++;
@@ -1581,10 +1636,12 @@ function calculateMatch(
 
 
     /*
-       STROKE PLAY TOTALS
+       18-HOLE STROKE PLAY
     */
 
-    if(hole <= 9){
+    if(
+      hole <= 9
+    ){
 
       claytonFrontNet +=
         claytonBestNet;
@@ -1593,7 +1650,6 @@ function calculateMatch(
         ryanBestNet;
 
     }
-
     else{
 
       claytonBackNet +=
@@ -1606,7 +1662,7 @@ function calculateMatch(
 
 
     /*
-       GROSS BIRDIE / EAGLE
+       GROSS BONUS
     */
 
     const claytonGrossBonus =
@@ -1624,7 +1680,7 @@ function calculateMatch(
 
 
     /*
-       CLAYTON WINS NET HOLE
+       CLAYTON WINS HOLE
     */
 
     if(
@@ -1635,12 +1691,13 @@ function calculateMatch(
       claytonHolePoints++;
 
 
-      if(hole <= 9){
+      if(
+        hole <= 9
+      ){
 
         claytonFrontWins++;
 
       }
-
       else{
 
         claytonBackWins++;
@@ -1649,8 +1706,9 @@ function calculateMatch(
 
 
       /*
-         Gross bonus only if opposing team
-         did NOT make birdie/eagle.
+         BONUS ONLY IF:
+         - Clayton has birdie/eagle
+         - Ryan does NOT
       */
 
       if(
@@ -1662,14 +1720,18 @@ function calculateMatch(
           claytonGrossBonus;
 
 
-        if(claytonGrossBonus === 1){
+        if(
+          claytonGrossBonus === 1
+        ){
 
           claytonBirdies++;
 
         }
 
 
-        if(claytonGrossBonus === 2){
+        if(
+          claytonGrossBonus === 2
+        ){
 
           claytonEagles++;
 
@@ -1679,8 +1741,8 @@ function calculateMatch(
 
 
       /*
-         BOTH teams birdie/eagle:
-         cancel both bonuses.
+         BOTH HAVE BIRDIE/EAGLE:
+         NO BONUS
       */
 
       else if(
@@ -1696,7 +1758,7 @@ function calculateMatch(
 
 
     /*
-       RYAN WINS NET HOLE
+       RYAN WINS HOLE
     */
 
     else if(
@@ -1707,12 +1769,13 @@ function calculateMatch(
       ryanHolePoints++;
 
 
-      if(hole <= 9){
+      if(
+        hole <= 9
+      ){
 
         ryanFrontWins++;
 
       }
-
       else{
 
         ryanBackWins++;
@@ -1721,8 +1784,9 @@ function calculateMatch(
 
 
       /*
-         Gross bonus only if opposing team
-         did NOT make birdie/eagle.
+         BONUS ONLY IF:
+         - Ryan has birdie/eagle
+         - Clayton does NOT
       */
 
       if(
@@ -1734,14 +1798,18 @@ function calculateMatch(
           ryanGrossBonus;
 
 
-        if(ryanGrossBonus === 1){
+        if(
+          ryanGrossBonus === 1
+        ){
 
           ryanBirdies++;
 
         }
 
 
-        if(ryanGrossBonus === 2){
+        if(
+          ryanGrossBonus === 2
+        ){
 
           ryanEagles++;
 
@@ -1751,8 +1819,8 @@ function calculateMatch(
 
 
       /*
-         BOTH teams birdie/eagle:
-         cancel both bonuses.
+         BOTH HAVE BIRDIE/EAGLE:
+         NO BONUS
       */
 
       else if(
@@ -1770,9 +1838,12 @@ function calculateMatch(
 
 
   /*
-  =====================================================
-  BASE MATCH POINTS
-  =====================================================
+   =====================================================
+   BASE POINTS
+
+   1 point per hole won
+   + birdie/eagle bonuses
+   =====================================================
   */
 
   let claytonPoints =
@@ -1786,16 +1857,18 @@ function calculateMatch(
 
 
   /*
-  =====================================================
-  FRONT 9
-  =====================================================
+   =====================================================
+   FRONT 9
+   =====================================================
   */
 
   let frontText =
     "IN PROGRESS";
 
 
-  if(frontCompleted === 9){
+  if(
+    frontCompleted === 9
+  ){
 
     if(
       claytonFrontWins >
@@ -1811,7 +1884,6 @@ function calculateMatch(
 
     }
 
-
     else if(
       ryanFrontWins >
       claytonFrontWins
@@ -1826,11 +1898,9 @@ function calculateMatch(
 
     }
 
-
     else{
 
       claytonPoints += 1.5;
-
       ryanPoints += 1.5;
 
 
@@ -1844,16 +1914,18 @@ function calculateMatch(
 
 
   /*
-  =====================================================
-  BACK 9
-  =====================================================
+   =====================================================
+   BACK 9
+   =====================================================
   */
 
   let backText =
     "IN PROGRESS";
 
 
-  if(backCompleted === 9){
+  if(
+    backCompleted === 9
+  ){
 
     if(
       claytonBackWins >
@@ -1869,7 +1941,6 @@ function calculateMatch(
 
     }
 
-
     else if(
       ryanBackWins >
       claytonBackWins
@@ -1884,11 +1955,9 @@ function calculateMatch(
 
     }
 
-
     else{
 
       claytonPoints += 1.5;
-
       ryanPoints += 1.5;
 
 
@@ -1902,9 +1971,9 @@ function calculateMatch(
 
 
   /*
-  =====================================================
-  18-HOLE NET STROKE PLAY
-  =====================================================
+   =====================================================
+   18-HOLE NET STROKE PLAY
+   =====================================================
   */
 
   let strokeText =
@@ -1926,7 +1995,9 @@ function calculateMatch(
     backCompleted === 9;
 
 
-  if(matchComplete){
+  if(
+    matchComplete
+  ){
 
     if(
       clayton18 <
@@ -1942,7 +2013,6 @@ function calculateMatch(
 
     }
 
-
     else if(
       ryan18 <
       clayton18
@@ -1957,11 +2027,9 @@ function calculateMatch(
 
     }
 
-
     else{
 
       claytonPoints += 2.5;
-
       ryanPoints += 2.5;
 
 
@@ -1975,9 +2043,9 @@ function calculateMatch(
 
 
   /*
-  =====================================================
-  ROUND 5 = 1.5×
-  =====================================================
+   =====================================================
+   ROUND 5 = 1.5×
+   =====================================================
   */
 
   const multiplier =
@@ -1995,9 +2063,9 @@ function calculateMatch(
 
 
   /*
-  =====================================================
-  RETURN
-  =====================================================
+   =====================================================
+   RETURN
+   =====================================================
   */
 
   return {
@@ -2025,24 +2093,23 @@ function calculateMatch(
     details:{
 
       claytonHolePoints,
-
       ryanHolePoints,
 
       claytonBonus,
-
       ryanBonus,
 
       claytonBirdies,
-
       claytonEagles,
 
       ryanBirdies,
-
       ryanEagles,
 
       cancelledBonuses,
 
-      multiplier
+      multiplier,
+
+      handicaps:
+        playingHandicaps
 
     }
 
@@ -2099,21 +2166,27 @@ async function loadData(){
     ]);
 
 
-    if(scoresResponse.error){
+    if(
+      scoresResponse.error
+    ){
 
       throw scoresResponse.error;
 
     }
 
 
-    if(pairingsResponse.error){
+    if(
+      pairingsResponse.error
+    ){
 
       throw pairingsResponse.error;
 
     }
 
 
-    if(playersResponse.error){
+    if(
+      playersResponse.error
+    ){
 
       throw playersResponse.error;
 
@@ -2139,7 +2212,6 @@ async function loadData(){
     parlayBonuses = {
 
       Clayton:0,
-
       Ryan:0
 
     };
@@ -2195,7 +2267,6 @@ async function loadData(){
 
   }
 
-
   catch(error){
 
     console.error(
@@ -2228,14 +2299,18 @@ function formatPoints(value){
     Number(value);
 
 
-  if(!Number.isFinite(number)){
+  if(
+    !Number.isFinite(number)
+  ){
 
     return "0";
 
   }
 
 
-  if(Number.isInteger(number)){
+  if(
+    Number.isInteger(number)
+  ){
 
     return String(number);
 
@@ -2250,13 +2325,50 @@ function formatPoints(value){
 
 
 /* =====================================================
+   FORMAT HANDICAP AUDIT
+===================================================== */
+
+function formatHandicapAudit(
+  pairing,
+  handicaps
+){
+
+  const sides =
+    getPairingSides(
+      pairing
+    );
+
+
+  const names = [
+
+    ...sides.clayton,
+    ...sides.ryan
+
+  ];
+
+
+  return names.map(
+    name =>
+
+      `${escapeHtml(name)}: ` +
+      `${formatPoints(
+        handicaps[name]
+      )}`
+
+  ).join(
+    " • "
+  );
+
+}
+
+
+/* =====================================================
    RENDER SCOREBOARD
 ===================================================== */
 
 function renderScoreboard(){
 
   let championshipClayton = 0;
-
   let championshipRyan = 0;
 
 
@@ -2280,7 +2392,9 @@ function renderScoreboard(){
   ){
 
     const course =
-      getCourse(roundNumber);
+      getCourse(
+        roundNumber
+      );
 
 
     const roundPairings =
@@ -2294,7 +2408,6 @@ function renderScoreboard(){
 
 
     let roundClayton = 0;
-
     let roundRyan = 0;
 
 
@@ -2306,9 +2419,13 @@ function renderScoreboard(){
     ){
 
       matchCards = `
+
         <div class="in-progress">
+
           Pairings have not been set yet.
+
         </div>
+
       `;
 
     }
@@ -2356,7 +2473,6 @@ function renderScoreboard(){
 
         }
 
-
         else if(
           result.ryan >
           result.clayton
@@ -2369,7 +2485,7 @@ function renderScoreboard(){
 
 
         /*
-           ROUND 5 AUDIT
+           FINAL ROUND AUDIT
         */
 
         let multiplierText = "";
@@ -2423,6 +2539,35 @@ function renderScoreboard(){
                 cancelled
 
               </span>
+
+            </div>
+
+          `;
+
+        }
+
+
+        /*
+           HANDICAP AUDIT
+        */
+
+        let handicapText = "";
+
+
+        if(
+          sides.clayton.length === 2 &&
+          sides.ryan.length === 2
+        ){
+
+          handicapText = `
+
+            <div class="handicap-audit">
+
+              Playing Handicaps:
+              ${formatHandicapAudit(
+                pairing,
+                result.details.handicaps
+              )}
 
             </div>
 
@@ -2499,9 +2644,11 @@ function renderScoreboard(){
               </span>
 
               <strong>
+
                 ${escapeHtml(
                   result.front
                 )}
+
               </strong>
 
             </div>
@@ -2514,9 +2661,11 @@ function renderScoreboard(){
               </span>
 
               <strong>
+
                 ${escapeHtml(
                   result.back
                 )}
+
               </strong>
 
             </div>
@@ -2529,9 +2678,11 @@ function renderScoreboard(){
               </span>
 
               <strong>
+
                 ${escapeHtml(
                   result.stroke
                 )}
+
               </strong>
 
             </div>
@@ -2626,6 +2777,8 @@ function renderScoreboard(){
               ${cancelledText}
 
               ${multiplierText}
+
+              ${handicapText}
 
             </div>
 
@@ -2822,7 +2975,6 @@ function renderScoreboard(){
 
   }
 
-
   else if(
     championshipRyan >
     championshipClayton
@@ -2836,7 +2988,6 @@ function renderScoreboard(){
       );
 
   }
-
 
   else{
 
@@ -2853,13 +3004,14 @@ function renderScoreboard(){
 ===================================================== */
 
 let refreshInProgress = false;
-
 let refreshQueued = false;
 
 
 async function refreshScoreboard(){
 
-  if(refreshInProgress){
+  if(
+    refreshInProgress
+  ){
 
     refreshQueued = true;
 
@@ -2877,13 +3029,14 @@ async function refreshScoreboard(){
 
   }
 
-
   finally{
 
     refreshInProgress = false;
 
 
-    if(refreshQueued){
+    if(
+      refreshQueued
+    ){
 
       refreshQueued = false;
 
