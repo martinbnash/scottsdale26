@@ -293,6 +293,11 @@ h1{
   margin-top:20px;
 }
 
+.audit{
+  color:var(--gold);
+  font-size:12px;
+}
+
 @media(max-width:900px){
 
   .scoreboard{
@@ -628,6 +633,7 @@ function getCourse(round){
   }
 
   return weKoPaSaguaro;
+
 }
 
 
@@ -657,6 +663,7 @@ function getPlayerTee(playerName,course){
   }
 
   return "purple";
+
 }
 
 
@@ -735,11 +742,6 @@ function getPlayerCourseHandicap(
     handicapIndex *
       (slopeRating / 113) +
     (courseRating - course.par);
-
-  /*
-     Tournament allowance = 85%
-     Rounded to nearest whole number
-  */
 
   return Math.round(
     rawCourseHandicap * 0.85
@@ -830,6 +832,7 @@ function getStrokesOnHole(
   }
 
   return strokes;
+
 }
 
 
@@ -974,25 +977,17 @@ function getPairingSides(pairing){
 
 function getGrossScore(
   roundNumber,
-  matchNumber,
+  pairingNumber,
   playerName,
   holeNumber
 ){
 
-  const row =
-    allScores.find(
+  const candidates =
+    allScores.filter(
       score =>
 
         Number(score.round_number) ===
         Number(roundNumber)
-
-        &&
-
-        Number(
-          score.match_number ??
-          score.pairing_number
-        ) ===
-        Number(matchNumber)
 
         &&
 
@@ -1005,70 +1000,111 @@ function getGrossScore(
         Number(holeNumber)
     );
 
-  if(!row){
+
+  if(candidates.length === 0){
     return null;
   }
 
-  const value =
-    Number(row.gross_score);
 
-  if(!Number.isFinite(value)){
-    return null;
+  /*
+     Prefer pairing_number.
+  */
+
+  const exactPairing =
+    candidates.find(
+      score =>
+
+        score.pairing_number !== null &&
+        score.pairing_number !== undefined &&
+
+        Number(score.pairing_number) ===
+        Number(pairingNumber)
+    );
+
+
+  if(exactPairing){
+
+    const value =
+      Number(
+        exactPairing.gross_score
+      );
+
+    return Number.isFinite(value)
+      ? value
+      : null;
+
   }
 
-  return value;
+
+  /*
+     Fallback to match_number.
+  */
+
+  const exactMatch =
+    candidates.find(
+      score =>
+
+        score.match_number !== null &&
+        score.match_number !== undefined &&
+
+        Number(score.match_number) ===
+        Number(pairingNumber)
+    );
+
+
+  if(exactMatch){
+
+    const value =
+      Number(
+        exactMatch.gross_score
+      );
+
+    return Number.isFinite(value)
+      ? value
+      : null;
+
+  }
+
+
+  return null;
+
 }
 
 
 /* =====================================================
-   GROSS BIRDIE / EAGLE BONUS
+   GET TEAM GROSS RESULT
+
+   Returns:
+
+   0 = no birdie/eagle
+   1 = birdie
+   2 = eagle
 
    IMPORTANT:
 
-   This function NEVER looks at net score.
-
-   It uses ONLY the gross score.
-
-   Par 4:
-      Gross 2 = Eagle +2
-      Gross 3 = Birdie +1
-      Gross 4+ = 0
-
-   Par 5:
-      Gross 3 = Eagle +2
-      Gross 4 = Birdie +1
-
-   Par 3:
-      Gross 1 = Eagle +2
-      Gross 2 = Birdie +1
-
-   Only the BEST gross score from the
-   two-person team counts.
-
-   Maximum one bonus per team per hole.
+   This looks at the BEST gross score
+   from either teammate.
 ===================================================== */
 
-function getGrossBonus(
+function getTeamGrossBonus(
   teamScores,
   holePar
 ){
 
   if(
-    !Array.isArray(teamScores) ||
-    teamScores.length === 0
+    !Array.isArray(teamScores)
   ){
     return 0;
   }
 
+
   const par =
     Number(holePar);
 
-  if(!Number.isFinite(par)){
-    return 0;
-  }
 
   const grossScores =
     teamScores
+      .filter(Boolean)
       .map(
         score =>
           Number(score.gross)
@@ -1078,16 +1114,20 @@ function getGrossBonus(
           Number.isFinite(score)
       );
 
-  if(grossScores.length === 0){
+
+  if(
+    !grossScores.length ||
+    !Number.isFinite(par)
+  ){
     return 0;
   }
 
-  /*
-     BEST GROSS SCORE ONLY
-  */
 
   const bestGross =
-    Math.min(...grossScores);
+    Math.min(
+      ...grossScores
+    );
+
 
   /*
      EAGLE
@@ -1099,6 +1139,7 @@ function getGrossBonus(
     return 2;
   }
 
+
   /*
      BIRDIE
   */
@@ -1109,7 +1150,9 @@ function getGrossBonus(
     return 1;
   }
 
+
   return 0;
+
 }
 
 
@@ -1128,10 +1171,6 @@ function calculateMatch(
   const sides =
     getPairingSides(pairing);
 
-  /*
-     PAIRING MUST HAVE
-     2 PLAYERS PER SIDE
-  */
 
   if(
     sides.clayton.length !== 2 ||
@@ -1155,7 +1194,12 @@ function calculateMatch(
         claytonHolePoints:0,
         ryanHolePoints:0,
         claytonBonus:0,
-        ryanBonus:0
+        ryanBonus:0,
+        claytonBirdies:0,
+        claytonEagles:0,
+        ryanBirdies:0,
+        ryanEagles:0,
+        cancelledBonuses:0
       }
 
     };
@@ -1178,15 +1222,22 @@ function calculateMatch(
     );
 
 
-  /*
-     POINT CATEGORIES
-  */
-
   let claytonHolePoints = 0;
   let ryanHolePoints = 0;
 
   let claytonBonus = 0;
   let ryanBonus = 0;
+
+
+  let claytonBirdies = 0;
+  let claytonEagles = 0;
+
+  let ryanBirdies = 0;
+  let ryanEagles = 0;
+
+
+  let cancelledBonuses = 0;
+
 
   let claytonFrontWins = 0;
   let ryanFrontWins = 0;
@@ -1206,7 +1257,7 @@ function calculateMatch(
 
 
   /*
-     LOOP THROUGH ALL 18 HOLES
+     LOOP THROUGH 18 HOLES
   */
 
   for(
@@ -1235,9 +1286,11 @@ function calculateMatch(
               hole
             );
 
+
           if(gross === null){
             return null;
           }
+
 
           const strokes =
             getStrokesOnHole(
@@ -1247,21 +1300,12 @@ function calculateMatch(
               playingHandicaps
             );
 
+
           return {
 
             player:playerName,
 
-            /*
-               GROSS SCORE
-               Used for birdie/eagle
-            */
-
             gross:gross,
-
-            /*
-               NET SCORE
-               Used for match play
-            */
 
             net:
               gross -
@@ -1289,9 +1333,11 @@ function calculateMatch(
               hole
             );
 
+
           if(gross === null){
             return null;
           }
+
 
           const strokes =
             getStrokesOnHole(
@@ -1300,6 +1346,7 @@ function calculateMatch(
               course,
               playingHandicaps
             );
+
 
           return {
 
@@ -1318,9 +1365,7 @@ function calculateMatch(
 
 
     /*
-       DON'T SCORE THE HOLE
-       UNTIL ALL FOUR GROSS
-       SCORES EXIST
+       DO NOT SCORE INCOMPLETE HOLES
     */
 
     if(
@@ -1344,9 +1389,6 @@ function calculateMatch(
 
     /*
        BEST NET BALL
-
-       THIS IS WHAT DETERMINES
-       WHO WINS THE HOLE.
     */
 
     const claytonBestNet =
@@ -1356,6 +1398,7 @@ function calculateMatch(
             score.net
         )
       );
+
 
     const ryanBestNet =
       Math.min(
@@ -1367,7 +1410,7 @@ function calculateMatch(
 
 
     /*
-       18-HOLE NET STROKE PLAY TOTALS
+       STROKE PLAY TOTALS
     */
 
     if(hole <= 9){
@@ -1391,17 +1434,38 @@ function calculateMatch(
 
 
     /*
-       CLAYTON WINS HOLE
+     =================================================
+     GROSS BIRDIE / EAGLE STATUS
+
+     This is calculated for BOTH teams
+     BEFORE awarding any bonus.
+     =================================================
+    */
+
+    const claytonGrossBonus =
+      getTeamGrossBonus(
+        claytonScores,
+        course.pars[holeIndex]
+      );
+
+
+    const ryanGrossBonus =
+      getTeamGrossBonus(
+        ryanScores,
+        course.pars[holeIndex]
+      );
+
+
+    /*
+     =================================================
+     CLAYTON WINS NET HOLE
+     =================================================
     */
 
     if(
       claytonBestNet <
       ryanBestNet
     ){
-
-      /*
-         +1 HOLE POINT
-      */
 
       claytonHolePoints++;
 
@@ -1415,23 +1479,61 @@ function calculateMatch(
 
 
       /*
-         IMPORTANT:
+       =================================================
+       CRITICAL BIRDIE/EAGLE RULE
 
-         Birdie/eagle is now calculated
-         from GROSS scores ONLY.
+       Clayton wins the net hole.
+
+       Clayton gets bonus ONLY if Ryan does NOT
+       also have a gross birdie/eagle.
+
+       If BOTH teams have birdie/eagle:
+       ZERO bonus for BOTH.
+       =================================================
       */
 
-      claytonBonus +=
-        getGrossBonus(
-          claytonScores,
-          course.pars[holeIndex]
-        );
+      if(
+        claytonGrossBonus > 0 &&
+        ryanGrossBonus === 0
+      ){
+
+        claytonBonus +=
+          claytonGrossBonus;
+
+
+        if(claytonGrossBonus === 1){
+          claytonBirdies++;
+        }
+
+        if(claytonGrossBonus === 2){
+          claytonEagles++;
+        }
+
+      }
+
+
+      /*
+       Both teams made gross birdie/eagle.
+
+       Nobody receives a bonus.
+      */
+
+      else if(
+        claytonGrossBonus > 0 &&
+        ryanGrossBonus > 0
+      ){
+
+        cancelledBonuses++;
+
+      }
 
     }
 
 
     /*
-       RYAN WINS HOLE
+     =================================================
+     RYAN WINS NET HOLE
+     =================================================
     */
 
     else if(
@@ -1451,21 +1553,53 @@ function calculateMatch(
 
 
       /*
-         GROSS ONLY
+       Ryan gets gross bonus ONLY if Clayton
+       does NOT also have a gross birdie/eagle.
       */
 
-      ryanBonus +=
-        getGrossBonus(
-          ryanScores,
-          course.pars[holeIndex]
-        );
+      if(
+        ryanGrossBonus > 0 &&
+        claytonGrossBonus === 0
+      ){
+
+        ryanBonus +=
+          ryanGrossBonus;
+
+
+        if(ryanGrossBonus === 1){
+          ryanBirdies++;
+        }
+
+        if(ryanGrossBonus === 2){
+          ryanEagles++;
+        }
+
+      }
+
+
+      /*
+       Both teams made gross birdie/eagle.
+
+       Nobody receives a bonus.
+      */
+
+      else if(
+        ryanGrossBonus > 0 &&
+        claytonGrossBonus > 0
+      ){
+
+        cancelledBonuses++;
+
+      }
 
     }
 
+
     /*
-       TIED HOLE
+       TIED NET HOLE
 
        No hole point.
+
        No birdie/eagle bonus.
     */
 
@@ -1474,15 +1608,14 @@ function calculateMatch(
 
   /*
   =====================================================
-  BASE POINTS
-
-  Hole points + gross birdie/eagle bonuses
+  BASE MATCH POINTS
   =====================================================
   */
 
   let claytonPoints =
     claytonHolePoints +
     claytonBonus;
+
 
   let ryanPoints =
     ryanHolePoints +
@@ -1607,6 +1740,7 @@ function calculateMatch(
     claytonFrontNet +
     claytonBackNet;
 
+
   const ryan18 =
     ryanFrontNet +
     ryanBackNet;
@@ -1661,19 +1795,29 @@ function calculateMatch(
 
   /*
   =====================================================
-  ROUND 5
-
-  EVERYTHING IS 1.5×
+  ROUND 5 = 1.5×
   =====================================================
   */
 
-  if(Number(roundNumber) === 5){
+  const multiplier =
+    Number(roundNumber) === 5
+      ? 1.5
+      : 1;
 
-    claytonPoints *= 1.5;
-    ryanPoints *= 1.5;
 
-  }
+  claytonPoints *=
+    multiplier;
 
+
+  ryanPoints *=
+    multiplier;
+
+
+  /*
+  =====================================================
+  RETURN
+  =====================================================
+  */
 
   return {
 
@@ -1700,12 +1844,20 @@ function calculateMatch(
     details:{
 
       claytonHolePoints,
-
       ryanHolePoints,
 
       claytonBonus,
+      ryanBonus,
 
-      ryanBonus
+      claytonBirdies,
+      claytonEagles,
+
+      ryanBirdies,
+      ryanEagles,
+
+      cancelledBonuses,
+
+      multiplier
 
     }
 
@@ -1808,9 +1960,11 @@ async function loadData(){
               row.player_name
             ];
 
+
           const won =
             row.won === true ||
             row.won === "true";
+
 
           if(
             won &&
@@ -1850,6 +2004,7 @@ async function loadData(){
       error
     );
 
+
     setStatus(
       "Database error: " +
       (
@@ -1873,13 +2028,16 @@ function formatPoints(value){
   const number =
     Number(value);
 
+
   if(!Number.isFinite(number)){
     return "0";
   }
 
+
   if(Number.isInteger(number)){
     return String(number);
   }
+
 
   return Number(
     number.toFixed(2)
@@ -1973,6 +2131,7 @@ function renderScoreboard(){
         roundClayton +=
           result.clayton;
 
+
         roundRyan +=
           result.ryan;
 
@@ -1998,6 +2157,57 @@ function renderScoreboard(){
 
           resultClass =
             "winner-ryan";
+
+        }
+
+
+        /*
+           ROUND 5 AUDIT
+        */
+
+        let multiplierText = "";
+
+        if(
+          result.details.multiplier === 1.5
+        ){
+
+          multiplierText =
+            `
+            <div class="bonus-row">
+              <span>
+                Final Round Multiplier
+              </span>
+              <span class="audit">
+                1.5×
+              </span>
+            </div>
+            `;
+
+        }
+
+
+        /*
+           CANCELLED BONUS AUDIT
+        */
+
+        let cancelledText = "";
+
+        if(
+          result.details.cancelledBonuses > 0
+        ){
+
+          cancelledText =
+            `
+            <div class="bonus-row">
+              <span>
+                Both Teams Birdie/Eagle
+              </span>
+              <span class="audit">
+                ${result.details.cancelledBonuses}
+                cancelled
+              </span>
+            </div>
+            `;
 
         }
 
@@ -2143,7 +2353,7 @@ function renderScoreboard(){
               <div class="bonus-row">
 
                 <span>
-                  GROSS Birdie / Eagle
+                  Gross Birdie / Eagle
                 </span>
 
                 <span>
@@ -2166,6 +2376,35 @@ function renderScoreboard(){
 
               </div>
 
+
+              <div class="bonus-row">
+
+                <span>
+                  Birdies / Eagles
+                </span>
+
+                <span>
+
+                  C
+                  ${result.details.claytonBirdies}
+                  /
+                  ${result.details.claytonEagles}
+
+                  &nbsp;•&nbsp;
+
+                  R
+                  ${result.details.ryanBirdies}
+                  /
+                  ${result.details.ryanEagles}
+
+                </span>
+
+              </div>
+
+
+              ${cancelledText}
+
+              ${multiplierText}
 
             </div>
 
@@ -2207,6 +2446,7 @@ function renderScoreboard(){
 
     championshipClayton +=
       roundClayton;
+
 
     championshipRyan +=
       roundRyan;
@@ -2288,6 +2528,7 @@ function renderScoreboard(){
 
   championshipClayton +=
     parlayBonuses.Clayton;
+
 
   championshipRyan +=
     parlayBonuses.Ryan;
@@ -2398,6 +2639,7 @@ async function refreshScoreboard(){
     refreshQueued = true;
 
     return;
+
   }
 
 
